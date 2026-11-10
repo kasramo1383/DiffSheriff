@@ -93,3 +93,115 @@ def build_dual_matrix(
         sanitized_sha256=san_hash,
     )
     return True, artifacts, ""
+
+
+def prepare_sources(repository, commit, destination):
+    """Export a commit without changing the user's checkout or running Git hooks."""
+    import stat
+    import zipfile
+    from diffsheriff.config import relative_path
+
+    destination.mkdir(parents=True, exist_ok=False)
+    resolved = subprocess.run(
+        ["git", "-C", str(repository), "rev-parse", "--verify", commit + "^{commit}"],
+        capture_output=True,
+        text=True,
+        check=True,
+        timeout=30,
+    ).stdout.strip()
+    if resolved != commit:
+        raise ValueError("Source ref did not resolve to the requested exact commit")
+    tree = subprocess.run(
+        ["git", "-C", str(repository), "ls-tree", "-r", commit],
+        capture_output=True,
+        text=True,
+        check=True,
+        timeout=30,
+    ).stdout
+    if any(line.startswith("160000 ") for line in tree.splitlines()):
+        raise ValueError("Submodules must be vendored into the target snapshot")
+    archive = destination.parent / (destination.name + ".zip")
+    subprocess.run(
+        [
+            "git",
+            "-C",
+            str(repository),
+            "archive",
+            "--format=zip",
+            "--output",
+            str(archive),
+            commit,
+        ],
+        capture_output=True,
+        check=True,
+        timeout=60,
+    )
+    with zipfile.ZipFile(archive) as bundle:
+        for entry in bundle.infolist():
+            relative_path(entry.filename.rstrip("/"), "source archive path")
+            mode = entry.external_attr >> 16
+            if stat.S_ISLNK(mode):
+                raise ValueError(
+                    "Source symlinks are not supported; vendor regular files"
+                )
+            output = destination / entry.filename
+            if entry.is_dir():
+                output.mkdir(parents=True, exist_ok=True)
+            else:
+                output.parent.mkdir(parents=True, exist_ok=True)
+                with bundle.open(entry) as src, output.open("wb") as dst:
+                    shutil.copyfileobj(src, dst)
+                output.chmod(0o755 if mode & 0o111 else 0o644)
+    return archive
+
+
+def build_isolated_matrix(repository, commit, destination, build, execution, records):
+    """Build each mode from a pristine snapshot and keep logs even on failure."""
+    from dataclasses import asdict
+    from diffsheriff.runner import run_container
+
+    artifacts = {}
+    for mode in ("release", "sanitized"):
+        source = destination / mode
+        archive = prepare_sources(repository, commit, source)
+        record = {
+            "commit": commit,
+            "source_archive": str(archive),
+            "source_archive_sha256": compute_sha256(archive),
+            "commands": [],
+        }
+        records[mode] = record
+        for command in (build.clean_command, getattr(build, mode + "_command")):
+            if not command:
+                continue
+            result = run_container(
+                source,
+                ["/bin/sh", "-c", command],
+                execution,
+                timeout=build.timeout_seconds,
+                writable=True,
+            )
+            record["commands"].append(asdict(result))
+            if (
+                result.exit_code
+                or result.timed_out
+                or result.output_limited
+                or result.resource_limited
+            ):
+                raise RuntimeError(f"{mode} build failed; see retained command output")
+        relative = getattr(build, mode + "_binary_path")
+        binary = source / relative
+        if (
+            not binary.is_file()
+            or binary.is_symlink()
+            or not binary.resolve().is_relative_to(source.resolve())
+        ):
+            raise ValueError(
+                f"Build did not produce a regular contained binary: {relative}"
+            )
+        binary.chmod(0o755)
+        record.update(
+            binary=relative, sha256=compute_sha256(binary), source=str(source)
+        )
+        artifacts[mode] = (source, relative)
+    return artifacts

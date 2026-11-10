@@ -1,17 +1,16 @@
+# Build the local runtime image. Invoke DiffSheriff on the host; it launches
+# restricted child containers itself. Do not mount the Docker socket in targets.
 services:
-  diffsheriff:
+  runtime:
+    image: diffsheriff:local
     build:
       context: ..
       dockerfile: docker/Dockerfile
-    volumes:
-      - ..:/workspace
-    working_dir: /workspace
-    deploy:
-      resources:
-        limits:
-          cpus: '2.0'
-          memory: 2048M
+    network_mode: none
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
     cpus: 2.0
-    mem_limit: 2048M
-    pids_limit: 256
-    command: ["--help"]
+    mem_limit: 2048m
+    pids_limit: 128
+    command: [--help]

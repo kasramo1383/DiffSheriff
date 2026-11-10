@@ -1,38 +1,51 @@
-# Schema example only. No corresponding target is present or approved.
-version: "1.0"
-
+# Schema version 2; all relative paths are relative to this configuration file.
+# Replace the example refs, baseline signature, and independent test assets.
+version: '2.0'
 target:
-  name: "example-target"
-  language: "c"
-  repository_path: "targets/example_target"
-
+  name: example-target
+  language: c
+  repository_path: ../targets/example_target
+  base_ref: '0000000000000000000000000000000000000000'
+  patch_ref: '1111111111111111111111111111111111111111'
+  baseline_signature:
+    error_type: heap-buffer-overflow
+    file: src/parser.c
+    function: parse
+    line: 42
 build:
-  clean_command: "make clean"
+  timeout_seconds: 120
+  clean_command: make clean
   release:
-    command: "make release"
-    binary_path: "bin/example_target"
+    command: make release
+    binary_path: bin/example_target
   sanitized:
-    command: "make sanitized"
-    binary_path: "bin/example_target_asan"
-
+    command: make sanitized
+    binary_path: bin/example_target_asan
 execution:
-  timeout_seconds: 5.0
-  input_method: "file"
-  file_argument_flag: "--file"
+  image: diffsheriff:local
+  timeout_seconds: 5
+  input_method: file
+  file_argument_flag: --file
   fixed_arguments: []
+  memory_mb: 2048
+  cpus: 2
+  pids_limit: 128
+  output_limit_bytes: 1048576
   environment_variables:
-    ASAN_OPTIONS: "detect_leaks=0:abort_on_error=1:symbolize=1"
-    UBSAN_OPTIONS: "print_stacktrace=1:halt_on_error=1"
-
+    ASAN_OPTIONS: detect_leaks=0:abort_on_error=1:symbolize=1
+    UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1
 hardening_baseline:
   enforce_nx: true
   enforce_pie: true
-  min_relro: "full"
+  min_relro: full
   enforce_canary: true
-
 test_suites:
-  valid_directory: "tests/valid"
-  boundary_directory: "tests/boundary"
-  malicious_directory: "tests/malicious"
-  ground_truth:
-    independent_reference_command: "./tests/reference_oracle {input} {stdout} {exit_code}"
+  valid_directory: suites/valid
+  boundary_directory: suites/boundary
+  malicious_directory: suites/invalid
+  expectations: suites/expected.json
+  provenance: Replace with the independently approved specification and approval record
+  regression_directory: generated-regressions
+  # Optional oracle: stdin is the candidate payload; stdout is expected-result JSON.
+  # It runs independently, with this configuration directory mounted read-only at /src.
+  independent_reference_command: []

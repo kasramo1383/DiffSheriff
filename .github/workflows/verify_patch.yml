@@ -1,35 +1,46 @@
-name: DiffSheriff Baseline Checks
-
+name: DiffSheriff Verification
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
-
+permissions:
+  contents: read
 jobs:
-  validate:
+  unit:
     runs-on: ubuntu-latest
-
+    strategy:
+      matrix:
+        python: ['3.10', '3.12']
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
-
-      - name: Install DiffSheriff
+          python-version: ${{ matrix.python }}
+      - run: python -m pip install '.[dev]'
+      - run: python -m pytest -q tests/
+      - run: black --check diffsheriff tests
+      - run: flake8 diffsheriff tests
+  native-container:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install '.[dev]'
+      - run: docker build -t diffsheriff:local -f docker/Dockerfile .
+      - name: Execute harmless native matrix
+        env:
+          DIFFSHERIFF_DOCKER_TESTS: '1'
         run: |
-          python -m pip install --upgrade pip
-          pip install .[dev]
-
-      - name: Run unit tests
-        run: |
-          pytest tests/
-
-      - name: Check formatting and lint
-        run: |
-          black --check diffsheriff tests
-          flake8 diffsheriff tests
+          mkdir -p .diffsheriff
+          python -m pytest -q tests/test_container_integration.py --basetemp=.diffsheriff/ci-tests
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: native-validation-evidence
+          path: .diffsheriff/ci-tests
+          include-hidden-files: true

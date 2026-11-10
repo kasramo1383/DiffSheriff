@@ -32,7 +32,9 @@ class CrashReport:
 ASAN_ERROR_REGEX = re.compile(r"ERROR: AddressSanitizer: ([\w\-]+)")
 UBSAN_ERROR_REGEX = re.compile(r"runtime error:\s*([^\r\n]+)", re.IGNORECASE)
 FRAME_REGEX = re.compile(
-    r"#(\d+)\s+(0x[0-9a-fA-F]+)\s+(?:in\s+([^\s]+))?\s+(?:([^\s:]+):(\d+))?"
+    r"#(\d+)\s+(0x[0-9a-fA-F]+)\s+(?:in\s+)?(.+?)\s+"
+    r"((?:/|[A-Za-z]:|\.?\.?/)[^\r\n]*?|[^\s:]+):"
+    r"(\d+)(?::\d+)?(?:\s|$)"
 )
 
 SIGNALS = {
@@ -45,21 +47,42 @@ SIGNALS = {
 }
 
 
-def _signal_from_return_code(exit_code: int) -> Optional[str]:
+def _signal_from_return_code(exit_code: int, shell_status=False) -> Optional[str]:
     if exit_code < 0:
         signal_number = -exit_code
-    elif exit_code >= 128:
+    elif shell_status and exit_code >= 128:
         signal_number = exit_code - 128
     else:
         return None
     return SIGNALS.get(signal_number, f"SIGNAL_{signal_number}")
 
 
-def triage_execution_result(exit_code: int, stdout: str, stderr: str) -> CrashReport:
+def triage_execution_result(
+    exit_code: int,
+    stdout: str,
+    stderr: str,
+    timed_out=False,
+    resource_limited=False,
+    output_limited=False,
+    shell_status=False,
+) -> CrashReport:
     """
     Classifies an execution result and extracts available stack frames.
     """
-    combined_err = stderr + "\n" + stdout
+    if timed_out or resource_limited or output_limited:
+        category = (
+            "timeout"
+            if timed_out
+            else "resource-limit" if resource_limited else "output-limit"
+        )
+        return CrashReport(
+            False, category, "Resource Limit", exit_code, None, [], stdout, stderr
+        )
+    combined_err = stderr
+    try:
+        combined_err = stderr.encode("latin1").decode("utf-8")
+    except (UnicodeEncodeError, UnicodeDecodeError):
+        pass
 
     # 1. AddressSanitizer detection
     asan_match = ASAN_ERROR_REGEX.search(combined_err)
@@ -71,7 +94,7 @@ def triage_execution_result(exit_code: int, stdout: str, stderr: str) -> CrashRe
             error_type=error_type,
             detection_mechanism="AddressSanitizer",
             exit_code=exit_code,
-            signal_name=_signal_from_return_code(exit_code),
+            signal_name=_signal_from_return_code(exit_code, shell_status),
             stack_trace=frames,
             raw_stdout=stdout,
             raw_stderr=stderr,
@@ -81,9 +104,25 @@ def triage_execution_result(exit_code: int, stdout: str, stderr: str) -> CrashRe
     ubsan_match = UBSAN_ERROR_REGEX.search(combined_err)
     if ubsan_match:
         frames = parse_sanitizer_stack(combined_err)
+        if not frames:
+            location = re.search(r"(.+?):(\d+):\d+: runtime error:", combined_err)
+            if location:
+                frames = [StackFrame(0, "", "unknown", location[1], int(location[2]))]
+        description = ubsan_match.group(1).lower()
+        category = "undefined-behavior"
+        for needle, label in (
+            ("division by zero", "division-by-zero"),
+            ("null pointer", "null-dereference"),
+            ("out of bounds", "out-of-bounds"),
+            ("misaligned address", "misaligned-access"),
+            ("signed integer overflow", "signed-integer-overflow"),
+        ):
+            if needle in description:
+                category = label
+                break
         return CrashReport(
             is_crash=True,
-            error_type="undefined-behavior",
+            error_type=category,
             detection_mechanism="UndefinedBehaviorSanitizer",
             exit_code=exit_code,
             signal_name=None,
@@ -102,7 +141,7 @@ def triage_execution_result(exit_code: int, stdout: str, stderr: str) -> CrashRe
             error_type="stack-canary-violation",
             detection_mechanism="Stack Canary",
             exit_code=exit_code,
-            signal_name=_signal_from_return_code(exit_code),
+            signal_name=_signal_from_return_code(exit_code, shell_status),
             stack_trace=[],
             raw_stdout=stdout,
             raw_stderr=stderr,
@@ -110,7 +149,7 @@ def triage_execution_result(exit_code: int, stdout: str, stderr: str) -> CrashRe
 
     # 4. Terminating signals. subprocess uses negative signal numbers when it
     # executes the process directly; shells conventionally report 128 + signal.
-    signal_name = _signal_from_return_code(exit_code)
+    signal_name = _signal_from_return_code(exit_code, shell_status)
     if signal_name:
         return CrashReport(
             is_crash=True,

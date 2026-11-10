@@ -1,106 +1,72 @@
-# Architecture and implementation boundary
+# Architecture
 
-This is a design record for the repository as it exists. Required behavior comes from [`course_assignment.pdf`](course_assignment.pdf) and the derived digest in `specification.md`.
-
-## Intended pipeline
+The pipeline is explicit and flat:
 
 ```text
-target config + base ref + patch ref + independent tests
-                         |
-                         v
-             acquire exact source versions
-                         |
-                         v
-       build base and patch in release + sanitized modes
-                         |
-             +-----------+-----------+
-             |                       |
-             v                       v
-     hardening inspection      isolated test execution
-                                     |
-                                     v
-                       termination + sanitizer triage
-                                     |
-                                     v
-                   compare corresponding build evidence
-                                     |
-              +----------------------+------------------+
-              |                      |                  |
-              v                      v                  v
-       diff correlation      minimization/replay   functional oracle
-              |                      |                  |
-              +----------------------+------------------+
-                                     |
-                                     v
-                      full JSON + readable summary
-                                     |
-                                     v
-                         prioritized process exit
+CLI -> validated config -> independent suite + expected results
+    -> exact source snapshots -> base/patch x release/sanitized builds
+    -> ELF checks -> isolated executions + three replays
+    -> triage + source signatures + actual diff edits
+    -> corresponding-mode comparison -> reduction + retained reproducers
+    -> generated regressions -> JSON + readable summary + prioritized exit
 ```
 
-The comparison layer is the central missing component. Existing modules are primitives and do not collectively implement this pipeline.
+Requirements come from `course_assignment.pdf` and its working English digest in
+`specification.md`. Implementation progress and verification limits are maintained
+only in `roadmap.md`.
 
-## Simplicity constraints
+| Module | Responsibility |
+| --- | --- |
+| `config.py` | Version 2 schema and path/type/ref validation |
+| `builder.py` | Exact Git archives, pristine build trees, logs, and binary hashes |
+| `runner.py` | Bounded process capture, restricted Docker lifecycle, input delivery, and signal-preserving supervisor |
+| `pipeline.py` | Independent expectations, discovery, corresponding-mode comparison, replay/minimization, and regression insertion |
+| `triage.py` | Detection mechanisms, categories, real signal status, and runtime frames |
+| `correlator.py` | Old/new changed lines, caller evidence, and normalized source signatures |
+| `minimizer.py` | Delta debugging against a strict caller-supplied invariant |
+| `hardening.py` | x86_64 ELF validation and NX/PIE/RELRO/canary comparison |
+| `reproduce.py` | Re-execution of retained cases, including hash verification |
+| `reporter.py` | Independent statuses, JSON evidence, atomic report replacement, and exit priority |
+| `cli.py` | Configuration, pipeline invocation, developer summary, and operation errors |
 
-The current flat package is small and understandable; it should not be reorganized
-preemptively. Complete the pipeline with direct functions, dataclasses, and one
-explicit orchestrator module (for example, `pipeline.py`). The main execution path
-must remain readable from configuration loading to report emission without hidden
-framework behavior.
+## Invariants
 
-Do not add:
+1. A passing verdict requires the designated baseline signature, stable replays,
+   expected patched behavior, sufficient correlation, and completed mandatory checks.
+2. Release is compared only to release; sanitized only to sanitized. Source versions
+   have separate build directories, and every mode starts from a fresh archive.
+3. All corresponding executions share inputs, pinned image identity, environment,
+   input delivery, timeout, and resource limits. Targets cannot modify suite files.
+4. Expectations come from the independently supplied JSON manifest or optional
+   reference command, never from baseline or patched output.
+5. Nonzero exits and bare signals are not confirmed security identities. Generic or
+   source-less diagnostics remain inconclusive. Source lines are normalized across
+   unchanged diff ranges; ambiguous mappings retain their patch coordinate.
+6. Actual changed-line intersection and outer runtime frames are evidence of relation,
+   not proof of causation. Unattributed confirmed patch diagnostics retain code 10
+   while analysis completeness remains false.
+7. Input reduction preserves the same diagnostic/location or independent functional
+   mismatch and checks three executions. Unknown reduced-input behavior is not inferred.
+8. Build/config/runtime/tool failure takes precedence over other exit conditions;
+   already collected independent evidence remains in JSON.
 
-- a plugin system, dependency-injection container, event bus, database, web service,
-  or distributed components;
-- service/repository/controller layers that only forward calls;
-- target-specific Python subclasses when configuration and target test assets are
-  sufficient;
-- multiple competing result models or reporting pipelines;
-- abstractions justified only by hypothetical future targets;
-- issue-tracker, sprint, or generated project-management artifacts.
+## Isolation and artifacts
 
-Add an abstraction only when it removes real duplication between both approved
-targets or enforces a requirement that tests can verify. Prefer merging tiny modules
-when that makes the call flow clearer; split code only when it has a genuinely
-independent responsibility. Agent-generated code is accepted only after a team member
-can explain its invariants, failure behavior, and tests efficiently.
+DiffSheriff runs on the host and launches a new Docker container for each build step,
+execution, or reference invocation. Only a disposable snapshot is writable during
+builds; target execution mounts it read-only. Network, capabilities, and privilege
+gain are disabled. Containers have CPU, RAM, PID, temporary-storage, and output
+bounds. The container supervisor records actual child signals and kills its process
+group on a timeout; the host removes the container even after a client failure.
+Configured commands and the selected image are trusted operator inputs.
 
-## Current module inventory
+Each `.diffsheriff/runs/run-*` directory contains original source archives, four
+built source trees, inputs, diff, report, and per-finding reproducer records. Keep the
+whole directory together: reproducer records refer to shared artifacts using relative
+paths. The runtime image is pinned by its inspected ID and must remain available.
+Generated regression inputs/manifests live at the configured regression directory
+and are consumed only for the matching exact baseline. They are derived evidence,
+not new functional ground truth.
 
-| Module | Implemented boundary | Important limitation |
-| --- | --- | --- |
-| `config.py` | Parses and validates the current YAML shape. | Does not establish source refs, an independent oracle contract, or a full schema versioning policy. |
-| `builder.py` | Executes configured clean/release/sanitized commands, retains copies, and hashes binaries. | Operates on one source tree at a time; no base/patch checkout isolation or container enforcement. Configured shell commands are trusted input. |
-| `runner.py` | Runs one binary with input through stdin, argv, or a temporary file and captures output/timeout. | No resource controller, filesystem sandbox, or batch test discovery. |
-| `triage.py` | Recognizes common ASan, UBSan, stack-canary, and signal outcomes and parses simple sanitizer frames. | Parsers are not exhaustive and no stable cross-build finding identity exists. |
-| `correlator.py` | Parses unified-diff hunk ranges and matches runtime frames to changed lines/callers. | Stack intersection is evidence of relation, not proof of causation; execution-path/data-flow evidence remains unimplemented. |
-| `minimizer.py` | Reduces byte payloads using a caller-provided strict failure oracle. | No integration with execution, replay, bundle creation, or regression-suite insertion. |
-| `hardening.py` | Reads ELF NX, PIE, RELRO, and canary indicators and compares versions. | Not wired into builds or reports; symbol presence has the limitations stated by the assignment. |
-| `reporter.py` | Resolves exit-code priority and writes a basic JSON summary. | The current model is not the complete evidence contract required for final delivery. |
-| `cli.py` | Loads configuration and writes a fail-closed report. | It intentionally returns `INCONCLUSIVE`; it performs no validation pipeline. |
-
-## Required comparison invariants
-
-The orchestrator must enforce these invariants before any `PASS` is possible:
-
-1. The designated baseline flaw was reproduced with valid evidence.
-2. Base release is compared only with patch release; base sanitized only with patch sanitized.
-3. Corresponding runs use the same input, execution settings, environment policy, timeout, and resource limits.
-4. Functional expectations come from the configured independent source, not patch output.
-5. A security identity includes error type and a relevant location/signature; nonzero exit alone is insufficient.
-6. New abnormal behavior is not attributed to the patch without adequate evidence.
-7. Missing, unstable, or ambiguous mandatory evidence produces `INCONCLUSIVE`, not `PASS`.
-8. Build/config/tool failure produces code `30`, while all independent findings remain in the report.
-
-## Artifact ownership
-
-- `.diffsheriff/artifacts/`: generated retained binary copies; ignored by Git.
-- `validation_report.json`: generated report; ignored unless intentionally retained as evaluation evidence.
-- `reproducers/`: future stable reproducer bundles for confirmed findings.
-- `targets/`: exact approved target sources/versions and their test assets.
-
-Generated files must never be treated as source-of-truth requirements. Target provenance, approval, ground truth, and scenario definitions belong in `target_scenarios.md` once established.
-
-## Configuration boundary
-
-`configs/example_target.yaml` documents the current parser shape. It is not an approved or runnable target configuration. Before target integration, the schema must be extended to identify exact base/patch refs and a machine-checkable independent functional oracle.
+See `usage.md` for the configuration and replay contract. Target-specific behavior
+belongs in target assets and configuration, never branches in the validator.

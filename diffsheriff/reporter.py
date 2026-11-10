@@ -3,7 +3,7 @@ Reporter and CI/CD exit code resolution engine.
 Enforces the priority order: 30 > 10 > 20 > 40 > 0.
 """
 
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 import json
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
@@ -46,6 +46,7 @@ class FindingReport:
     minimized_input: Optional[str]
     correlation_type: str
     reproduced_cleanly: bool
+    evidence: Dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -62,6 +63,9 @@ class ValidationSummary:
     findings: List[FindingReport]
     analysis_complete: bool = True
     notes: Optional[List[str]] = None
+    security_status: str = "INCONCLUSIVE"
+    functional_status: str = "INCONCLUSIVE"
+    evidence: Dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -76,10 +80,31 @@ class ValidationSummary:
             "hardening_degraded": self.hardening_degraded,
             "analysis_complete": self.analysis_complete,
             "notes": self.notes or [],
+            "schema_version": "2.0",
+            "security_status": self.security_status,
+            "functional_status": self.functional_status,
+            "evidence": self.evidence,
             "findings": [asdict(f) for f in self.findings],
         }
 
     def write_json(self, output_path: Path) -> None:
+        import os
+        import tempfile
+
         output_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(output_path, "w", encoding="utf-8") as f:
-            json.dump(self.to_dict(), f, indent=2)
+        with tempfile.NamedTemporaryFile(
+            mode="w", encoding="utf-8", dir=output_path.parent, delete=False
+        ) as f:
+            temporary = Path(f.name)
+            try:
+                json.dump(self.to_dict(), f, indent=2)
+                f.flush()
+                os.fsync(f.fileno())
+            except Exception:
+                f.close()
+                temporary.unlink(missing_ok=True)
+                raise
+        try:
+            temporary.replace(output_path)
+        finally:
+            temporary.unlink(missing_ok=True)

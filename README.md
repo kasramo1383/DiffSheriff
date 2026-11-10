@@ -1,9 +1,12 @@
 # DiffSheriff
 
-DiffSheriff is a course-project scaffold for dynamic security-patch validation and functional-regression testing of Linux x86_64 C/C++ targets.
+DiffSheriff is a defensive patch-validation and functional-regression tool for authorized Linux x86_64 C/C++ targets.
 
-> [!WARNING]
-> The repository is not yet an end-to-end validator. The CLI deliberately exits with code `40` (`INCONCLUSIVE`) after validating configuration, because base/patch orchestration, evidence comparison, reproducer packaging, and target scenarios are not implemented. It must not be used as a CI security gate in its current state.
+The CLI compares exact source commits in isolated containers and retains its evidence.
+It fails closed when the designated baseline flaw, independent expected behavior, or
+mandatory checks cannot be established. Exploit development and aggressive target
+scenarios are excluded from this implementation. Verification limits and remaining
+acceptance work are recorded in [the live roadmap](docs/roadmap.md).
 
 ## Authority and derived documentation
 
@@ -65,13 +68,24 @@ python -m pip install -e ".[dev]"
 python -m pytest
 ```
 
-The example configuration at [configs/example_target.yaml](configs/example_target.yaml) is illustrative only; its target paths do not exist until an approved target is added.
+Docker with Linux amd64 containers and Git are required for target validation.
+Build the runtime image before running the CLI:
+
+```bash
+docker build --platform linux/amd64 -t diffsheriff:local -f docker/Dockerfile .
+```
+
+Follow [the standalone guide](docs/usage.md) for schema version 2, independent
+expectations, native smoke testing, and replay. The example configuration at
+[configs/example_target.yaml](configs/example_target.yaml) is illustrative;
+replace its source refs and supply the independently approved test assets.
 
 ```bash
 diffsheriff --config configs/example_target.yaml --output-json validation_report.json
 ```
 
-That command currently writes an incomplete report and exits `40` by design.
+An unconfigured example produces code `30`. A correctly configured harmless target
+produces code `40` because it cannot reproduce the designated baseline security flaw.
 
 ## Exit codes
 
@@ -87,12 +101,12 @@ That command currently writes an incomplete report and exits `40` by design.
 
 ```text
 .
-├── .github/workflows/       Baseline package test workflow
+├── .github/workflows/       Unit and native container verification
 ├── configs/                 Illustrative target configuration
-├── diffsheriff/             Python primitives
+├── diffsheriff/             Validator pipeline and supporting modules
 ├── docker/                  Development/container baseline
 ├── docs/                    Source PDF and derived working documents
 ├── targets/                 Future approved target source trees
-├── tests/                   Unit tests
+├── tests/                   Unit, simulated integration, and harmless native tests
 └── pyproject.toml           Package metadata and dependencies
 ```

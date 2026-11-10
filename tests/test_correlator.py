@@ -34,7 +34,7 @@ def test_correlate_stack_direct_match():
             address="0x401234",
             function="parse_header",
             file="src/parser.c",
-            line=44,
+            line=42,
         )
     ]
     verdict = correlate_stack_to_diff(frames, hunks)
@@ -57,7 +57,7 @@ def test_correlate_stack_indirect_match():
             address="0x401234",
             function="parse_header",
             file="src/parser.c",
-            line=44,
+            line=42,
         ),
     ]
     verdict = correlate_stack_to_diff(frames, hunks)
@@ -103,7 +103,7 @@ def test_same_basename_in_different_directory_does_not_match():
             address="0x401234",
             function="parse_header",
             file="other/parser.c",
-            line=44,
+            line=42,
         )
     ]
     assert correlate_stack_to_diff(frames, hunks).is_correlated is False
@@ -128,3 +128,70 @@ def test_deleted_only_hunk_has_no_new_line_match():
         )
     ]
     assert correlate_stack_to_diff(frames, hunks).is_correlated is False
+
+
+def test_context_is_not_an_edit():
+    frames = [StackFrame(0, "", "parse_header", "src/parser.c", 44)]
+    assert not correlate_stack_to_diff(
+        frames, parse_unified_diff(SAMPLE_DIFF)
+    ).is_correlated
+
+
+def test_deleted_file_does_not_inherit_previous_name():
+    diff = """diff --git a/a.c b/a.c
+--- a/a.c
++++ b/a.c
+@@ -1 +1 @@
+-old
++new
+diff --git a/deleted.c b/deleted.c
+--- a/deleted.c
++++ /dev/null
+@@ -8 +0,0 @@
+-gone
+"""
+    hunks = parse_unified_diff(diff)
+    assert hunks[1].old_file_path == "deleted.c"
+    frame = StackFrame(0, "", "gone", "deleted.c", 8)
+    assert correlate_stack_to_diff([frame], hunks, "base").is_correlated
+    assert not correlate_stack_to_diff([frame], hunks).is_correlated
+
+
+def test_rename_spaces_and_shifted_location():
+    from diffsheriff.correlator import finding_signature
+    from diffsheriff.triage import triage_execution_result
+
+    diff = """diff --git a/old file.c b/new file.c
+--- a/old file.c
++++ b/new file.c
+@@ -1,0 +2,2 @@
++new
++lines
+"""
+    hunks = parse_unified_diff(diff)
+    report = triage_execution_result(
+        1,
+        "",
+        "ERROR: AddressSanitizer: heap-buffer-overflow\n"
+        " #0 0x1234 in parse /src/new file.c:12:3\n",
+    )
+    signature = finding_signature(report, "patch", hunks)
+    assert signature["file"] == "old file.c"
+    assert signature["line"] == 10
+
+
+def test_pure_rename_preserves_real_a_b_directory_names():
+    from diffsheriff.correlator import finding_signature
+    from diffsheriff.triage import triage_execution_result
+
+    hunks = parse_unified_diff(
+        "diff --git a/a/old.c b/b/new.c\nrename from a/old.c\nrename to b/new.c\n"
+    )
+    report = triage_execution_result(
+        1,
+        "",
+        "ERROR: AddressSanitizer: heap-buffer-overflow\n"
+        " #0 0x123 in parse /src/b/new.c:10:1",
+    )
+    assert finding_signature(report, "patch", hunks)["file"] == "a/old.c"
+    assert not correlate_stack_to_diff(report.stack_trace, hunks).is_correlated

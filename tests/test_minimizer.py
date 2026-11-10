@@ -34,3 +34,31 @@ def test_ddmin_handles_uneven_partitions_without_dropping_remainder():
         return (b"X" in payload, "marker" if b"X" in payload else "none", "tail")
 
     assert ddmin(b"abcdX", mock_oracle, target_invariant) == b"X"
+
+
+def test_empty_input_can_be_the_smallest_reproducer():
+    invariant = FailureInvariant("error", "location")
+    assert (
+        ddmin(b"anything", lambda payload: (True, "error", "location"), invariant)
+        == b""
+    )
+
+
+def test_rejects_a_nonreproducing_initial_input():
+    import pytest
+
+    with pytest.raises(ValueError, match="Initial payload"):
+        ddmin(
+            b"data",
+            lambda payload: (False, "none", ""),
+            FailureInvariant("error", "location"),
+        )
+
+
+def test_does_not_accept_same_error_at_another_location():
+    invariant = FailureInvariant("error", "original")
+
+    def oracle(payload):
+        return True, "error", "original" if payload == b"AB" else "different"
+
+    assert ddmin(b"AB", oracle, invariant) == b"AB"

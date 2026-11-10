@@ -24,8 +24,6 @@ def ddmin(
     """
 
     def preserves_invariant(candidate: bytes) -> bool:
-        if not candidate:
-            return False
         crashed, error_type, func_name = oracle(candidate)
         return (
             crashed
@@ -36,6 +34,10 @@ def ddmin(
             )
         )
 
+    if not preserves_invariant(initial_payload):
+        raise ValueError("Initial payload does not preserve the failure invariant")
+    if preserves_invariant(b""):
+        return b""
     payload = initial_payload
     n = 2
 

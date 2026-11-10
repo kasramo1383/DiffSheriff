@@ -5,7 +5,6 @@ ELF binary hardening auditor. Checks NX, PIE, RELRO levels, and stack canaries.
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Tuple
-from elftools.elf.elffile import ELFFile
 
 
 @dataclass
@@ -25,11 +24,17 @@ class HardeningResult:
 
 
 def inspect_elf_hardening(elf_path: Path) -> HardeningResult:
+    from elftools.elf.elffile import ELFFile
+
     if not elf_path.exists():
         raise FileNotFoundError(f"Target binary not found: {elf_path}")
 
     with open(elf_path, "rb") as f:
         elf = ELFFile(f)
+        if elf.elfclass != 64 or elf.header["e_machine"] != "EM_X86_64":
+            raise ValueError("Target must be a 64-bit x86_64 ELF binary")
+        if elf.header["e_type"] not in {"ET_EXEC", "ET_DYN"}:
+            raise ValueError("Target ELF must be executable")
 
         # 1. NX check: Inspect PT_GNU_STACK segment
         nx = False
