@@ -40,6 +40,31 @@ target config + base ref + patch ref + independent tests
 
 The comparison layer is the central missing component. Existing modules are primitives and do not collectively implement this pipeline.
 
+## Simplicity constraints
+
+The current flat package is small and understandable; it should not be reorganized
+preemptively. Complete the pipeline with direct functions, dataclasses, and one
+explicit orchestrator module (for example, `pipeline.py`). The main execution path
+must remain readable from configuration loading to report emission without hidden
+framework behavior.
+
+Do not add:
+
+- a plugin system, dependency-injection container, event bus, database, web service,
+  or distributed components;
+- service/repository/controller layers that only forward calls;
+- target-specific Python subclasses when configuration and target test assets are
+  sufficient;
+- multiple competing result models or reporting pipelines;
+- abstractions justified only by hypothetical future targets;
+- issue-tracker, sprint, or generated project-management artifacts.
+
+Add an abstraction only when it removes real duplication between both approved
+targets or enforces a requirement that tests can verify. Prefer merging tiny modules
+when that makes the call flow clearer; split code only when it has a genuinely
+independent responsibility. Agent-generated code is accepted only after a team member
+can explain its invariants, failure behavior, and tests efficiently.
+
 ## Current module inventory
 
 | Module | Implemented boundary | Important limitation |

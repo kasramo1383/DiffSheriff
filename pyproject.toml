@@ -9,7 +9,10 @@ description = "Automated Security Patch Validation and Regression Testing in CI/
 readme = "README.md"
 requires-python = ">=3.10"
 authors = [
-    { name = "Kasra Montazeri", email = "montazerikasra@gmail.com" }
+    { name = "Kasra Montazeri", email = "montazerikasra@gmail.com" },
+    { name = "Mohammadreza Izadi" },
+    { name = "Mohammadmahdi Abedini" },
+    { name = "Mohammadreza Javadi" }
 ]
 dependencies = [
     "pyyaml>=6.0",

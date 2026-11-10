@@ -1,72 +1,92 @@
 # Implementation roadmap
 
-This roadmap records acceptance gates. A checked item must be supported by tests and reproducible evidence; file presence alone is not completion.
+This roadmap defines three coherent delivery chunks. One or two coding agents may
+implement each chunk in a large pass, including its tests and necessary documentation.
+The assigned human owner reviews the result and must be able to explain it before the
+chunk is accepted. File presence or generated prose is not evidence of completion.
+
+There is no sprint plan, issue-board workflow, story-point system, or per-task activity
+log. CI/CD work is limited to the validator behavior and automated verification required
+by the assignment.
 
 ## Current baseline
 
-- [x] Package layout and install metadata
-- [x] Fail-closed configuration parser for the present schema
+- [x] Flat Python package and install metadata
+- [x] Fail-closed configuration parsing for the present example schema
 - [x] Primitive release/sanitized build helper
 - [x] Primitive process runner and timeout capture
 - [x] Basic sanitizer/signal triage
 - [x] Basic unified-diff and stack-frame correlation
 - [x] Standalone byte-level delta debugger
 - [x] ELF hardening primitives
-- [x] Exit-code priority resolver and basic report writer
-- [ ] Any end-to-end patch validation
-- [ ] Any approved target or required target scenario
+- [x] Exit-code priority resolver and basic JSON writer
+- [ ] End-to-end patch validation
+- [ ] Approved targets and required target scenarios
 
-## Gate 1: trustworthy execution substrate
+## Chunk 1: end-to-end core pipeline
 
-- Define an explicit, versioned configuration schema for exact base and patch source refs, build commands, binary paths, input delivery, test suites, independent oracle, environment, and limits.
-- Materialize base and patch in separate immutable work directories.
-- Build four independent artifacts: base release, base sanitized, patch release, patch sanitized.
-- Run target processes inside a Linux x86_64 isolated environment with enforced time, CPU, memory, process, and filesystem limits.
-- Preserve commands, compiler settings, environment, commits, binary hashes, and complete logs.
-- Test clean failures, build failures, missing artifacts, timeouts, signals, binary payloads, and cleanup.
+Implement the shortest explicit path from configuration to a defensible verdict:
 
-Acceptance: a synthetic fixture proves that all four artifacts and runs are distinct, reproducible, and fully described without claiming a security verdict.
+- extend the configuration with exact base and patch refs, build commands, binary
+  paths, input delivery, test suites, independent functional oracle, environment, and
+  resource limits;
+- prepare base and patch source trees separately and build release and sanitized
+  artifacts for both;
+- discover valid, boundary, and malicious inputs and run corresponding artifacts under
+  equivalent settings in the isolated Linux environment;
+- compare functional and security observations without mixing release and sanitized
+  evidence;
+- implement the finding-status model, exit-code priority, complete JSON report, and
+  readable CLI summary;
+- keep the orchestration in one explicit module and reuse the existing small helpers.
 
-## Gate 2: evidence and comparison model
+Acceptance: a synthetic integration target exercises `PASS`, remaining vulnerability,
+functional regression, build/config error, and inconclusive outcomes. `PASS` is
+impossible when the baseline flaw was not reproduced or a mandatory stage is missing.
 
-- Discover and classify valid, boundary, and invalid/malicious test inputs.
-- Execute the same corpus under corresponding conditions for all four artifacts.
-- Evaluate valid behavior through the independent oracle established before testing.
-- Normalize sanitizer errors and stack signatures without collapsing release and sanitized observations.
-- Represent security, functional, hardening, and completeness outcomes independently.
-- Implement the `Fixed`, `Incomplete Fix`, `New Issue`, `Functional Regression`, and `Inconclusive` state machine.
+Human review: Engineer 1 reviews build/execution behavior; Engineer 4 reviews the
+orchestrator, reports, and complete call flow.
 
-Acceptance: table-driven fixtures cover all statuses, concurrent outcomes, flaky reproduction, and exit-code priority `30 > 10 > 20 > 40 > 0`.
+## Chunk 2: evidence, correlation, and reproducibility
 
-## Gate 3: correlation and reproducibility
+Complete the evidence needed to defend each result:
 
-- Parse renames, additions, deletions, and multi-file Git diffs reliably.
-- Retain direct stack-to-hunk evidence and add execution-path/caller-callee evidence where required.
-- Mark unsupported causal attribution inconclusive.
-- Replay each confirmed finding at least three times and record stability.
-- Minimize while preserving error category and relevant location/signature.
-- Package original/minimized input, commits, binary hashes, build settings, environment, command, and replay logs.
-- Insert minimized cases into the regression suite and verify baseline-fail/patch-pass expectations.
+- normalize ASan, UBSan, stack-canary, signal, timeout, and ordinary exit outcomes;
+- identify corresponding findings across builds using error type and relevant location;
+- parse multi-file diffs, additions, deletions, and renames and correlate stack or
+  execution-path evidence without claiming unsupported causation;
+- compare NX, PIE, RELRO, and stack-canary status on ordinary binaries;
+- replay confirmed findings at least three times, classify instability, and minimize
+  inputs while preserving the error signature;
+- create a self-contained reproducer bundle and insert the minimized case into the
+  regression suite;
+- add focused unit tests and one end-to-end evidence fixture.
 
-Acceptance: an integration fixture produces a self-contained, independently replayable bundle and regression test.
+Acceptance: an independently invoked replay script reproduces the same finding and the
+generated regression case fails on the vulnerable baseline and passes on the correct
+patch. Ambiguous evidence remains `INCONCLUSIVE`.
 
-## Gate 4: complete reporting and CI
+Human review: Engineer 2 reviews triage and correlation; Engineer 3 reviews replay,
+minimization, bundles, and regression generation.
 
-- Define and validate the final JSON evidence schema.
-- Produce a concise developer summary without discarding simultaneous findings.
-- Integrate hardening evidence and degradation warnings.
-- Guarantee that `PASS` is impossible when a mandatory stage is missing or incomplete.
-- Run unit and integration fixtures in CI; separately run the complete validator against target scenarios.
+## Chunk 3: approved targets and final delivery
 
-Acceptance: CI verifies JSON schema, all exit codes, simultaneous findings, and fail-closed behavior.
+- obtain and record instructor approval for two targets, including one real non-toy
+  project or library;
+- retain exact provenance, independent functional ground truth, test corpora, and the
+  four required versions for each target;
+- demonstrate expected exits `0`, `10`, and `20` without target-name, file-name,
+  commit-ID, or patch-hash shortcuts;
+- test unseen patches prepared independently from the validator implementation;
+- run unit and integration tests in the repository workflow and run full target
+  validation in the required isolated environment;
+- finish only the standalone instructions and evidence needed to build, run, inspect,
+  and defend the project.
 
-## Gate 5: approved targets and defense readiness
+Acceptance: a fresh checkout reproduces every required scenario and deliverable. Each
+member can explain the overall pipeline, defend one real finding from evidence, and
+make and test a limited change in their assigned subsystem.
 
-- Record instructor approval for two targets, including one real non-toy project/library.
-- Preserve exact provenance and four required versions per target.
-- Establish independent functional ground truth and valid/boundary/invalid suites.
-- Demonstrate expected `0`, `10`, and `20` outcomes without target-name, file-name, or patch-ID shortcuts.
-- Test unseen patches created independently of the implementation team.
-- Ensure every member can explain owned code, trace a finding to evidence, and implement and test a limited live change.
-
-Acceptance: a fresh isolated checkout reproduces all required deliverables and defense scenarios from the standalone instructions.
+Human review: Engineer 4 owns integration and target records; all four contributors
+perform the final comprehension and defense review. Contributor identities and role
+assignments are maintained only in the README.

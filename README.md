@@ -51,6 +51,26 @@ Missing integration:
 - two approved target implementations and all required variants
 - isolated execution enforcement and end-to-end CI validation
 
+## Contributors and engineering ownership
+
+This table is the authoritative ownership record. Roles define review, study, and
+defense responsibility; they do not imply that each member must personally type
+every line in the subsystem. Implementation may be delegated to one or two coding
+agents, but every member must understand the complete pipeline at a high level and
+their assigned subsystem in detail.
+
+| Engineer role | Contributor | Student ID | Ownership |
+| --- | --- | --- | --- |
+| Engineer 1 - Build and execution | Mohammadreza Izadi | 402110916 | Source preparation, release/sanitized builds, isolated execution, limits, and ELF hardening |
+| Engineer 2 - Triage and correlation | Mohammadmahdi Abedini | 402106191 | Signals and sanitizer parsing, finding identity, Git-diff parsing, and evidence-based correlation |
+| Engineer 3 - Reproduction and regression | Mohammadreza Javadi | 402105868 | Stability replay, input minimization, reproducer bundles, and generated regression tests |
+| Engineer 4 - Integration and targets | Kasra Montazeri | 402106575 | Pipeline orchestration, CLI and reports, target scenarios, end-to-end tests, and delivery integration |
+
+Implementation is organized as a few coherent, agent-delivered chunks rather than
+an issue board, sprint process, or per-task activity log. CI/CD is implemented only
+to the extent required by the assignment as a product capability and verification
+mechanism.
+
 ## Development
 
 Python 3.10 or newer is required.
