@@ -5,7 +5,6 @@ Unit tests for diff parsing and stack frame correlation.
 from diffsheriff.correlator import correlate_stack_to_diff, parse_unified_diff
 from diffsheriff.triage import StackFrame
 
-
 SAMPLE_DIFF = """
 --- a/src/parser.c
 +++ b/src/parser.c
@@ -80,3 +79,52 @@ def test_correlate_stack_inconclusive():
     verdict = correlate_stack_to_diff(frames, hunks)
     assert verdict.is_correlated is False
     assert verdict.correlation_type == "Inconclusive"
+
+
+def test_hunk_end_is_exclusive():
+    hunks = parse_unified_diff(SAMPLE_DIFF)
+    frames = [
+        StackFrame(
+            index=0,
+            address="0x401234",
+            function="after_hunk",
+            file="src/parser.c",
+            line=48,
+        )
+    ]
+    assert correlate_stack_to_diff(frames, hunks).is_correlated is False
+
+
+def test_same_basename_in_different_directory_does_not_match():
+    hunks = parse_unified_diff(SAMPLE_DIFF)
+    frames = [
+        StackFrame(
+            index=0,
+            address="0x401234",
+            function="parse_header",
+            file="other/parser.c",
+            line=44,
+        )
+    ]
+    assert correlate_stack_to_diff(frames, hunks).is_correlated is False
+
+
+def test_deleted_only_hunk_has_no_new_line_match():
+    deleted = """
+--- a/src/parser.c
++++ b/src/parser.c
+@@ -40,2 +40,0 @@ void parse_header(char *input) {
+-old_line();
+-another_old_line();
+"""
+    hunks = parse_unified_diff(deleted)
+    frames = [
+        StackFrame(
+            index=0,
+            address="0x401234",
+            function="parse_header",
+            file="src/parser.c",
+            line=40,
+        )
+    ]
+    assert correlate_stack_to_diff(frames, hunks).is_correlated is False

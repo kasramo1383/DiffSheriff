@@ -8,8 +8,8 @@ import click
 from diffsheriff.config import DiffSheriffConfig
 from diffsheriff.reporter import (
     EXIT_BUILD_OR_CONFIG_ERROR,
-    EXIT_PASS,
-    resolve_priority_exit_code,
+    EXIT_INCONCLUSIVE,
+    ValidationSummary,
 )
 
 
@@ -43,16 +43,30 @@ def main(config: Path, output_json: Path) -> None:
     click.echo(f"Target: {cfg.target_name} ({cfg.language})")
     click.echo(f"Repository: {cfg.repository_path}")
 
-    # Temporary baseline pass for demonstration
-    exit_code, verdict = resolve_priority_exit_code(
-        build_failed=False,
-        vuln_detected=False,
-        regression_detected=False,
-        is_inconclusive=False,
+    # The end-to-end base/patch orchestrator is not implemented yet. Failing
+    # closed prevents a scaffold invocation from being mistaken for validation.
+    summary = ValidationSummary(
+        target_name=cfg.target_name,
+        exit_code=EXIT_INCONCLUSIVE,
+        verdict="INCONCLUSIVE",
+        total_tests_run=0,
+        functional_passed=0,
+        functional_failed=0,
+        security_flaws_fixed=0,
+        security_flaws_lingering=0,
+        hardening_degraded=False,
+        findings=[],
+        analysis_complete=False,
+        notes=[
+            "End-to-end base/patch build, execution, comparison, and evidence "
+            "orchestration is not implemented."
+        ],
     )
+    summary.write_json(output_json)
 
-    click.echo(f"Verdict: {verdict} (Exit Code {exit_code})")
-    sys.exit(exit_code)
+    click.echo(f"Report: {output_json}")
+    click.echo("Verdict: INCONCLUSIVE (Exit Code 40)")
+    sys.exit(EXIT_INCONCLUSIVE)
 
 
 if __name__ == "__main__":

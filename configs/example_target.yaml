@@ -1,18 +1,19 @@
+# Schema example only. No corresponding target is present or approved.
 version: "1.0"
 
 target:
-  name: "c-http-parser"
+  name: "example-target"
   language: "c"
-  repository_path: "targets/target1_parser"
+  repository_path: "targets/example_target"
 
 build:
   clean_command: "make clean"
   release:
-    command: "make release CFLAGS='-O2 -Wall'"
-    binary_path: "bin/http_parser"
+    command: "make release"
+    binary_path: "bin/example_target"
   sanitized:
-    command: "make debug CFLAGS='-O0 -g -fno-omit-frame-pointer -fsanitize=address,undefined'"
-    binary_path: "bin/http_parser_asan"
+    command: "make sanitized"
+    binary_path: "bin/example_target_asan"
 
 execution:
   timeout_seconds: 5.0
@@ -34,4 +35,4 @@ test_suites:
   boundary_directory: "tests/boundary"
   malicious_directory: "tests/malicious"
   ground_truth:
-    independent_reference_command: "python3 tests/verify_rfc.py {input} {stdout} {exit_code}"
+    independent_reference_command: "./tests/reference_oracle {input} {stdout} {exit_code}"

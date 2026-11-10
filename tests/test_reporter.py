@@ -38,6 +38,7 @@ def test_exit_code_build_error_over_all():
         is_inconclusive=False,
     )
     assert code == EXIT_BUILD_OR_CONFIG_ERROR
+    assert verdict == "BUILD_OR_CONFIG_ERROR"
 
 
 def test_exit_code_regression():

@@ -43,7 +43,9 @@ def inspect_elf_hardening(elf_path: Path) -> HardeningResult:
         pie = elf.header["e_type"] == "ET_DYN"
 
         # 3. RELRO check: GNU_RELRO segment + BIND_NOW tag
-        has_relro_segment = any(s["p_type"] == "PT_GNU_RELRO" for s in elf.iter_segments())
+        has_relro_segment = any(
+            s["p_type"] == "PT_GNU_RELRO" for s in elf.iter_segments()
+        )
         dynamic_sec = elf.get_section_by_name(".dynamic")
         bind_now = False
         if dynamic_sec:
@@ -51,6 +53,8 @@ def inspect_elf_hardening(elf_path: Path) -> HardeningResult:
                 if tag.entry.d_tag == "DT_BIND_NOW":
                     bind_now = True
                 elif tag.entry.d_tag == "DT_FLAGS" and (tag.entry.d_val & 0x8):
+                    bind_now = True
+                elif tag.entry.d_tag == "DT_FLAGS_1" and (tag.entry.d_val & 0x1):
                     bind_now = True
 
         if has_relro_segment and bind_now:
@@ -62,14 +66,23 @@ def inspect_elf_hardening(elf_path: Path) -> HardeningResult:
 
         # 4. Stack Canary: Check for __stack_chk_fail in dynsym or symtab
         canary = False
-        symtab = elf.get_section_by_name(".dynsym") or elf.get_section_by_name(".symtab")
-        if symtab:
-            canary = any(sym.name == "__stack_chk_fail" for sym in symtab.iter_symbols())
+        symbol_tables = [
+            elf.get_section_by_name(".dynsym"),
+            elf.get_section_by_name(".symtab"),
+        ]
+        canary = any(
+            sym.name == "__stack_chk_fail"
+            for table in symbol_tables
+            if table is not None
+            for sym in table.iter_symbols()
+        )
 
     return HardeningResult(nx=nx, pie=pie, relro=relro, canary=canary)
 
 
-def compare_hardening(base: HardeningResult, patch: HardeningResult) -> Tuple[bool, List[str]]:
+def compare_hardening(
+    base: HardeningResult, patch: HardeningResult
+) -> Tuple[bool, List[str]]:
     """
     Checks for hardening degradation from base to patch binary.
     Returns (degradation_detected, warnings).
@@ -80,12 +93,15 @@ def compare_hardening(base: HardeningResult, patch: HardeningResult) -> Tuple[bo
     if base.pie and not patch.pie:
         warnings.append("Degradation: PIE was disabled in patched binary.")
     if base.canary and not patch.canary:
-        warnings.append("Degradation: Stack canary protection was disabled in patched binary.")
+        warnings.append(
+            "Degradation: Stack canary protection was disabled in patched binary."
+        )
 
     relro_order = {"none": 0, "partial": 1, "full": 2}
     if relro_order.get(patch.relro, 0) < relro_order.get(base.relro, 0):
         warnings.append(
-            f"Degradation: RELRO level was downgraded from {base.relro} to {patch.relro}."
+            "Degradation: RELRO level was downgraded from "
+            f"{base.relro} to {patch.relro}."
         )
 
     return len(warnings) > 0, warnings

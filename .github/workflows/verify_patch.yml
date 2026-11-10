@@ -1,4 +1,4 @@
-name: DiffSheriff Patch Verification
+name: DiffSheriff Baseline Checks
 
 on:
   push:
@@ -25,6 +25,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install .[dev]
 
-      - name: Run Unit Tests
+      - name: Run unit tests
         run: |
           pytest tests/
+
+      - name: Check formatting and lint
+        run: |
+          black --check diffsheriff tests
+          flake8 diffsheriff tests

@@ -1,109 +1,94 @@
 # DiffSheriff
 
-Automated security patch validation and regression testing in CI/CD pipelines.
+DiffSheriff is a course-project scaffold for dynamic security-patch validation and functional-regression testing of Linux x86_64 C/C++ targets.
 
-Course project for Data and Network Security, Sharif University of Technology, Fall 1405.  
-Instructor: Solmaz Salimi.
+> [!WARNING]
+> The repository is not yet an end-to-end validator. The CLI deliberately exits with code `40` (`INCONCLUSIVE`) after validating configuration, because base/patch orchestration, evidence comparison, reproducer packaging, and target scenarios are not implemented. It must not be used as a CI security gate in its current state.
 
-## Problem Statement
+## Authority and derived documentation
 
-Applying a security patch does not guarantee that a vulnerability is eliminated. Patches frequently address only the immediate proof-of-concept input while leaving the underlying defect open to variant payloads. Patches can also introduce functional regressions by breaking valid application behavior.
+The instructor's Persian assignment is the only authoritative specification: [docs/course_assignment.pdf](docs/course_assignment.pdf).
 
-DiffSheriff executes target C and C++ programs dynamically to verify two core properties:
-1. Does the original vulnerability persist or re-emerge in the patched version?
-2. Does the patch preserve expected program behavior on valid inputs?
+The Markdown files in `docs/` are maintained working notes:
 
-Testing runs against both production and sanitized builds inside an isolated Linux container.
+- [Requirements digest](docs/specification.md) is a traceable English summary of the PDF. If it conflicts with the PDF, the PDF controls.
+- [Architecture](docs/architecture.md) distinguishes implemented modules from planned integration.
+- [Roadmap](docs/roadmap.md) lists acceptance gates, not claims of completion.
+- [Target scenarios](docs/target_scenarios.md) records what must be approved before target work begins.
 
-## Pipeline Architecture
+## Assignment requirements at a glance
 
+- Dynamically execute both pre-patch and post-patch versions of configurable C/C++ ELF x86_64 targets.
+- Compare corresponding release and instrumented builds without mixing their evidence.
+- Test valid, boundary, and invalid/malicious inputs against independent, pre-approved functional ground truth.
+- Classify fixed, incomplete, new, regressive, and inconclusive outcomes and correlate findings to patch changes using runtime evidence.
+- Minimize confirmed failure inputs while preserving error type and relevant location, retain original and minimized inputs, replay at least three times, and add regression tests automatically.
+- Inspect NX, PIE, RELRO, and stack-canary status on ordinary binaries and report protection degradation.
+- Produce human-readable and JSON reports with exact exit codes and priority `30 > 10 > 20 > 40 > 0`.
+- Demonstrate two independent targets, including at least one real non-toy project or library, with vulnerable, correct-patch, incomplete-patch, and regression-patch variants.
+
+## Current implementation
+
+Implemented and unit-testable components:
+
+- YAML model and fail-closed configuration validation
+- release/sanitized build helper with retained artifact copies and hashes
+- subprocess execution through `stdin`, `argv`, or a temporary input file
+- ASan, UBSan, stack-canary, and signal triage primitives
+- unified-diff hunk parsing and stack-frame correlation
+- invariant-preserving byte-level `ddmin`
+- ELF hardening inspection and degradation comparison
+- exit-code resolution and basic JSON summary writing
+
+Missing integration:
+
+- base and patched source/ref acquisition and four-way build orchestration
+- test discovery, independent functional oracle execution, and result comparison
+- robust finding identity across builds and the full classification state machine
+- execution-path evidence beyond stack-to-hunk intersection
+- stability replay, reproducer bundles, and automatic regression-test insertion
+- complete JSON evidence contract and developer summary
+- two approved target implementations and all required variants
+- isolated execution enforcement and end-to-end CI validation
+
+## Development
+
+Python 3.10 or newer is required.
+
+```bash
+python -m venv .venv
+python -m pip install -e ".[dev]"
+python -m pytest
 ```
-                             [ tool_config.yaml ]
-                                      │
-               ┌──────────────────────┴──────────────────────┐
-               ▼                                             ▼
-     [ Pre-Patch Baseline ]                        [ Post-Patch Commit ]
-     ├─ Release Build (-O2)                        ├─ Release Build (-O2)
-     └─ Sanitized (ASan/UBSan)                     └─ Sanitized (ASan/UBSan)
-               │                                             │
-               └──────────────────────┬──────────────────────┘
-                                      ▼
-                       [ Binary Hardening Audit ]
-                       (NX, PIE, RELRO, Stack Canary)
-                                      │
-                                      ▼
-                        [ Dynamic Sandbox Runner ]
-                        (Valid, Boundary, PoC Inputs)
-                                      │
-                                      ▼
-                      [ Crash & Correlation Engine ]
-                      ├─ Stack trace to git diff mapping
-                      ├─ Invariant-preserving Delta Debugging
-                      └─ Reproducer bundle packaging
-                                      │
-                                      ▼
-                    [ CI/CD Deterministic Exit Code ]
-                    (Priority: 30 > 10 > 20 > 40 > 0)
+
+The example configuration at [configs/example_target.yaml](configs/example_target.yaml) is illustrative only; its target paths do not exist until an approved target is added.
+
+```bash
+diffsheriff --config configs/example_target.yaml --output-json validation_report.json
 ```
 
-## System Components
+That command currently writes an incomplete report and exits `40` by design.
 
-- Dual-build execution: Runs targets in release mode (`-O2`) and instrumented mode (`-fsanitize=address,undefined`) without mixing diagnostic outputs with production behavior.
-- Finding-to-patch correlation: Traces runtime call stacks back to modified git diff hunks, accounting for caller-callee propagation when crashes occur outside modified lines.
-- Finding triage: Classifies results into `Fixed`, `Incomplete Fix`, `New Issue`, `Functional Regression`, or `Inconclusive`.
-- Testcase minimization: Uses Delta Debugging (`ddmin`) to reduce crashing inputs while preserving the original error type and crash frame.
-- Binary hardening audit: Inspects ELF headers and dynamic segments to catch unintended downgrades in NX, PIE, RELRO levels, or stack canaries.
-- Deterministic exit codes: Resolves concurrent outcomes through a fixed priority order: 30 > 10 > 20 > 40 > 0.
+## Exit codes
 
-## Exit Codes
+| Code | Label | Required meaning |
+| ---: | --- | --- |
+| 0 | `PASS` | Baseline flaw reproduced, absent from the patch within the test scope; no confirmed new security flaw; required functional and other checks complete and successful. |
+| 10 | `VULN_REMAINS` / `NEW_ISSUE` | Original flaw remains, or another confirmed memory/security flaw is observed. |
+| 20 | `FUNC_REGRESSION` | A valid functional test that passed on the baseline fails on the patch. |
+| 30 | `BUILD_OR_CONFIG_ERROR` | Target build, configuration, execution environment, or tool operation fails. |
+| 40 | `INCONCLUSIVE` | Required analysis is incomplete or evidence is insufficient, unstable, or unclassified. |
 
-| Code | Label | Meaning |
-| :---: | :--- | :--- |
-| 0 | `PASS` | Vulnerability resolved on patch, all functional and hardening tests passed. |
-| 10 | `VULN_REMAINS` / `NEW_ISSUE` | Vulnerability persists, or a new memory error was detected. |
-| 20 | `FUNC_REGRESSION` | At least one valid input that passed on the base version failed on the patch. |
-| 30 | `ERROR_CONFIG_OR_BUILD` | Target compilation failed, configuration was invalid, or the runner faulted. |
-| 40 | `INCONCLUSIVE` | Baseline error failed to reproduce, or evidence was insufficient to classify. |
-
-## Repository Structure
+## Repository layout
 
 ```text
-DiffSheriff/
-├── .github/workflows/       CI workflow definitions
-├── configs/                 Target configuration files
-├── diffsheriff/             Core Python engine
-│   ├── builder.py           Dual-mode build orchestrator
-│   ├── cli.py               Command-line interface
-│   ├── config.py            Target configuration parser
-│   ├── correlator.py        Diff hunk and stack trace mapper
-│   ├── hardening.py         ELF checksec auditor
-│   ├── minimizer.py         Delta Debugging implementation
-│   ├── reporter.py          JSON report generator and exit code resolver
-│   ├── runner.py            Subprocess execution harness
-│   └── triage.py            ASan, UBSan, and signal parser
-├── docker/                  Container definitions and resource limits
-├── docs/                    Project specifications and design documents
-│   ├── architecture.md      Technical architecture and data schemas
-│   ├── course_assignment.pdf Original course specification
-│   ├── roadmap.md           Implementation phases and milestone gates
-│   ├── specification.md     Detailed academic requirements
-│   └── target_scenarios.md  Target benchmark evaluation and branch plans
-├── targets/                 Target application source repositories
-├── tests/                   Unit tests for the verification engine
-└── pyproject.toml           Package configuration
+.
+├── .github/workflows/       Baseline package test workflow
+├── configs/                 Illustrative target configuration
+├── diffsheriff/             Python primitives
+├── docker/                  Development/container baseline
+├── docs/                    Source PDF and derived working documents
+├── targets/                 Future approved target source trees
+├── tests/                   Unit tests
+└── pyproject.toml           Package metadata and dependencies
 ```
-
-## Documentation
-
-Detailed technical references are maintained in `docs/`:
-- [Technical Specification](docs/specification.md)
-- [Implementation Roadmap](docs/roadmap.md)
-- [Target Selection and Branch Scenarios](docs/target_scenarios.md)
-- [Architecture and JSON Schemas](docs/architecture.md)
-
-## Team Responsibilities
-
-- Engineer 1: Build system, Docker sandboxing, process execution, and ELF hardening auditor.
-- Engineer 2: Crash triage, sanitizer parsing, and stack-to-diff correlation.
-- Engineer 3: Delta Debugging minimization, reproducer packaging, and regression test generation.
-- Engineer 4: Target application benchmarks, functional test matrices, and CI/CD integration.

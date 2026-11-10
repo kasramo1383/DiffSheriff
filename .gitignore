@@ -47,6 +47,7 @@ wheels/
 .pytest_cache/
 .coverage
 htmlcov/
+validation_report.json
 
 # Editor & OS Artifacts
 .vscode/
@@ -60,5 +61,6 @@ ehthumbs.db
 
 # Temporary Scratchpads
 /tmp/
+.diffsheriff/
 scratch/
 reproducers/temp/

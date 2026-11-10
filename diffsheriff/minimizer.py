@@ -4,7 +4,7 @@ Reduces failure-inducing payloads while preserving the exact failure invariant.
 """
 
 from dataclasses import dataclass
-from typing import Callable, List, Tuple
+from typing import Callable, Tuple
 
 
 @dataclass
@@ -30,26 +30,28 @@ def ddmin(
         return (
             crashed
             and error_type == invariant.expected_error_type
-            and (not invariant.expected_crash_function or func_name == invariant.expected_crash_function)
+            and (
+                not invariant.expected_crash_function
+                or func_name == invariant.expected_crash_function
+            )
         )
 
     payload = initial_payload
     n = 2
 
     while len(payload) >= 2:
-        chunk_size = len(payload) // n
-        if chunk_size == 0:
-            break
-
-        chunks = [payload[i * chunk_size : (i + 1) * chunk_size] for i in range(n)]
-        complements = [
-            payload[: i * chunk_size] + payload[(i + 1) * chunk_size :] for i in range(n)
-        ]
+        chunk_size, remainder = divmod(len(payload), n)
+        chunks = []
+        start = 0
+        for index in range(n):
+            end = start + chunk_size + (1 if index < remainder else 0)
+            chunks.append((start, end, payload[start:end]))
+            start = end
 
         reduced = False
 
         # Try individual chunks
-        for chunk in chunks:
+        for _, _, chunk in chunks:
             if preserves_invariant(chunk):
                 payload = chunk
                 n = 2
@@ -60,7 +62,8 @@ def ddmin(
             continue
 
         # Try complements (removing one chunk at a time)
-        for comp in complements:
+        for start, end, _ in chunks:
+            comp = payload[:start] + payload[end:]
             if preserves_invariant(comp):
                 payload = comp
                 n = max(n - 1, 2)

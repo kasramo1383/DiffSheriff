@@ -3,10 +3,11 @@ Process execution runner with timeout watchdog and multi-modal I/O dispatch.
 """
 
 from dataclasses import dataclass
+import os
 from pathlib import Path
 import subprocess
 import tempfile
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
 
 
 @dataclass
@@ -27,7 +28,7 @@ def execute_target(
     timeout_sec: float = 5.0,
 ) -> ExecutionResult:
     """
-    Executes a target binary with the provided payload across stdin, argv, or temporary file.
+    Executes a target binary with payload via stdin, argv, or a temporary file.
     """
     args = [str(binary_path)]
     if fixed_args:
@@ -54,12 +55,16 @@ def execute_target(
         else:
             raise ValueError(f"Unsupported input method: {input_method}")
 
+        process_env = os.environ.copy()
+        if env_vars:
+            process_env.update(env_vars)
+
         proc = subprocess.run(
             args,
             input=stdin_data,
             capture_output=True,
             timeout=timeout_sec,
-            env=env_vars,
+            env=process_env,
         )
 
         return ExecutionResult(

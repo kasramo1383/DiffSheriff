@@ -8,7 +8,6 @@ import json
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-
 EXIT_PASS = 0
 EXIT_VULN_REMAINS_OR_NEW = 10
 EXIT_FUNC_REGRESSION = 20
@@ -27,7 +26,7 @@ def resolve_priority_exit_code(
     30 (BUILD_ERROR) > 10 (VULN) > 20 (REGRESSION) > 40 (INCONCLUSIVE) > 0 (PASS)
     """
     if build_failed:
-        return EXIT_BUILD_OR_CONFIG_ERROR, "ERROR_CONFIG_OR_BUILD"
+        return EXIT_BUILD_OR_CONFIG_ERROR, "BUILD_OR_CONFIG_ERROR"
     if vuln_detected:
         return EXIT_VULN_REMAINS_OR_NEW, "VULN_REMAINS_OR_NEW_ISSUE"
     if regression_detected:
@@ -61,6 +60,8 @@ class ValidationSummary:
     security_flaws_lingering: int
     hardening_degraded: bool
     findings: List[FindingReport]
+    analysis_complete: bool = True
+    notes: Optional[List[str]] = None
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -73,9 +74,12 @@ class ValidationSummary:
             "security_flaws_fixed": self.security_flaws_fixed,
             "security_flaws_lingering": self.security_flaws_lingering,
             "hardening_degraded": self.hardening_degraded,
+            "analysis_complete": self.analysis_complete,
+            "notes": self.notes or [],
             "findings": [asdict(f) for f in self.findings],
         }
 
     def write_json(self, output_path: Path) -> None:
+        output_path.parent.mkdir(parents=True, exist_ok=True)
         with open(output_path, "w", encoding="utf-8") as f:
             json.dump(self.to_dict(), f, indent=2)

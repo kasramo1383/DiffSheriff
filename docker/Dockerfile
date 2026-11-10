@@ -26,6 +26,7 @@ ENV PATH="/opt/venv/bin:$PATH"
 WORKDIR /workspace
 
 COPY pyproject.toml .
+COPY README.md .
 COPY diffsheriff/ diffsheriff/
 
 RUN pip install --no-cache-dir .

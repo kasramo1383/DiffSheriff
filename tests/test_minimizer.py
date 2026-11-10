@@ -22,3 +22,15 @@ def test_ddmin_basic_reduction():
 
     assert b"OVERFLOW" in minimized
     assert len(minimized) < len(initial_input)
+
+
+def test_ddmin_handles_uneven_partitions_without_dropping_remainder():
+    target_invariant = FailureInvariant(
+        expected_error_type="marker",
+        expected_crash_function="tail",
+    )
+
+    def mock_oracle(payload: bytes):
+        return (b"X" in payload, "marker" if b"X" in payload else "none", "tail")
+
+    assert ddmin(b"abcdX", mock_oracle, target_invariant) == b"X"

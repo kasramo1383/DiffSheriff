@@ -4,9 +4,8 @@ Maps runtime stack traces to unified git diff hunks and classifies finding statu
 """
 
 from dataclasses import dataclass
-from pathlib import Path
 import re
-from typing import List, Optional, Tuple
+from typing import List, Optional
 from diffsheriff.triage import StackFrame
 
 
@@ -34,6 +33,21 @@ class CorrelationVerdict:
 HUNK_HEADER_REGEX = re.compile(
     r"^@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@(?:\s+(.*))?"
 )
+
+
+def _paths_match(frame_path: str, diff_path: str) -> bool:
+    normalized_frame = frame_path.replace("\\", "/")
+    normalized_diff = diff_path.replace("\\", "/")
+    return normalized_frame == normalized_diff or normalized_frame.endswith(
+        f"/{normalized_diff}"
+    )
+
+
+def _line_in_new_hunk(line: int, hunk: DiffHunk) -> bool:
+    return (
+        hunk.new_length > 0
+        and hunk.new_start <= line < hunk.new_start + hunk.new_length
+    )
 
 
 def parse_unified_diff(diff_text: str) -> List[DiffHunk]:
@@ -75,7 +89,7 @@ def correlate_stack_to_diff(
 ) -> CorrelationVerdict:
     """
     Correlates stack trace frames against diff hunks.
-    Checks direct match at frame 0, then caller-callee propagation across subsequent frames.
+    Checks frame 0 directly, then caller-callee propagation in outer frames.
     """
     if not frames:
         return CorrelationVerdict(
@@ -91,11 +105,8 @@ def correlate_stack_to_diff(
     # 1. Direct match on innermost crash site (frame 0)
     crash_frame = frames[0]
     for hunk in hunks:
-        if Path(crash_frame.file).name == Path(hunk.file_path).name or crash_frame.file.endswith(
-            hunk.file_path
-        ):
-            hunk_end = hunk.new_start + max(hunk.new_length, 1)
-            if hunk.new_start <= crash_frame.line <= hunk_end:
+        if _paths_match(crash_frame.file, hunk.file_path):
+            if _line_in_new_hunk(crash_frame.line, hunk):
                 return CorrelationVerdict(
                     is_correlated=True,
                     correlation_type="Direct Match",
@@ -103,17 +114,17 @@ def correlate_stack_to_diff(
                     matched_line=crash_frame.line,
                     matched_frame=crash_frame,
                     hunk=hunk,
-                    reason=f"Crash occurred directly on line {crash_frame.line} in modified hunk.",
+                    reason=(
+                        f"Crash occurred directly on line {crash_frame.line} "
+                        "in modified hunk."
+                    ),
                 )
 
     # 2. Indirect match: Caller-callee propagation in outer stack frames
     for frame in frames[1:]:
         for hunk in hunks:
-            if Path(frame.file).name == Path(hunk.file_path).name or frame.file.endswith(
-                hunk.file_path
-            ):
-                hunk_end = hunk.new_start + max(hunk.new_length, 1)
-                if hunk.new_start <= frame.line <= hunk_end:
+            if _paths_match(frame.file, hunk.file_path):
+                if _line_in_new_hunk(frame.line, hunk):
                     return CorrelationVerdict(
                         is_correlated=True,
                         correlation_type="Indirect (Caller/Callee)",
@@ -122,7 +133,8 @@ def correlate_stack_to_diff(
                         matched_frame=frame,
                         hunk=hunk,
                         reason=(
-                            f"Crash in {crash_frame.function} was invoked by modified caller "
+                            f"Crash in {crash_frame.function} was invoked by "
+                            "modified caller "
                             f"{frame.function} at {frame.file}:{frame.line}."
                         ),
                     )
@@ -135,5 +147,8 @@ def correlate_stack_to_diff(
         matched_line=None,
         matched_frame=None,
         hunk=None,
-        reason="Stack trace frames do not intersect with lines modified in the git diff.",
+        reason=(
+            "Stack trace frames do not intersect with lines modified in the "
+            "git diff."
+        ),
     )

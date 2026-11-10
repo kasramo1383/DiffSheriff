@@ -5,6 +5,7 @@ Dual-build orchestrator: builds target binaries in Release and Sanitized modes.
 from dataclasses import dataclass
 import hashlib
 from pathlib import Path
+import shutil
 import subprocess
 from typing import Optional, Tuple
 
@@ -48,32 +49,47 @@ def build_dual_matrix(
     Builds both Release and Sanitized variants independently.
     Returns (success, artifacts, error_message).
     """
+    artifact_dir = repo_dir / ".diffsheriff" / "artifacts"
+    artifact_dir.mkdir(parents=True, exist_ok=True)
+
     # 1. Clean
     if clean_cmd:
-        run_command(clean_cmd, repo_dir)
+        code, out, err = run_command(clean_cmd, repo_dir)
+        if code != 0:
+            return False, None, f"Pre-release clean failed (code {code}):\n{err}\n{out}"
 
     # 2. Release Build
     code, out, err = run_command(release_cmd, repo_dir)
     rel_path = repo_dir / release_bin_relpath
     if code != 0 or not rel_path.exists():
         return False, None, f"Release build failed (code {code}):\n{err}\n{out}"
-    rel_hash = compute_sha256(rel_path)
+    release_copy = artifact_dir / f"release-{rel_path.name}"
+    shutil.copy2(rel_path, release_copy)
+    rel_hash = compute_sha256(release_copy)
 
     # 3. Clean before sanitized build
     if clean_cmd:
-        run_command(clean_cmd, repo_dir)
+        code, out, err = run_command(clean_cmd, repo_dir)
+        if code != 0:
+            return (
+                False,
+                None,
+                f"Pre-sanitized clean failed (code {code}):\n{err}\n{out}",
+            )
 
     # 4. Sanitized Build
     code, out, err = run_command(sanitized_cmd, repo_dir)
     san_path = repo_dir / sanitized_bin_relpath
     if code != 0 or not san_path.exists():
         return False, None, f"Sanitized build failed (code {code}):\n{err}\n{out}"
-    san_hash = compute_sha256(san_path)
+    sanitized_copy = artifact_dir / f"sanitized-{san_path.name}"
+    shutil.copy2(san_path, sanitized_copy)
+    san_hash = compute_sha256(sanitized_copy)
 
     artifacts = BuildArtifacts(
-        release_binary=rel_path,
+        release_binary=release_copy,
         release_sha256=rel_hash,
-        sanitized_binary=san_path,
+        sanitized_binary=sanitized_copy,
         sanitized_sha256=san_hash,
     )
     return True, artifacts, ""
