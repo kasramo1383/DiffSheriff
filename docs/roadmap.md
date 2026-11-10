@@ -1,92 +1,121 @@
-# Implementation roadmap
+# Live implementation roadmap
 
-This roadmap defines three coherent delivery chunks. One or two coding agents may
-implement each chunk in a large pass, including its tests and necessary documentation.
-The assigned human owner reviews the result and must be able to explain it before the
-chunk is accepted. File presence or generated prose is not evidence of completion.
+This is the sole authoritative record of implementation state, blockers, and next
+work. It is intentionally not divided into phases, chunks, sprints, or assignments.
+Any coding agent should be able to stop after a coherent change, update this file, and
+hand the repository to another agent without transferring chat history.
 
-There is no sprint plan, issue-board workflow, story-point system, or per-task activity
-log. CI/CD work is limited to the validator behavior and automated verification required
-by the assignment.
+## Handoff rules
 
-## Current baseline
+Before changing code, read:
+
+1. `course_assignment.pdf` and `specification.md` for requirements;
+2. `architecture.md` for invariants and simplicity constraints;
+3. `target_scenarios.md` for approved target facts;
+4. the next actionable work below.
+
+Before stopping:
+
+- run the tests proportionate to the change;
+- update the checked capabilities and rewrite the next actionable work if necessary;
+- put target facts only in `target_scenarios.md` and contributor ownership only in the
+  README;
+- record only a current blocker or durable technical decision, never a dated progress
+  diary, chat summary, sprint artifact, or generated activity log;
+- leave the repository in a state where the next agent can identify the first useful
+  action from this file alone.
+
+## Verified capabilities
 
 - [x] Flat Python package and install metadata
 - [x] Fail-closed configuration parsing for the present example schema
-- [x] Primitive release/sanitized build helper
-- [x] Primitive process runner and timeout capture
-- [x] Basic sanitizer/signal triage
-- [x] Basic unified-diff and stack-frame correlation
-- [x] Standalone byte-level delta debugger
-- [x] ELF hardening primitives
+- [x] Release/sanitized build helper with retained artifact copies and hashes
+- [x] Process execution through stdin, argv, or a temporary file with timeout capture
+- [x] Basic ASan, UBSan, stack-canary, and signal triage
+- [x] Basic unified-diff parsing and stack-frame correlation
+- [x] Standalone invariant-preserving byte-level delta debugging
+- [x] ELF NX, PIE, RELRO, and canary inspection primitives
 - [x] Exit-code priority resolver and basic JSON writer
-- [ ] End-to-end patch validation
-- [ ] Approved targets and required target scenarios
+- [x] Unit tests for the current primitives and fail-closed CLI behavior
 
-## Chunk 1: end-to-end core pipeline
+These are primitives, not an end-to-end validator. The CLI correctly returns
+`INCONCLUSIVE` until mandatory orchestration and evidence are complete.
 
-Implement the shortest explicit path from configuration to a defensible verdict:
+## Next actionable work
 
-- extend the configuration with exact base and patch refs, build commands, binary
-  paths, input delivery, test suites, independent functional oracle, environment, and
-  resource limits;
-- prepare base and patch source trees separately and build release and sanitized
-  artifacts for both;
-- discover valid, boundary, and malicious inputs and run corresponding artifacts under
-  equivalent settings in the isolated Linux environment;
-- compare functional and security observations without mixing release and sanitized
-  evidence;
-- implement the finding-status model, exit-code priority, complete JSON report, and
-  readable CLI summary;
-- keep the orchestration in one explicit module and reuse the existing small helpers.
+Implement the minimal explicit end-to-end path using one synthetic integration target.
+Work from the first unchecked item downward; an agent may complete any coherent subset
+and then update this section.
 
-Acceptance: a synthetic integration target exercises `PASS`, remaining vulnerability,
-functional regression, build/config error, and inconclusive outcomes. `PASS` is
-impossible when the baseline flaw was not reproduced or a mandatory stage is missing.
+- [ ] Extend configuration with exact base and patch refs, build commands, binary
+  paths, test-suite locations, independent functional oracle, execution environment,
+  and resource limits.
+- [ ] Add one direct orchestrator module, preferably `pipeline.py`; do not introduce a
+  framework or additional architectural layer.
+- [ ] Prepare base and patch source trees separately and build release and sanitized
+  artifacts for both.
+- [ ] Discover valid, boundary, and malicious inputs and execute corresponding builds
+  under equivalent settings in the isolated Linux environment.
+- [ ] Compare functional and security observations without mixing release and
+  sanitized evidence.
+- [ ] Implement the five finding statuses and prevent `PASS` unless the baseline flaw
+  was reproduced and every mandatory check completed.
+- [ ] Emit the complete JSON evidence report and concise developer summary.
+- [ ] Add an integration fixture covering exit codes `0`, `10`, `20`, `30`, and `40`.
 
-Human review: Engineer 1 reviews build/execution behavior; Engineer 4 reviews the
-orchestrator, reports, and complete call flow.
+Completion condition: the synthetic fixture exercises the complete CLI-to-report path
+and demonstrates fail-closed behavior. Once complete, replace this section with the
+next highest-value unfinished capability rather than appending a historical summary.
 
-## Chunk 2: evidence, correlation, and reproducibility
+## Other required capabilities
 
-Complete the evidence needed to defend each result:
+These remain required but do not define separate implementation phases. Work may move
+between them whenever dependencies permit, provided the next actionable work stays
+accurate.
 
-- normalize ASan, UBSan, stack-canary, signal, timeout, and ordinary exit outcomes;
-- identify corresponding findings across builds using error type and relevant location;
-- parse multi-file diffs, additions, deletions, and renames and correlate stack or
-  execution-path evidence without claiming unsupported causation;
-- compare NX, PIE, RELRO, and stack-canary status on ordinary binaries;
-- replay confirmed findings at least three times, classify instability, and minimize
-  inputs while preserving the error signature;
-- create a self-contained reproducer bundle and insert the minimized case into the
-  regression suite;
-- add focused unit tests and one end-to-end evidence fixture.
+- [ ] Normalize and retain ordinary exits, signals, sanitizer findings, stack-canary
+  failures, timeouts, stdout, and stderr.
+- [ ] Identify corresponding findings across builds using error type and relevant
+  location rather than a generic nonzero exit.
+- [ ] Parse multi-file diffs, additions, deletions, and renames robustly.
+- [ ] Add caller/callee or execution-path evidence where stack-to-hunk intersection is
+  insufficient; unsupported attribution remains inconclusive.
+- [ ] Integrate hardening comparison for ordinary base and patch binaries.
+- [ ] Replay confirmed findings at least three times and classify instability.
+- [ ] Minimize inputs while preserving the finding signature.
+- [ ] Produce a self-contained reproducer bundle with original/minimized input,
+  versions, hashes, settings, command, and replay logs.
+- [ ] Insert minimized cases into the regression suite and verify baseline-fail and
+  correct-patch-pass behavior.
+- [ ] Record instructor approval for two targets, including one real non-toy project
+  or library.
+- [ ] Preserve exact target provenance, four required versions, independent ground
+  truth, and valid/boundary/malicious corpora.
+- [ ] Demonstrate expected `0`, `10`, and `20` outcomes without recognizing target
+  names, file names, commit IDs, or patch hashes.
+- [ ] Test unseen patches prepared independently from the validator implementation.
+- [ ] Verify a fresh checkout can build, run, inspect, and reproduce all deliverables.
+- [ ] Complete the team comprehension and defense review described in the README.
 
-Acceptance: an independently invoked replay script reproduces the same finding and the
-generated regression case fails on the vulnerable baseline and passes on the correct
-patch. Ambiguous evidence remains `INCONCLUSIVE`.
+## Current blockers
 
-Human review: Engineer 2 reviews triage and correlation; Engineer 3 reviews replay,
-minimization, bundles, and regression generation.
+- The two target programs, their vulnerability/patch provenance, functional ground
+  truth, and instructor approval are not yet established. Their status belongs only in
+  `target_scenarios.md`.
 
-## Chunk 3: approved targets and final delivery
+The synthetic end-to-end fixture and generic orchestration can proceed without target
+approval.
 
-- obtain and record instructor approval for two targets, including one real non-toy
-  project or library;
-- retain exact provenance, independent functional ground truth, test corpora, and the
-  four required versions for each target;
-- demonstrate expected exits `0`, `10`, and `20` without target-name, file-name,
-  commit-ID, or patch-hash shortcuts;
-- test unseen patches prepared independently from the validator implementation;
-- run unit and integration tests in the repository workflow and run full target
-  validation in the required isolated environment;
-- finish only the standalone instructions and evidence needed to build, run, inspect,
-  and defend the project.
+## Durable implementation constraints
 
-Acceptance: a fresh checkout reproduces every required scenario and deliverable. Each
-member can explain the overall pipeline, defend one real finding from evidence, and
-make and test a limited change in their assigned subsystem.
-
-Human review: Engineer 4 owns integration and target records; all four contributors
-perform the final comprehension and defense review. Contributor identities and role
-assignments are maintained only in the README.
+- Keep the package flat and the main call flow explicit.
+- Prefer plain functions and dataclasses over class hierarchies.
+- Add an abstraction only when both targets or a tested invariant require it.
+- Do not add plugin systems, dependency-injection containers, event buses, databases,
+  web services, or forwarding-only service layers.
+- Keep target-specific behavior in configuration and target assets, not Python
+  conditionals keyed by target identity.
+- Do not create issue-board, sprint, story-point, or activity-log files.
+- Use CI/CD only for the assignment's validator integration and automated verification.
+- Agent-generated implementation is acceptable only when the assigned contributor can
+  explain its logic, failure behavior, and tests accurately and efficiently.

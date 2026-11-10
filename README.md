@@ -29,27 +29,10 @@ The Markdown files in `docs/` are maintained working notes:
 
 ## Current implementation
 
-Implemented and unit-testable components:
-
-- YAML model and fail-closed configuration validation
-- release/sanitized build helper with retained artifact copies and hashes
-- subprocess execution through `stdin`, `argv`, or a temporary input file
-- ASan, UBSan, stack-canary, and signal triage primitives
-- unified-diff hunk parsing and stack-frame correlation
-- invariant-preserving byte-level `ddmin`
-- ELF hardening inspection and degradation comparison
-- exit-code resolution and basic JSON summary writing
-
-Missing integration:
-
-- base and patched source/ref acquisition and four-way build orchestration
-- test discovery, independent functional oracle execution, and result comparison
-- robust finding identity across builds and the full classification state machine
-- execution-path evidence beyond stack-to-hunk intersection
-- stability replay, reproducer bundles, and automatic regression-test insertion
-- complete JSON evidence contract and developer summary
-- two approved target implementations and all required variants
-- isolated execution enforcement and end-to-end CI validation
+The sole live record of implemented capabilities, missing work, blockers, and the next
+action is [docs/roadmap.md](docs/roadmap.md). It is maintained so another agent can
+resume the project without relying on chat history. This README and the architecture
+document must not maintain parallel progress lists.
 
 ## Contributors and engineering ownership
 
@@ -66,10 +49,11 @@ their assigned subsystem in detail.
 | Engineer 3 - Reproduction and regression | Mohammadreza Javadi | 402105868 | Stability replay, input minimization, reproducer bundles, and generated regression tests |
 | Engineer 4 - Integration and targets | Kasra Montazeri | 402106575 | Pipeline orchestration, CLI and reports, target scenarios, end-to-end tests, and delivery integration |
 
-Implementation is organized as a few coherent, agent-delivered chunks rather than
-an issue board, sprint process, or per-task activity log. CI/CD is implemented only
-to the extent required by the assignment as a product capability and verification
-mechanism.
+An agent may take over or stop at any coherent point. Before handoff, it updates the
+live roadmap so the first unfinished action and any real blocker are explicit. The
+project does not use an issue board, sprint process, or per-task activity log. CI/CD
+is implemented only to the extent required by the assignment as a product capability
+and verification mechanism.
 
 ## Development
 
