@@ -1,0 +1,1 @@
+"""DiffSheriff test suite."""

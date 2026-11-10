@@ -1,0 +1,37 @@
+version: "1.0"
+
+target:
+  name: "c-http-parser"
+  language: "c"
+  repository_path: "targets/target1_parser"
+
+build:
+  clean_command: "make clean"
+  release:
+    command: "make release CFLAGS='-O2 -Wall'"
+    binary_path: "bin/http_parser"
+  sanitized:
+    command: "make debug CFLAGS='-O0 -g -fno-omit-frame-pointer -fsanitize=address,undefined'"
+    binary_path: "bin/http_parser_asan"
+
+execution:
+  timeout_seconds: 5.0
+  input_method: "file"
+  file_argument_flag: "--file"
+  fixed_arguments: []
+  environment_variables:
+    ASAN_OPTIONS: "detect_leaks=0:abort_on_error=1:symbolize=1"
+    UBSAN_OPTIONS: "print_stacktrace=1:halt_on_error=1"
+
+hardening_baseline:
+  enforce_nx: true
+  enforce_pie: true
+  min_relro: "full"
+  enforce_canary: true
+
+test_suites:
+  valid_directory: "tests/valid"
+  boundary_directory: "tests/boundary"
+  malicious_directory: "tests/malicious"
+  ground_truth:
+    independent_reference_command: "python3 tests/verify_rfc.py {input} {stdout} {exit_code}"

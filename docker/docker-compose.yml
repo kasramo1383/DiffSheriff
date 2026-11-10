@@ -1,0 +1,14 @@
+services:
+  diffsheriff:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    volumes:
+      - ..:/workspace
+    working_dir: /workspace
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2048M
+    command: ["--help"]
