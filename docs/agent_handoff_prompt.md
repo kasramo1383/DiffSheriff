@@ -15,8 +15,12 @@ before acting:
 Current scope
 
 Use the roadmap's current checkpoint to choose the next task. Its implementation
-section records completed code and verification scope. See the target record for
-work that depends on instructor approval.
+section records completed code and verification scope; its **Remaining implementation:
+audit findings** section gives the next bounded stages, failure cases, and acceptance
+criteria. Start with the first unfinished stage there, implement and verify only that
+stage, then stop for Kasra's review. Do not skip ahead to target-dependent work unless
+the roadmap says the prerequisite stages are complete. See the target record for work
+that depends on instructor approval.
 
 Work one bounded stage at a time. Begin with the next action in the roadmap checkpoint.
 For the next step only, inspect the relevant source, make a small focused change or

@@ -8,11 +8,12 @@ handoff instructions are in [`agent_handoff_prompt.md`](agent_handoff_prompt.md)
 
 ## Current assessment
 
-The three earlier audited defects and the four subsequently identified workflow
-and pipeline gaps have implementations with focused checks. The current source,
-verification results, native evidence, and package are recorded in the
-[workflow checkpoint](../artifacts/checkpoints/workflow/README.md). This checkpoint
-is ready for review; it does not record team or instructor acceptance.
+The three earlier audited defects and four workflow/pipeline gaps have implementations
+with focused checks. A subsequent review found two additional implementation gaps
+below. They are the next code work; the workflow checkpoint does not yet include fixes
+for them. Source, verification results, native evidence, and package are recorded in
+the [workflow checkpoint](../artifacts/checkpoints/workflow/README.md). That checkpoint
+does not record team or instructor acceptance.
 
 The native fixture is infrastructure evidence only. It does not demonstrate a real
 vulnerability or course-target acceptance. See the [target record](target_scenarios.md)
@@ -42,29 +43,113 @@ still depends on that target's assets and approval.
 
 ## Workflow and pipeline implementation ready for review
 
-1. **CI patch validation (§§3.5, 5).** The reusable/manual
+1. **CI patch validation (Â§Â§3.5, 5).** The reusable/manual
    [target workflow](../.github/workflows/validate_target.yml) runs the CLI using a
    config with exact source refs. The actual process exit code gates the job, and
    report/run artifacts are uploaded on every outcome where they exist. Regression
    caches are restored and updated across runs, with a retained artifact copy.
    Configure the main verification workflow with `DIFFSHERIFF_TARGET_CONFIG` after
    target approval. See [CI usage](ci.md); no hosted target run is claimed.
-2. **Minimized regression enrollment (§3.3).** Unknown reduced inputs are enrolled as
+2. **Minimized regression enrollment (Â§3.3).** Unknown reduced inputs are enrolled as
    diagnostic regressions and executed in their recorded build mode on later runs.
    The original input retains its independent expectation. Missing reduced-input
    expectations make analysis inconclusive immediately; an independent reference
    or supplied expectation is required to complete the full regression check.
-3. **Finding identity across inputs (§3.1).** Suite observations establish the
+3. **Finding identity across inputs (Â§3.1).** Suite observations establish the
    designated baseline identity per build mode before classification. A matching
    patch diagnostic on a different input is an incomplete fix even when that input
    is processed first. Unstable baselines and evidence from other build modes do not
    establish that identity. Distinct findings and inconclusive attribution stay
    separate; matching a signature does not prove causation.
-4. **Hardening evidence (§3.4).** JSON includes GNU stack flags, ELF type, interpreter
+4. **Hardening evidence (Â§3.4).** JSON includes GNU stack flags, ELF type, interpreter
    presence, the PIE marker, RELRO-segment presence, binding flags, and canary symbol
    names. `ET_DYN` alone does not establish PIE; an interpreter or `DF_1_PIE` marker
    is required. Sectionless dynamic flags are read through program headers.
 
+## Remaining implementation: audit findings
+
+Complete these stages in order. Keep each stage focused, add regression tests for the
+specific failure cases, run the relevant focused checks and existing suite, inspect the
+resulting report/manifests, and stop for Kasra's review before taking the next stage.
+Do not combine these changes with target selection, hosted CI acceptance, or unrelated
+cleanup.
+
+### Stage 1 â€” Classify minimized diagnostic results
+
+**Issue.** `record_reproducer()` in `diffsheriff/pipeline.py` replays the minimized
+input against both baseline and patch and retains both observations. Its caller only
+uses the minimizer's stability and whether an independent expectation is available.
+It does not feed those minimized observations back through the normal comparison and
+verdict-priority logic. A stable minimized input can therefore expose a finding on the
+patch, or an independently expected behavior mismatch, without that newly observed
+result affecting the final verdict. The original input's comparison does not cover
+this newly reduced input.
+
+**Implementation steps.**
+
+1. Trace how `compare_case()`, finding creation, `vulnerability`/`regression` flags,
+   `incomplete`, and `resolve_priority_exit_code()` contribute to the report and final
+   verdict in `diffsheriff/pipeline.py` and `diffsheriff/reporter.py`.
+2. After a reproducer is stable, classify its already collected baseline/patch
+   observations using the same independent expectation, build mode, baseline identity,
+   correlation, and exit-priority rules as ordinary cases. Do not launch a second
+   minimization pass. Avoid duplicate findings for an observation already represented
+   by the original case; retain a distinct minimized-input finding when it adds
+   evidence.
+3. Ensure results without independent expected behavior remain diagnostic-only and
+   make the analysis inconclusive where functional behavior is required. Do not infer
+   expected output from patched output.
+4. Add focused synthetic tests for (a) a security-minimized input that introduces a
+   stable patch-side diagnostic, (b) an independently known minimized input whose patch
+   violates expected behavior while baseline satisfies it, and (c) a minimization that
+   does not add a result, preserving the existing verdict and avoiding duplicate
+   records.
+5. Run the focused tests and the full existing test suite; inspect report JSON, finding
+   deduplication, exit codes, and reproducer metadata. Record commands and actual results
+   in a new checkpoint under `artifacts/checkpoints/` and link it here.
+
+**Acceptance.** A stable minimized case cannot hide a confirmed patch finding or an
+independently demonstrated functional regression. The report identifies the minimized
+input and mode, respects current verdict priority, retains diagnostic-only uncertainty,
+and does not create recursive minimization or duplicate findings. Existing behavior
+and tests remain intact.
+
+### Stage 2 â€” Reconcile trusted regression-cache manifests
+
+**Issue.** `copy_regressions()` in `diffsheriff/regressions.py` compares incoming and
+local files byte-for-byte. A CI cache can contain an earlier diagnostic manifest with
+`expected: null`; after the team independently approves and checks in an expectation
+for the same generated case, importing that stale cache fails with exit 30 before
+validation. The present workaround is to review/retire the old cache manually, making
+routine CI runs brittle.
+
+**Implementation steps.**
+
+1. Define and document which manifest fields identify the same generated regression:
+   at minimum exact baseline reference, input bytes and verified hash, build mode, and
+   finding identity. Treat paths as contained files and continue to reject symlinks,
+   traversal, corrupt hashes, different payloads, baseline mismatches, and unrelated
+   manifest conflicts.
+2. When identities and payloads match, prefer an independently approved checked-in
+   expectation over an incoming diagnostic `null` expectation. Do not promote an
+   expectation from cache into trusted ground truth merely because it is present there.
+   Preserve strict conflict errors for differing expectations or any mismatch in the
+   identity fields above. If safe reconciliation cannot be established from existing
+   metadata, implement an explicit cache-bypass path and document its operator behavior
+   instead of guessing.
+3. Add tests for stale diagnostic cache versus approved local expectation (must import
+   or skip only that stale manifest safely), exact matching files (still idempotent),
+   different payload/hash/baseline/mode/finding identity (must reject), conflicting
+   non-null expectations (must reject), and path/symlink protections (must remain).
+4. Update `docs/ci.md` with the resulting precedence and recovery behavior. Exercise
+   the CLI transfer path and CI-relevant import/export tests; run the full existing suite
+   and inspect that the approved local expectation remains byte-for-byte unchanged.
+   Record exact checks in a checkpoint under `artifacts/checkpoints/` and link it here.
+
+**Acceptance.** A stale cache cannot block validation when a matching checked-in case
+has a reviewed expectation; cache data cannot overwrite or establish ground truth;
+unrelated or corrupt conflicts still fail safely. Re-running the same transfer is
+idempotent.
 ## Target and delivery work
 
 ### 1. Obtain approval for two targets
@@ -101,10 +186,11 @@ participation.
 
 ## Current checkpoint
 
-- The earlier audited fixes and all four listed workflow/pipeline gaps are implemented.
-  Review the current checkpoint's evidence before accepting it.
-- Next dependency: instructor confirmation for the candidate targets, source pairs,
-  input scope, and independent expected behavior in `target_scenarios.md`.
+- Next implementation work is Stage 1 above, followed by Stage 2. Review each stage's
+  focused evidence before accepting it.
+- After those audit findings are fixed, the next external dependency is instructor
+  confirmation for candidate targets, source pairs, input scope, and independent
+  expected behavior in `target_scenarios.md`.
 - Then prepare authorized target scenarios and run their acceptance matrices, including
   hosted CI. Target evidence, unseen-patch evaluation, and contributor defense remain.
 - Do not manufacture target approval or mark the project accepted from synthetic or

@@ -63,9 +63,14 @@ inconclusive, including on the first run that creates the reduced case.
 To complete that check, supply an approved independent reference command or replace
 the null expectation with an independently established `exit_code`, `stdout`, and
 `stderr` mapping in the local manifest. Do not copy the patched program's output.
-Review or retire an older cache before importing it if its manifest conflicts with
-the now-approved local expectation. A known expected result for the same input bytes
-can also be reused from the independent corpus.
+**Known limitation:** import currently rejects byte-different local and cached
+manifests. In particular, a stale cache entry with `expected: null` can block a
+matching checked-in manifest after its expectation has been independently approved.
+Until this is fixed, review/retire that cache entry before importing it; never trust an
+expectation merely because it came from the cache. The implementation work and required
+conflict tests are tracked in [roadmap Stage 2](roadmap.md#stage-2--reconcile-trusted-regression-cache-manifests).
+A known expected result for the same input bytes can also be reused from the independent
+corpus.
 
 Workflow mechanics follow GitHub's documentation for
 [reusable workflows](https://docs.github.com/en/actions/how-tos/reuse-automations/reuse-workflows)
