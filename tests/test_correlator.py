@@ -2,6 +2,9 @@
 Unit tests for diff parsing and stack frame correlation.
 """
 
+import pytest
+import subprocess
+
 from diffsheriff.correlator import correlate_stack_to_diff, parse_unified_diff
 from diffsheriff.triage import StackFrame
 
@@ -195,3 +198,86 @@ def test_pure_rename_preserves_real_a_b_directory_names():
     )
     assert finding_signature(report, "patch", hunks)["file"] == "a/old.c"
     assert not correlate_stack_to_diff(report.stack_trace, hunks).is_correlated
+
+
+@pytest.mark.parametrize("caller", [False, True])
+def test_insertion_matches_an_observed_function_without_old_edited_lines(caller):
+    diff = (
+        "--- a/source.c\n+++ b/source.c\n"
+        "@@ -7,0 +8 @@ int parse(char *input) {\n+    if (!input) return 0;\n"
+    )
+    frames = [StackFrame(0, "", "parse", "/src/source.c", 8)]
+    if caller:
+        frames.insert(0, StackFrame(0, "", "copy", "/src/copy.c", 20))
+    hunks = parse_unified_diff(diff)
+    assert hunks[0].old_lines == []
+    result = correlate_stack_to_diff(frames, hunks, "base")
+    assert result.is_correlated
+    assert result.correlation_type == "Insertion in observed function"
+    assert result.matched_frame.function == "parse"
+    assert result.hunk.new_lines == [8]
+
+
+@pytest.mark.parametrize(
+    "header,function,path,line",
+    [
+        ("", "parse", "/src/source.c", 8),
+        ("int unrelated(char *input) {", "parse", "/src/source.c", 8),
+        ("int parse(char *input) {", "unknown", "/src/source.c", 8),
+        ("int parse(char *input) {", "parse", "/src/other/source.c", 8),
+        ("int parse(char *input) {", "parse", "/src/source.c", 7),
+        ("return parse(input)", "parse", "/src/source.c", 8),
+        ("int parse(char *input);", "parse", "/src/source.c", 8),
+        ("int parse(char *input) {", "parse(int)", "/src/source.c", 8),
+    ],
+)
+def test_insertion_rejects_missing_or_ambiguous_function_evidence(
+    header, function, path, line
+):
+    diff = f"--- a/source.c\n+++ b/source.c\n@@ -7,0 +8 @@ {header}\n+guard();\n"
+    frames = [StackFrame(0, "", function, path, line)]
+    assert not correlate_stack_to_diff(
+        frames, parse_unified_diff(diff), "base"
+    ).is_correlated
+
+
+def test_multiple_candidate_insertions_remain_inconclusive():
+    diff = (
+        "--- a/source.c\n+++ b/source.c\n"
+        "@@ -5,0 +6 @@ int parse(char *input) {\n+first();\n"
+        "@@ -7,0 +9 @@ int parse(char *input) {\n+second();\n"
+    )
+    frames = [StackFrame(0, "", "parse", "/src/source.c", 8)]
+    assert not correlate_stack_to_diff(
+        frames, parse_unified_diff(diff), "base"
+    ).is_correlated
+
+
+def test_actual_git_insertion_hunk_matches_the_observed_function(tmp_path):
+    source = tmp_path / "source.c"
+    source.write_text("int parse(int value) {\n    return value;\n}\n")
+    subprocess.run(["git", "init", str(tmp_path)], check=True, capture_output=True)
+    subprocess.run(
+        ["git", "-C", str(tmp_path), "add", "source.c"], check=True, capture_output=True
+    )
+    source.write_text(
+        "int parse(int value) {\n    if (value == 0) return 0;\n    return value;\n}\n"
+    )
+    diff = subprocess.run(
+        [
+            "git",
+            "-C",
+            str(tmp_path),
+            "diff",
+            "--no-ext-diff",
+            "--no-textconv",
+            "--unified=0",
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout
+    frames = [StackFrame(0, "", "parse", "/src/source.c", 2)]
+    result = correlate_stack_to_diff(frames, parse_unified_diff(diff), "base")
+    assert result.is_correlated
+    assert result.correlation_type == "Insertion in observed function"

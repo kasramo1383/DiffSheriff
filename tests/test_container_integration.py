@@ -85,6 +85,9 @@ def test_real_native_matrix_and_input_interfaces(tmp_path):
         "ASAN_OPTIONS": "detect_leaks=0",
         "UBSAN_OPTIONS": "print_stacktrace=1:halt_on_error=1",
     }
+    config["execution"]["image"] = os.environ.get(
+        "DIFFSHERIFF_TEST_IMAGE", "diffsheriff:local"
+    )
     config["test_suites"]["expectations"] = "expected.json"
     expected = {}
     for suite, directory, payload in [

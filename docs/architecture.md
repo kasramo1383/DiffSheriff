@@ -22,7 +22,7 @@ only in `roadmap.md`.
 | `runner.py` | Bounded process capture, restricted Docker lifecycle, input delivery, and signal-preserving supervisor |
 | `pipeline.py` | Independent expectations, discovery, corresponding-mode comparison, replay/minimization, and regression insertion |
 | `triage.py` | Detection mechanisms, categories, real signal status, and runtime frames |
-| `correlator.py` | Old/new changed lines, caller evidence, and normalized source signatures |
+| `correlator.py` | Old/new changed lines, insertion-to-runtime-function evidence, caller evidence, and normalized source signatures |
 | `minimizer.py` | Delta debugging against a strict caller-supplied invariant |
 | `hardening.py` | x86_64 ELF validation and NX/PIE/RELRO/canary comparison |
 | `reproduce.py` | Re-execution of retained cases, including hash verification |
@@ -42,9 +42,11 @@ only in `roadmap.md`.
 5. Nonzero exits and bare signals are not confirmed security identities. Generic or
    source-less diagnostics remain inconclusive. Source lines are normalized across
    unchanged diff ranges; ambiguous mappings retain their patch coordinate.
-6. Actual changed-line intersection and outer runtime frames are evidence of relation,
-   not proof of causation. Unattributed confirmed patch diagnostics retain code 10
-   while analysis completeness remains false.
+6. Actual changed-line intersection, outer runtime frames, and unambiguous insertions
+   in observed baseline functions are evidence of relation, not proof of causation.
+   Insertion matches must agree across baseline replays before a fixed verdict.
+   Unattributed confirmed patch diagnostics retain code 10 while analysis completeness
+   remains false.
 7. Input reduction preserves the same diagnostic/location or independent functional
    mismatch and checks three executions. Unknown reduced-input behavior is not inferred.
 8. Build/config/runtime/tool failure takes precedence over other exit conditions;

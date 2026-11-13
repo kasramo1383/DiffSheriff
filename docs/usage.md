@@ -30,6 +30,8 @@ python -m pytest -q tests/test_container_integration.py
 
 It builds two source revisions in both modes, checks hardening and all input
 interfaces, and expects `40`: a harmless program cannot establish a baseline flaw.
+Set `DIFFSHERIFF_TEST_IMAGE` to test a different locally built runtime image without
+replacing `diffsheriff:local`.
 The other integration tests simulate diagnostic output to exercise verdicts; they
 are not security-target acceptance evidence.
 
@@ -109,6 +111,17 @@ Codes are `0` PASS, `10` remaining/new confirmed diagnostic, `20` functional reg
 Priority is `30 > 10 > 20 > 40 > 0`. JSON retains all findings and independent security,
 functional, and completeness statuses. A new diagnostic is not automatically proof
 that the patch caused it. Correlation evidence and uncertainty are reported separately.
+
+An insertion-only patch can be related to a baseline finding when one insertion hunk
+has an unambiguous function declaration in Git's hunk context, and that exact function
+and source path appear on the baseline runtime stack after the insertion point. All
+three baseline observations must support the same hunk. The report labels this
+`Insertion in observed function`; it is function-level evidence, not proof that an
+inserted branch executed. A Fixed result also requires stable corresponding patch
+runs satisfying independent expectations. Missing/complex function context, ambiguous
+candidate insertions, and changing caller evidence remain inconclusive. Existing
+edited-line correlation still applies to both versions, and a new patch diagnostic
+does not acquire causal attribution from this baseline-only rule.
 
 The report identifies its run directory. `total_tests_run` counts suite executions
 (including their three repetitions); additional minimization and reproducer executions

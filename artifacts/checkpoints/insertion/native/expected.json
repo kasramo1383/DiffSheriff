@@ -1,0 +1,1 @@
+{"valid/input": {"exit_code": 0, "stdout": "hello", "stderr": ""}, "boundary/input": {"exit_code": 0, "stdout": "", "stderr": ""}, "malicious/input": {"exit_code": 0, "stdout": "\u00ff", "stderr": ""}}

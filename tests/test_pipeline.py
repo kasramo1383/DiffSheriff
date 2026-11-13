@@ -7,6 +7,7 @@ import subprocess
 
 from click.testing import CliRunner
 import pytest
+import yaml
 
 from diffsheriff.cli import main
 from diffsheriff.config import DiffSheriffConfig
@@ -308,6 +309,128 @@ def test_missing_correlation_does_not_claim_fixed(
     assert not summary.security_flaws_fixed
 
 
+@pytest.mark.parametrize(
+    "header,scenario,code",
+    [
+        ("int caller(char *input) {", "fixed", 0),
+        ("", "fixed", 40),
+        ("int unrelated(char *input) {", "fixed", 40),
+        ("int caller(char *input) {", "remaining", 10),
+        ("int caller(char *input) {", "new", 10),
+        ("int caller(char *input) {", "regression", 20),
+        ("int caller(char *input) {", "unstable", 40),
+        ("int caller(char *input) {", "no-baseline", 40),
+        ("int caller(char *input) {", "operation-error", 30),
+        ("int caller(char *input) {", "hardening", 40),
+    ],
+)
+def test_cli_insertion_only_patch_requires_runtime_function_evidence(
+    tmp_path, pipeline_fixture, monkeypatch, header, scenario, code
+):
+    from diffsheriff.reproduce import replay
+    import diffsheriff.pipeline as pipeline
+
+    _, config_path, state = pipeline_fixture
+    state["scenario"] = scenario
+    execute = pipeline.execute_container
+
+    def shifted_patch_frames(source, binary, payload, settings):
+        result = execute(source, binary, payload, settings)
+        if source.parent.name == "patch":
+            result = replace(
+                result,
+                stderr=result.stderr.replace(":8:1", ":9:1").replace(":7:1", ":8:1"),
+            )
+        return result
+
+    monkeypatch.setattr(pipeline, "execute_container", shifted_patch_frames)
+    if scenario == "hardening":
+        monkeypatch.setattr(
+            pipeline,
+            "inspect_elf_hardening",
+            lambda p: HardeningResult(True, False, "full", True),
+        )
+    diff = (
+        f"--- a/source.c\n+++ b/source.c\n@@ -6,0 +7 @@ {header}\n"
+        "+    if (!input) return 0;\n"
+    )
+    monkeypatch.setattr(
+        "diffsheriff.pipeline.subprocess.run",
+        lambda *a, **kw: subprocess.CompletedProcess(a, 0, diff.encode(), b""),
+    )
+    report_path = tmp_path / "report.json"
+    result = CliRunner().invoke(
+        main,
+        [
+            "--config",
+            str(config_path),
+            "--output-json",
+            str(report_path),
+            "--artifacts",
+            str(tmp_path / "runs"),
+        ],
+    )
+    assert result.exit_code == code, result.output
+    report = json.loads(report_path.read_text())
+    if code == 0:
+        finding = next(f for f in report["findings"] if f["status"] == "Fixed")
+        assert finding["correlation_type"] == "Insertion in observed function"
+        assert finding["evidence"]["correlation"]["hunk"]["old_lines"] == []
+        assert report["analysis_complete"]
+        bundle = (
+            Path(report["evidence"]["run_directory"])
+            / report["evidence"]["reproducers"][0]
+        )
+        assert replay(bundle, check_regression=True)
+        cfg = DiffSheriffConfig.from_yaml(config_path)
+        assert run_pipeline(cfg, tmp_path / "second-run").exit_code == 0
+    elif code == 40 and scenario != "hardening":
+        assert report["security_flaws_fixed"] == 0
+    if scenario in {"remaining", "new"}:
+        status = "Incomplete Fix" if scenario == "remaining" else "New Issue"
+        finding = next(f for f in report["findings"] if f["status"] == status)
+        assert not finding["evidence"]["correlation"]["is_correlated"]
+
+
+def test_insertion_requires_matching_function_evidence_in_every_replay(
+    tmp_path, pipeline_fixture, monkeypatch
+):
+    import diffsheriff.pipeline as pipeline
+
+    cfg, _, _ = pipeline_fixture
+    diff = (
+        b"--- a/source.c\n+++ b/source.c\n"
+        b"@@ -6,0 +7 @@ int caller(char *input) {\n+guard();\n"
+    )
+    monkeypatch.setattr(
+        pipeline.subprocess,
+        "run",
+        lambda *a, **kw: subprocess.CompletedProcess(a, 0, diff, b""),
+    )
+    execute = pipeline.execute_container
+    calls = 0
+
+    def changing_caller(source, binary, payload, settings):
+        nonlocal calls
+        result = execute(source, binary, payload, settings)
+        if (
+            source.parent.name == "base"
+            and source.name == "sanitized"
+            and payload == b"diagnostic"
+        ):
+            calls += 1
+            if calls % 3 == 2:
+                return replace(
+                    result, stderr=result.stderr.replace("in caller", "in unrelated")
+                )
+        return result
+
+    monkeypatch.setattr(pipeline, "execute_container", changing_caller)
+    summary = run_pipeline(cfg, tmp_path / "runs")
+    assert summary.exit_code == 40
+    assert summary.security_flaws_fixed == 0
+
+
 def test_only_designated_baseline_can_pass(tmp_path, pipeline_fixture):
     cfg, _, _ = pipeline_fixture
     cfg = replace(cfg, baseline_signature={**cfg.baseline_signature, "line": 99})
@@ -321,9 +444,12 @@ def test_security_minimization_and_regression_expectations(
     from diffsheriff.pipeline import discover_cases
     from diffsheriff.reproduce import replay
 
-    cfg, _, _ = pipeline_fixture
+    cfg, config_path, _ = pipeline_fixture
     if with_reference:
         cfg.test_suites.independent_reference_command = ["reference"]
+        config = yaml.safe_load(config_path.read_text())
+        config["test_suites"]["independent_reference_command"] = ["reference"]
+        config_path.write_text(yaml.safe_dump(config))
     real_execute = __import__(
         "diffsheriff.pipeline", fromlist=["execute_container"]
     ).execute_container
@@ -347,10 +473,22 @@ def test_security_minimization_and_regression_expectations(
             0, json.dumps({"exit_code": 0, "stdout": "ok\n", "stderr": ""}), "", False
         ),
     )
-    summary = run_pipeline(cfg, tmp_path / "runs")
-    assert summary.exit_code == 0, summary.notes
+    report_path = tmp_path / "report.json"
+    result = CliRunner().invoke(
+        main,
+        [
+            "--config",
+            str(config_path),
+            "--output-json",
+            str(report_path),
+            "--artifacts",
+            str(tmp_path / "runs"),
+        ],
+    )
+    assert result.exit_code == 0, result.output
+    report = json.loads(report_path.read_text())
     bundle = (
-        Path(summary.evidence["run_directory"]) / summary.evidence["reproducers"][0]
+        Path(report["evidence"]["run_directory"]) / report["evidence"]["reproducers"][0]
     )
     assert (bundle / "minimized.input").read_bytes() == b"d"
     assert (bundle / "original.input").read_bytes() == b"diagnostic"

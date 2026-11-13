@@ -237,7 +237,17 @@ def compare_case(case, mode, runs, baseline_signature):
         if not patch["correlation"]["is_correlated"]:
             notes.append("Patch finding is confirmed, but attribution is inconclusive")
     if stable and base_sig and not patch_sig:
-        if patch_ok and base["correlation"]["is_correlated"]:
+        correlation = base["correlation"]
+        correlated = correlation["is_correlated"]
+        if correlation["correlation_type"] == "Insertion in observed function":
+            correlated = all(
+                item["correlation"]["is_correlated"]
+                and item["correlation"]["correlation_type"]
+                == correlation["correlation_type"]
+                and item["correlation"]["hunk"] == correlation["hunk"]
+                for item in runs["base"]
+            )
+        if patch_ok and correlated:
             findings.append(
                 (
                     "Fixed",

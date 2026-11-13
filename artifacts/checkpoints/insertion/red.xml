@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="18" time="0.610" timestamp="2026-11-13T11:57:55.513276+03:30" hostname="DESKTOP-OVP2LHB"><testcase classname="tests.test_pipeline" name="test_cli_insertion_only_patch_requires_runtime_function_evidence[int caller(char *input) {-fixed-0]" time="0.042"><failure message="AssertionError: Validating sample: aaaaaaaaaaaa -&gt; bbbbbbbbbbbb&#10;  INCONCLUSIVE (exit 40); 36 suite executions&#10;  Security: INCONCLUSIVE; functional: PASS; analysis: incomplete&#10;    Inconclusive: malicious/input [sanitized] - none&#10;  Report: C:\Users\Asus\Desktop\security\DiffSheriff\.diffsheriff\tests-insertion-red\test_cli_insertion_only_patch_0\report.json&#10;  &#10;assert 40 == 0&#10; +  where 40 = &lt;Result SystemExit(40)&gt;.exit_code">tmp_path = WindowsPath('C:/Users/Asus/Desktop/security/DiffSheriff/.diffsheriff/tests-insertion-red/test_cli_insertion_only_patch_0')
+pipeline_fixture = (DiffSheriffConfig(target_name='sample', language='c', repository_path=WindowsPath('C:/Users/Asus/Desktop/security/Dif...ff/.diffsheriff/tests-insertion-red/test_cli_insertion_only_patch_0/target.yaml'), {'scenario': 'fixed', 'calls': 192})
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x00000188C7A1D940&gt;
+header = 'int caller(char *input) {', scenario = 'fixed', code = 0
+
+    @pytest.mark.parametrize(
+        "header,scenario,code", [
+            ("int caller(char *input) {", "fixed", 0),
+            ("", "fixed", 40),
+            ("int unrelated(char *input) {", "fixed", 40),
+            ("int caller(char *input) {", "remaining", 10),
+            ("int caller(char *input) {", "new", 10),
+            ("int caller(char *input) {", "regression", 20),
+            ("int caller(char *input) {", "unstable", 40),
+        ]
+    )
+    def test_cli_insertion_only_patch_requires_runtime_function_evidence(
+        tmp_path, pipeline_fixture, monkeypatch, header, scenario, code
+    ):
+        from diffsheriff.reproduce import replay
+    
+        _, config_path, state = pipeline_fixture
+        state["scenario"] = scenario
+        diff = f"--- a/source.c\n+++ b/source.c\n@@ -6,0 +7 @@ {header}\n+    if (!input) return 0;\n"
+        monkeypatch.setattr(
+            "diffsheriff.pipeline.subprocess.run",
+            lambda *a, **kw: subprocess.CompletedProcess(a, 0, diff.encode(), b""),
+        )
+        report_path = tmp_path / "report.json"
+        result = CliRunner().invoke(main, ["--config", str(config_path),
+            "--output-json", str(report_path), "--artifacts", str(tmp_path / "runs")])
+&gt;       assert result.exit_code == code, result.output
+E       AssertionError: Validating sample: aaaaaaaaaaaa -&gt; bbbbbbbbbbbb
+E         INCONCLUSIVE (exit 40); 36 suite executions
+E         Security: INCONCLUSIVE; functional: PASS; analysis: incomplete
+E           Inconclusive: malicious/input [sanitized] - none
+E         Report: C:\Users\Asus\Desktop\security\DiffSheriff\.diffsheriff\tests-insertion-red\test_cli_insertion_only_patch_0\report.json
+E         
+E       assert 40 == 0
+E        +  where 40 = &lt;Result SystemExit(40)&gt;.exit_code
+
+tests\test_pipeline.py:337: AssertionError</failure></testcase><testcase classname="tests.test_pipeline" name="test_cli_insertion_only_patch_requires_runtime_function_evidence[-fixed-40]" time="0.053" /><testcase classname="tests.test_pipeline" name="test_cli_insertion_only_patch_requires_runtime_function_evidence[int unrelated(char *input) {-fixed-40]" time="0.045" /><testcase classname="tests.test_pipeline" name="test_cli_insertion_only_patch_requires_runtime_function_evidence[int caller(char *input) {-remaining-10]" time="0.062" /><testcase classname="tests.test_pipeline" name="test_cli_insertion_only_patch_requires_runtime_function_evidence[int caller(char *input) {-new-10]" time="0.057" /><testcase classname="tests.test_pipeline" name="test_cli_insertion_only_patch_requires_runtime_function_evidence[int caller(char *input) {-regression-20]" time="0.063" /><testcase classname="tests.test_pipeline" name="test_cli_insertion_only_patch_requires_runtime_function_evidence[int caller(char *input) {-unstable-40]" time="0.043" /><testcase classname="tests.test_correlator" name="test_insertion_matches_an_observed_function_without_old_edited_lines[False]" time="0.000"><failure message="AssertionError: assert False&#10; +  where False = CorrelationVerdict(is_correlated=False, correlation_type='Inconclusive', matched_file=None, matched_line=None, matched_frame=None, hunk=None, reason='No runtime frame intersects an edited line; attribution is unsupported.').is_correlated">caller = False
+
+    @pytest.mark.parametrize("caller", [False, True])
+    def test_insertion_matches_an_observed_function_without_old_edited_lines(caller):
+        diff = "--- a/source.c\n+++ b/source.c\n@@ -7,0 +8 @@ int parse(char *input) {\n+    if (!input) return 0;\n"
+        frames = [StackFrame(0, "", "parse", "/src/source.c", 8)]
+        if caller:
+            frames.insert(0, StackFrame(0, "", "copy", "/src/copy.c", 20))
+        hunks = parse_unified_diff(diff)
+        assert hunks[0].old_lines == []
+        result = correlate_stack_to_diff(frames, hunks, "base")
+&gt;       assert result.is_correlated
+E       AssertionError: assert False
+E        +  where False = CorrelationVerdict(is_correlated=False, correlation_type='Inconclusive', matched_file=None, matched_line=None, matched_frame=None, hunk=None, reason='No runtime frame intersects an edited line; attribution is unsupported.').is_correlated
+
+tests\test_correlator.py:211: AssertionError</failure></testcase><testcase classname="tests.test_correlator" name="test_insertion_matches_an_observed_function_without_old_edited_lines[True]" time="0.000"><failure message="AssertionError: assert False&#10; +  where False = CorrelationVerdict(is_correlated=False, correlation_type='Inconclusive', matched_file=None, matched_line=None, matched_frame=None, hunk=None, reason='No runtime frame intersects an edited line; attribution is unsupported.').is_correlated">caller = True
+
+    @pytest.mark.parametrize("caller", [False, True])
+    def test_insertion_matches_an_observed_function_without_old_edited_lines(caller):
+        diff = "--- a/source.c\n+++ b/source.c\n@@ -7,0 +8 @@ int parse(char *input) {\n+    if (!input) return 0;\n"
+        frames = [StackFrame(0, "", "parse", "/src/source.c", 8)]
+        if caller:
+            frames.insert(0, StackFrame(0, "", "copy", "/src/copy.c", 20))
+        hunks = parse_unified_diff(diff)
+        assert hunks[0].old_lines == []
+        result = correlate_stack_to_diff(frames, hunks, "base")
+&gt;       assert result.is_correlated
+E       AssertionError: assert False
+E        +  where False = CorrelationVerdict(is_correlated=False, correlation_type='Inconclusive', matched_file=None, matched_line=None, matched_frame=None, hunk=None, reason='No runtime frame intersects an edited line; attribution is unsupported.').is_correlated
+
+tests\test_correlator.py:211: AssertionError</failure></testcase><testcase classname="tests.test_correlator" name="test_insertion_rejects_missing_or_ambiguous_function_evidence[-parse-/src/source.c-8]" time="0.000" /><testcase classname="tests.test_correlator" name="test_insertion_rejects_missing_or_ambiguous_function_evidence[int unrelated(char *input) {-parse-/src/source.c-8]" time="0.000" /><testcase classname="tests.test_correlator" name="test_insertion_rejects_missing_or_ambiguous_function_evidence[int parse(char *input) {-unknown-/src/source.c-8]" time="0.000" /><testcase classname="tests.test_correlator" name="test_insertion_rejects_missing_or_ambiguous_function_evidence[int parse(char *input) {-parse-/src/other/source.c-8]" time="0.000" /><testcase classname="tests.test_correlator" name="test_insertion_rejects_missing_or_ambiguous_function_evidence[int parse(char *input) {-parse-/src/source.c-7]" time="0.000" /><testcase classname="tests.test_correlator" name="test_insertion_rejects_missing_or_ambiguous_function_evidence[return parse(input)-parse-/src/source.c-8]" time="0.000" /><testcase classname="tests.test_correlator" name="test_insertion_rejects_missing_or_ambiguous_function_evidence[int parse(char *input);-parse-/src/source.c-8]" time="0.000" /><testcase classname="tests.test_correlator" name="test_insertion_rejects_missing_or_ambiguous_function_evidence[int parse(char *input) {-parse(int)-/src/source.c-8]" time="0.000" /><testcase classname="tests.test_correlator" name="test_multiple_candidate_insertions_remain_inconclusive" time="0.000" /></testsuite></testsuites>

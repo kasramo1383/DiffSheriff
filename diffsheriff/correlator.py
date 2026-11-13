@@ -34,6 +34,10 @@ class CorrelationVerdict:
 HUNK_HEADER_REGEX = re.compile(
     r"^@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@(?:\s+(.*))?"
 )
+FUNCTION_HEADER_REGEX = re.compile(
+    r"^(?P<type>(?:[A-Za-z_]\w*[\s*&]+)+)(?P<name>[A-Za-z_]\w*)"
+    r"\s*\([^(){};]*\)\s*\{?\s*$"
+)
 
 
 def source_path(path):
@@ -44,7 +48,11 @@ def source_path(path):
 def _paths_match(frame_path, diff_path):
     frame_path = source_path(frame_path)
     return bool(diff_path) and (
-        frame_path == diff_path or frame_path.endswith("/" + diff_path)
+        frame_path == diff_path
+        or (
+            (frame_path.startswith("/") or re.match(r"^[A-Za-z]:/", frame_path))
+            and frame_path.endswith("/" + diff_path)
+        )
     )
 
 
@@ -128,6 +136,52 @@ def correlate_stack_to_diff(frames, hunks, side="patch"):
                     "Runtime frame intersects an edited line; "
                     "comparative evidence is required for attribution.",
                 )
+    if side == "base":
+        candidates = []
+        for hunk in hunks:
+            if (
+                hunk.old_length
+                or not hunk.new_lines
+                or len(hunk.new_lines) != hunk.new_length
+            ):
+                continue
+            declaration = FUNCTION_HEADER_REGEX.fullmatch(hunk.function_header or "")
+            if not declaration or set(declaration["type"].split()) & {
+                "return",
+                "typedef",
+                "throw",
+                "goto",
+            }:
+                continue
+            # Match an executed function, never just a nearby file/line or symbol.
+            frame = next(
+                (
+                    f
+                    for f in frames
+                    if (
+                        f.function == declaration["name"]
+                        and _paths_match(f.file, hunk.old_file_path)
+                        and f.line > hunk.old_start
+                    )
+                ),
+                None,
+            )
+            if frame:
+                candidates.append((frame, hunk))
+        if len(candidates) == 1:
+            frame, hunk = candidates[0]
+            return CorrelationVerdict(
+                True,
+                "Insertion in observed function",
+                hunk.old_file_path,
+                frame.line,
+                frame,
+                hunk,
+                "One insertion hunk belongs to a function observed on the baseline "
+                "stack before its recorded execution location. This is function-level "
+                "evidence, not proof that an inserted branch executed; repeated "
+                "comparative results and independent expectations are required.",
+            )
     return CorrelationVerdict(
         False,
         "Inconclusive",
@@ -135,7 +189,8 @@ def correlate_stack_to_diff(frames, hunks, side="patch"):
         None,
         None,
         None,
-        "No runtime frame intersects an edited line; attribution is unsupported.",
+        "No unambiguous edited-line or inserted-function runtime evidence; "
+        "attribution is unsupported.",
     )
 
 

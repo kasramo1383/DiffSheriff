@@ -7,9 +7,10 @@ digest is `specification.md`. Target facts and approval evidence belong only in
 
 ## Current assessment
 
-The defensive validator is implemented, with the gaps below still open. Course
-acceptance depends on the approved targets, scenario matrices, and evidence in
-Step 6.
+The defensive validator and the three reproduced gap fixes are implemented and
+verified through the synthetic acceptance matrix and harmless native container test.
+Course acceptance still depends on the approved targets, scenario matrices, and
+evidence in Step 6; human defense remains Step 7.
 
 The Windows audit of `07914aa` reproduced 90 passing tests with one Docker test
 skipped. Black, Flake8, and wheel construction also passed. The GitHub Actions run
@@ -19,14 +20,16 @@ for that commit passed its unit jobs and native smoke test.
 The retained Linux test results and separate standalone CLI run are indexed in the
 [artifact inventory](../artifacts/README.md). Both native runs exercised the harmless
 echo fixture. The test results cover the existing suite, and the CLI bundle provides
-the inputs, builds, and report for that run. Steps 1 and 5 describe the remaining
-test coverage, and Step 6 covers course acceptance.
+the inputs, builds, and report for that run. Steps 1–5 define the implemented
+verification checkpoints below, and Step 6 covers course acceptance.
 
-The following defects remain open:
-
-1. A correct insertion-only guard patch can remain inconclusive: the fixed verdict
-   requires baseline stack correlation to an old changed line, which such a patch
-   does not have. See `pipeline.py` `compare_case()` and `correlator.py`.
+Insertion-only fixes can now use an unambiguous inserted-function match to the
+baseline runtime stack, agreed across three observations, together with stable
+independently correct patched behavior. Missing/complex declarations, multiple
+candidate insertions, or inconsistent runtime evidence remain inconclusive rather
+than receiving guessed attribution. The report distinguishes function-level
+relation from proof that an inserted branch executed. Native and synthetic evidence
+is retained in [the insertion checkpoint](../artifacts/checkpoints/insertion/README.md).
 
 Security minimization now executes unknown reductions against the diagnostic
 invariant without requiring expected functional output. Replay distinguishes those
@@ -159,9 +162,15 @@ not a transcript or activity log.
 ## Current checkpoint
 
 - The user authorized implementing, verifying, and committing each gap before moving
-  to the next. Steps 1(b/c), 2, and 3 are implemented and locally verified; this does
-  not record human acceptance or course-target approval.
-- Next: Step 1(a) and Step 4, insertion-only patch attribution.
+  to the next. Steps 1–5 are implemented and verified. The final Linux run passed
+  all 134 tests with no skips, including the harmless Docker fixture; the Windows
+  run passed 133 tests with the native test skipped. Formatting, standard lint, and
+  packaging checks passed. The checkpoint records tested sources and runtime hashes.
+- No known gap from the three-defect audit remains unimplemented. This does not
+  record human acceptance, instructor approval, or real-target validation.
+- Next: Step 6, approved real-target scenarios and their acceptance evidence, followed
+  by Step 7's human defense/delivery review. No exploit or alternative attack inputs
+  were developed as part of the defensive implementation.
 - Step 6 depends on instructor-approved targets and the assets in the
   [target scenario record](target_scenarios.md).
 
