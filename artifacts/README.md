@@ -44,6 +44,7 @@ are [minimization](checkpoints/minimization/README.md) and
 source hashes, commands, results, and scope; do not combine evidence from different
 checkpoints.
 
-`package/diffsheriff-0.1.0-py3-none-any.whl` is the built Python distribution of the
-implementation at commit `07914aa`. Its verification scope and open gaps are recorded
-in the [roadmap](../docs/roadmap.md).
+`package/diffsheriff-0.1.0-py3-none-any.whl` is the earlier distribution built from
+commit `07914aa`. The current verified implementation wheel is retained in the
+[insertion checkpoint](checkpoints/insertion/README.md). The [roadmap](../docs/roadmap.md)
+records what the implementation checks establish and what course work remains.
