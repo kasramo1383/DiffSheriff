@@ -48,8 +48,12 @@ copy accepted evidence into `artifacts/` for durable project delivery.
 For a local or clean CI checkout, copy the artifact's `retained-regressions` directory
 and pass it through `--regressions-from`. Both transfer options accept directories;
 neither changes a verdict into a pass. Export refreshes the specified output snapshot;
-import refuses to overwrite different local assets. Existing unapproved expectations
-must not be treated as ground truth merely because they came from an artifact.
+import preserves independently reviewed local assets. A full cached expectation with
+no matching local manifest is accepted only when a pre-import local corpus or reviewed
+regression has exactly the same input bytes, expected behavior, and validity flag.
+Cache content alone cannot establish ground truth. Keep approved expectations in the
+local corpus or checked-in regression directory, including expectations previously
+established by a reference command.
 
 ## Reduced inputs with unknown functional behavior
 
@@ -62,13 +66,24 @@ inconclusive, including on the first run that creates the reduced case.
 
 To complete that check, supply an approved independent reference command or replace
 the null expectation with an independently established `exit_code`, `stdout`, and
-`stderr` mapping in the local manifest. Do not copy the patched program's output.
-**Known limitation:** import currently rejects byte-different local and cached
-manifests. In particular, a stale cache entry with `expected: null` can block a
-matching checked-in manifest after its expectation has been independently approved.
-Until this is fixed, review/retire that cache entry before importing it; never trust an
-expectation merely because it came from the cache. The implementation work and required
-conflict tests are tracked in [roadmap Stage 2](roadmap.md#stage-2--reconcile-trusted-regression-cache-manifests).
+`stderr` mapping in the local manifest, set `check: full`, and explicitly review its
+boolean `valid_input`. Do not copy the patched program's output.
+
+An incoming diagnostic null expectation now yields to a matching local full check.
+Identity includes the exact baseline, verified input hash and bytes, input filename,
+build mode, both signatures, finding side, kind, and all other metadata except
+`expected`, `check`, and `valid_input`. The local manifest and input remain byte-for-byte
+unchanged. Equal metadata also preserves local formatting, and repeated imports are
+idempotent. Different non-null expectations, identity differences, invalid metadata,
+corrupt inputs, traversal, and symlinks fail closed before transfer writes. Export
+still explicitly refreshes its caller-owned output snapshot.
+
+For an untrusted cache expectation without independent local evidence, import reports
+`BUILD_OR_CONFIG_ERROR` (30). Omit `--regressions-from` for a fresh local run, or establish
+and check in the reviewed local expectation before importing again. Do not copy cache
+output into the local corpus just to bypass the check. CI operators can retire an
+incompatible cache and run from the reviewed checkout. See the
+[Stage 2 checkpoint](../artifacts/checkpoints/cache-import/README.md) for verification.
 A known expected result for the same input bytes can also be reused from the independent
 corpus.
 

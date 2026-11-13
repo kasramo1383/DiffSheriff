@@ -36,12 +36,17 @@ or student defense complete on anyone's behalf.
 - Minimized-result classification has implementation and evidence in
   [`minimized-results`](../artifacts/checkpoints/minimized-results/README.md). The
   checkpoint reports focused and full test runs plus a harmless native run. This is
-  synthetic/infrastructure evidence, not real-target acceptance. Kasra's acceptance
-  is not recorded.
+  synthetic/infrastructure evidence, not real-target acceptance. Kasra accepted
+  Stage 1 on 2026-11-13 and explicitly authorized Stage 2.
 - The local Black/CI configuration correction is recorded in
-  [`ci-format`](../artifacts/checkpoints/ci-format/README.md). Its checkpoint says the
-  workflow was not rerun on GitHub after the formatting correction.
-- Stage 2 below, regression-cache reconciliation, remains unimplemented.
+  [`ci-format`](../artifacts/checkpoints/ci-format/README.md). Subsequent hosted
+  verification [run #17](https://github.com/kasramo1383/DiffSheriff/actions/runs/43428911669)
+  passed both Python jobs and the native-container job on
+  `c0b5eb7d71aa27218fd47c747e871c4b9b71a569`; target validation was skipped.
+  The [hosted verification record](../artifacts/checkpoints/ci-format/hosted-verification.json)
+  preserves that revision and scope. This does not complete approved-target CI acceptance.
+- Stage 2 regression-cache reconciliation is implemented and verified, awaiting
+  Kasra's review. See the [cache-import checkpoint](../artifacts/checkpoints/cache-import/README.md).
 - No course target, vulnerability, four-version scenario set, functional oracle, or
   expected-output corpus is recorded as instructor-approved. The zlib/libpng entries
   in [`target_scenarios.md`](target_scenarios.md) are unapproved proposals. Neither was
@@ -78,8 +83,8 @@ for individual credit.
 
 ### Stage 1 - Review minimized-result classification
 
-**Status: implementation and verification evidence recorded; Kasra's acceptance is
-pending.** Read the complete
+**Status: accepted by Kasra on 2026-11-13.** The explicit decision was
+"Accept Stage 1; implement Stage 2." Read the complete
 [`minimized-results` checkpoint](../artifacts/checkpoints/minimized-results/README.md)
 and inspect its source identity. It reports that stable minimized observations enter
 ordinary comparison and exit-priority rules, findings are deduplicated against the
@@ -94,11 +99,14 @@ incomplete evidence. Do not claim Kasra accepted it until that decision is recor
 
 ### Stage 2 - Reconcile trusted regression-cache imports
 
-**Status: open; next implementation stage after Stage 1 review.**
-`copy_regressions()` in `diffsheriff/regressions.py` rejects byte-different source and
-destination files. A cache can carry an older `expected: null` diagnostic manifest and
-block a matching checked-in manifest after the team independently approves an
-expectation. Manual cache retirement is not a durable CI behavior.
+**Status: implemented and verified; awaiting Kasra's review.**
+The [cache-import checkpoint](../artifacts/checkpoints/cache-import/README.md) records
+199 Linux passes (including symlinks and the harmless native container test), 192
+Windows passes with seven platform skips, formatter/linter checks, and the wheel.
+Matching stale diagnostic cache entries now preserve reviewed local expectations
+byte-for-byte. New non-null cached expectations require independently matching local
+input bytes, behavior, and validity. Identity conflicts and corrupt metadata fail
+before transfer writes. These are generic-tool checks, not approved-target evidence.
 
 **Work:**
 
@@ -328,7 +336,7 @@ after it occurs.
 
 ## Next action
 
-Kasra reviews and records a decision on Stage 1's minimized-results checkpoint. If
-accepted, Stage 2 is next. If returned, fix only the specified Stage 1 defect first.
-Target approval is a team/instructor dependency. While pending, finish Stage 2 and other
-independent work; do not invent approval or execute proposed targets.
+Kasra reviews Stage 2's cache-import checkpoint. If returned, fix the specified defect;
+if accepted, Stage 3 requires the team/instructor's target and test-scope decision.
+Stage 1 is accepted. Target approval remains external; do not invent approval or
+execute proposed targets.

@@ -1,0 +1,14 @@
+{
+  "base_commit": "c0b5eb7d71aa27218fd47c747e871c4b9b71a569",
+  "linux_snapshot": "/var/tmp/diffsheriff-cache-import.TaODat",
+  "image": "sha256:00fe036fddd0c2e52dda09dce51e963f30345faeefec01cabf564776f710a5c9",
+  "linux_source_and_tests_match_checkout": true,
+  "runtime_source_matches_checkout": true,
+  "wheel_sources_match_checkout": true,
+  "wheel_sha256": "56748d6a29c06d3cd9aeace821b173961c99d7eb5270694a31ab4e19288d2d6c",
+  "native_exit": 40,
+  "native_suite_executions": 36,
+  "verified_binaries": 4,
+  "verified_source_archives": 4,
+  "verified_native_case_inputs": 6
+}

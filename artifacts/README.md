@@ -37,8 +37,10 @@ the [roadmap](../docs/roadmap.md) once the checkpoint is accepted.
 ## Package
 
 The latest verified implementation and wheel are in the
-[minimized-results checkpoint](checkpoints/minimized-results/README.md), which adds
-classification of stable minimized observations and retains focused synthetic reports.
+[cache-import checkpoint](checkpoints/cache-import/README.md), which reconciles stale
+diagnostic caches against reviewed local expectations and retains CLI transfer evidence.
+The [minimized-results checkpoint](checkpoints/minimized-results/README.md) adds
+classification of stable minimized observations and focused synthetic reports.
 The preceding [workflow checkpoint](checkpoints/workflow/README.md) covers CI integration,
 regression transfer, cross-input identity, raw hardening evidence, and a retained
 native CLI run. Earlier checkpoints are

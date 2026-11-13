@@ -4,7 +4,7 @@ from pathlib import Path
 import click
 
 from diffsheriff.config import DiffSheriffConfig
-from diffsheriff.pipeline import empty_summary, run_pipeline
+from diffsheriff.pipeline import discover_cases, empty_summary, run_pipeline
 from diffsheriff.regressions import copy_regressions
 
 
@@ -35,7 +35,10 @@ def main(config, output_json, artifacts, regressions_from, export_regressions):
         if not regressions.resolve().is_relative_to(cfg.config_directory):
             raise ValueError("Regression directory escapes the configuration directory")
         if regressions_from is not None:
-            copy_regressions(regressions_from, regressions, cfg.base_ref)
+            local_cases, _ = discover_cases(cfg)
+            copy_regressions(
+                regressions_from, regressions, cfg.base_ref, local_cases=local_cases
+            )
         click.echo(
             f"Validating {cfg.target_name}: {cfg.base_ref[:12]} -> {cfg.patch_ref[:12]}"
         )

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="15" time="0.511" timestamp="2026-11-13T16:51:01.129303+03:30" hostname="DESKTOP-OVP2LHB"><testcase classname="tests.test_regressions" name="test_copy_filters_baseline_and_preserves_files" time="0.022" /><testcase classname="tests.test_regressions" name="test_copy_rejects_corruption_without_partial_writes[hash]" time="0.019" /><testcase classname="tests.test_regressions" name="test_copy_rejects_corruption_without_partial_writes[traversal]" time="0.017" /><testcase classname="tests.test_regressions" name="test_copy_rejects_corruption_without_partial_writes[conflict]" time="0.018" /><testcase classname="tests.test_regressions" name="test_export_can_refresh_owned_snapshot" time="0.017" /><testcase classname="tests.test_regressions" name="test_stale_diagnostic_preserves_reviewed_local_bytes" time="0.017"><failure message="diffsheriff.config.ConfigError: Refusing to replace conflicting regression: C:\Users\Asus\Desktop\security\DiffSheriff\.diffsheriff\cache-red\test_stale_diagnostic_preserve0\destination\case.json">tmp_path = WindowsPath('C:/Users/Asus/Desktop/security/DiffSheriff/.diffsheriff/cache-red/test_stale_diagnostic_preserve0')
+
+    def test_stale_diagnostic_preserves_reviewed_local_bytes(tmp_path):
+        source, destination = tmp_path / "source", tmp_path / "destination"
+        reviewed_case(source, destination)
+        before = {p.name: p.read_bytes() for p in destination.iterdir()}
+        for _ in range(2):
+&gt;           copy_regressions(source, destination, "a" * 40)
+
+tests\test_regressions.py:87: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+source = WindowsPath('C:/Users/Asus/Desktop/security/DiffSheriff/.diffsheriff/cache-red/test_stale_diagnostic_preserve0/source')
+destination = WindowsPath('C:/Users/Asus/Desktop/security/DiffSheriff/.diffsheriff/cache-red/test_stale_diagnostic_preserve0/destination')
+base_ref = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', replace_existing = False
+
+    def copy_regressions(source, destination, base_ref, *, replace_existing=False):
+        source, destination = Path(source), Path(destination)
+        if not source.is_dir():
+            raise ConfigError(f"Missing retained regression directory: {source}")
+        pending = {}
+        for manifest in sorted(source.glob("*.json")):
+            manifest = contained_file(source, manifest.name)
+            item = json.loads(manifest.read_text(encoding="utf-8"))
+            if item["base_ref"] != base_ref:
+                continue
+            payload = contained_file(source, item["input"])
+            if payload.name != item["input"]:
+                raise ConfigError(
+                    "Retained generated regressions must use flat input paths"
+                )
+            if compute_sha256(payload) != item["sha256"]:
+                raise ConfigError("Retained regression input hash does not match")
+            for path in (payload, manifest):
+                data = path.read_bytes()
+                if path.name in pending and pending[path.name] != data:
+                    raise ConfigError("Conflicting retained regression files")
+                target = destination / path.name
+                if target.is_symlink() or (
+                    not replace_existing and target.exists() and target.read_bytes() != data
+                ):
+&gt;                   raise ConfigError(
+                        f"Refusing to replace conflicting regression: {target}"
+                    )
+E                   diffsheriff.config.ConfigError: Refusing to replace conflicting regression: C:\Users\Asus\Desktop\security\DiffSheriff\.diffsheriff\cache-red\test_stale_diagnostic_preserve0\destination\case.json
+
+diffsheriff\regressions.py:36: ConfigError</failure></testcase><testcase classname="tests.test_regressions" name="test_cache_only_expectation_cannot_create_ground_truth" time="0.014"><failure message="Failed: DID NOT RAISE ConfigError">tmp_path = WindowsPath('C:/Users/Asus/Desktop/security/DiffSheriff/.diffsheriff/cache-red/test_cache_only_expectation_ca0')
+
+    def test_cache_only_expectation_cannot_create_ground_truth(tmp_path):
+        source, destination = tmp_path / "source", tmp_path / "destination"
+        item = retained_suite(source)
+        item.update(expected={"exit_code": 0, "stdout": "cache says so", "stderr": ""}, check="full")
+        (source / "case.json").write_text(json.dumps(item))
+&gt;       with pytest.raises(ConfigError, match="independent local expectation"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ConfigError
+
+tests\test_regressions.py:96: Failed</failure></testcase><testcase classname="tests.test_regressions" name="test_reconciliation_rejects_identity_conflicts[base_ref-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb]" time="0.021"><failure message="Failed: DID NOT RAISE ConfigError">tmp_path = WindowsPath('C:/Users/Asus/Desktop/security/DiffSheriff/.diffsheriff/cache-red/test_reconciliation_rejects_id0')
+field = 'base_ref', value = 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
+
+    @pytest.mark.parametrize("field,value", [
+        ("base_ref", "b" * 40), ("mode", "release"), ("finding_side", "patch"),
+        ("signature", None), ("finding_signature", {"error_type": "other"}),
+        ("kind", "functional"), ("input", "other.input"), ("future_replay_setting", "changed"),
+    ])
+    def test_reconciliation_rejects_identity_conflicts(tmp_path, field, value):
+        source, destination = tmp_path / "source", tmp_path / "destination"
+        item, _ = reviewed_case(source, destination)
+        before = {p.name: p.read_bytes() for p in destination.iterdir()}
+        item[field] = value
+        if field == "input":
+            (source / value).write_bytes(b"harmless")
+        (source / "case.json").write_text(json.dumps(item))
+&gt;       with pytest.raises(ConfigError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ConfigError
+
+tests\test_regressions.py:114: Failed</failure></testcase><testcase classname="tests.test_regressions" name="test_reconciliation_rejects_identity_conflicts[mode-release]" time="0.020" /><testcase classname="tests.test_regressions" name="test_reconciliation_rejects_identity_conflicts[finding_side-patch]" time="0.020" /><testcase classname="tests.test_regressions" name="test_reconciliation_rejects_identity_conflicts[signature-None]" time="0.018" /><testcase classname="tests.test_regressions" name="test_reconciliation_rejects_identity_conflicts[finding_signature-value4]" time="0.018" /><testcase classname="tests.test_regressions" name="test_reconciliation_rejects_identity_conflicts[kind-functional]" time="0.021" /><testcase classname="tests.test_regressions" name="test_reconciliation_rejects_identity_conflicts[input-other.input]" time="0.020" /><testcase classname="tests.test_regressions" name="test_reconciliation_rejects_identity_conflicts[future_replay_setting-changed]" time="0.018" /></testsuite></testsuites>

@@ -929,6 +929,50 @@ def test_cli_exports_and_restores_generated_regressions(tmp_path, pipeline_fixtu
     assert list(retained.glob("*.json"))
 
 
+@pytest.mark.parametrize("cache_state", ["stale", "conflict", "cache-only"])
+def test_cli_cache_respects_reviewed_local_expectations(
+    tmp_path, pipeline_fixture, cache_state
+):
+    _, config_path, state = pipeline_fixture
+    retained = tmp_path / "retained"
+    report = tmp_path / "report.json"
+    args = [
+        "--config",
+        str(config_path),
+        "--output-json",
+        str(report),
+        "--artifacts",
+        str(tmp_path / "runs"),
+        "--export-regressions",
+        str(retained),
+    ]
+    first = CliRunner().invoke(main, args)
+    assert first.exit_code == 0, first.output
+    regressions = tmp_path / "regressions"
+    before = {p.name: p.read_bytes() for p in regressions.iterdir()}
+    for manifest in retained.glob("*.json"):
+        item = json.loads(manifest.read_text())
+        if cache_state == "stale":
+            item.update(expected=None, check="diagnostic", valid_input=False)
+        else:
+            item["expected"]["stdout"] = "untrusted cache output"
+        manifest.write_text(json.dumps(item))
+    if cache_state == "cache-only":
+        for path in regressions.iterdir():
+            path.unlink()
+        before = {}
+    calls_before_import = state["calls"]
+    for _ in range(2):
+        result = CliRunner().invoke(main, args + ["--regressions-from", str(retained)])
+        assert result.exit_code == (0 if cache_state == "stale" else 30), result.output
+        assert {p.name: p.read_bytes() for p in regressions.iterdir()} == before
+        if cache_state == "stale":
+            assert {p.name: p.read_bytes() for p in retained.iterdir()} == before
+        else:
+            assert state["calls"] == calls_before_import
+            assert json.loads(report.read_text())["analysis_complete"] is False
+
+
 @pytest.mark.parametrize(
     "scenario,code",
     [

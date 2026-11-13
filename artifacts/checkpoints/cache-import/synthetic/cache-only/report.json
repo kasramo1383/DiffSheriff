@@ -1,0 +1,20 @@
+{
+  "target_name": "unknown",
+  "exit_code": 30,
+  "verdict": "BUILD_OR_CONFIG_ERROR",
+  "total_tests_run": 0,
+  "functional_passed": 0,
+  "functional_failed": 0,
+  "security_flaws_fixed": 0,
+  "security_flaws_lingering": 0,
+  "hardening_degraded": false,
+  "analysis_complete": false,
+  "notes": [
+    "ConfigError: Cached result needs a matching independent local expectation"
+  ],
+  "schema_version": "2.0",
+  "security_status": "INCONCLUSIVE",
+  "functional_status": "INCONCLUSIVE",
+  "evidence": {},
+  "findings": []
+}

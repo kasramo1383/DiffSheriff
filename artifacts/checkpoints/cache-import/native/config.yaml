@@ -1,0 +1,37 @@
+build:
+  clean_command: ''
+  release:
+    binary_path: program
+    command: cc -g -fno-omit-frame-pointer -fstack-protector-all -fPIE -pie -Wl,-z,relro,-z,now
+      main.c -o program
+  sanitized:
+    binary_path: program
+    command: clang -fsanitize=address,undefined -g -fno-omit-frame-pointer -fstack-protector-all
+      -fPIE -pie -Wl,-z,relro,-z,now main.c -o program
+execution:
+  environment_variables:
+    ASAN_OPTIONS: detect_leaks=0
+    UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1
+  image: diffsheriff:cache-import
+  input_method: stdin
+  timeout_seconds: 5
+hardening_baseline:
+  min_relro: partial
+target:
+  base_ref: 33010c8884bfa782e78c33a21f2c3c27cb7a4442
+  baseline_signature:
+    error_type: heap-buffer-overflow
+    file: source.c
+    function: parse
+    line: 8
+  language: c
+  name: sample
+  patch_ref: 7a586e6d8155c9660dba63136c83c7eb3dc4b817
+  repository_path: repository
+test_suites:
+  boundary_directory: tests/boundary
+  expectations: expected.json
+  malicious_directory: tests/invalid
+  provenance: Independent test specification
+  valid_directory: tests/valid
+version: '2.0'

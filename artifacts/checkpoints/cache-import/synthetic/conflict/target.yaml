@@ -1,0 +1,32 @@
+
+version: '2.0'
+target:
+  name: sample
+  language: c
+  repository_path: targets/sample
+  base_ref: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+  patch_ref: 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
+  baseline_signature:
+    error_type: heap-buffer-overflow
+    file: source.c
+    function: parse
+    line: 8
+build:
+  clean_command: make clean
+  release:
+    command: make release
+    binary_path: bin/sample
+  sanitized:
+    command: make sanitized
+    binary_path: bin/sample-asan
+execution:
+  timeout_seconds: 5
+  input_method: stdin
+hardening_baseline:
+  min_relro: partial
+test_suites:
+  valid_directory: tests/valid
+  boundary_directory: tests/boundary
+  malicious_directory: tests/invalid
+  expectations: expected.json
+  provenance: Independent test specification

@@ -1,0 +1,25 @@
+{
+  "stale": {
+    "exit_code": 0,
+    "notes": [],
+    "local_manifest_sha256": {
+      "126db2eed80afe93e9cfc1679d3eba873055d871bf9248734176b0081d9ba887.json": "972113a10d272aff040243f494b047477f002f4e5575a89b86987fb7b597a8b1"
+    }
+  },
+  "conflict": {
+    "exit_code": 30,
+    "notes": [
+      "ConfigError: Refusing to replace conflicting regression: /var/tmp/diffsheriff-cache-import.TaODat/results/test_cli_cache_respects_review1/regressions/126db2eed80afe93e9cfc1679d3eba873055d871bf9248734176b0081d9ba887.json"
+    ],
+    "local_manifest_sha256": {
+      "126db2eed80afe93e9cfc1679d3eba873055d871bf9248734176b0081d9ba887.json": "972113a10d272aff040243f494b047477f002f4e5575a89b86987fb7b597a8b1"
+    }
+  },
+  "cache-only": {
+    "exit_code": 30,
+    "notes": [
+      "ConfigError: Cached result needs a matching independent local expectation"
+    ],
+    "local_manifest_sha256": {}
+  }
+}
