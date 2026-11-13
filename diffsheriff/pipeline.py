@@ -129,6 +129,18 @@ def discover_cases(cfg):
             valid_input = item.get("valid_input", item.get("kind") == "functional")
             if type(valid_input) is not bool:
                 raise ConfigError("Generated regression valid_input must be a boolean")
+            diagnostic_only = (
+                item.get("check") == "diagnostic" and item.get("expected") is None
+            )
+            if diagnostic_only and (
+                item.get("kind") != "security"
+                or valid_input
+                or item.get("mode") not in {"release", "sanitized"}
+                or item.get("finding_side") not in {"base", "patch"}
+                or not isinstance(item.get("finding_signature"), dict)
+                or not item["finding_signature"]
+            ):
+                raise ConfigError("Invalid diagnostic regression manifest")
             cases.append(
                 {
                     "id": "regression/" + manifest_path.stem,
@@ -137,8 +149,11 @@ def discover_cases(cfg):
                     ),
                     "payload": payload,
                     "sha256": digest,
-                    "expected": expected_result(item["expected"]),
+                    "expected": (
+                        None if diagnostic_only else expected_result(item["expected"])
+                    ),
                     "valid_input": valid_input,
+                    "diagnostic_only": diagnostic_only,
                     "baseline_signature": item["signature"],
                     "baseline_mode": item["mode"],
                 }
@@ -165,6 +180,8 @@ def observe(source, binary, payload, settings, side, hunks):
 
 
 def matches_expected(observation, expected):
+    if expected is None:
+        return False
     execution = observation["execution"]
     return (
         not any(
@@ -202,14 +219,14 @@ def stable_observations(observations):
     )
 
 
-def compare_case(case, mode, runs, baseline_signature):
+def compare_case(case, mode, runs, baseline_signature, known_baseline=False):
     """Compare only corresponding modes, retaining independent functional evidence."""
     base, patch = runs["base"][0], runs["patch"][0]
     stable = all(stable_observations(runs[side]) for side in ("base", "patch"))
     base_ok = all(matches_expected(item, case["expected"]) for item in runs["base"])
     patch_ok = all(matches_expected(item, case["expected"]) for item in runs["patch"])
     base_sig, patch_sig = base["signature"], patch["signature"]
-    baseline_seen = stable and base_sig == baseline_signature
+    baseline_seen = stable_observations(runs["base"]) and base_sig == baseline_signature
     findings = []
     notes = []
     regression = stable and case["valid_input"] and base_ok and not patch_ok
@@ -225,7 +242,12 @@ def compare_case(case, mode, runs, baseline_signature):
             )
         )
     if stable and patch_sig:
-        status = "Incomplete Fix" if patch_sig == base_sig else "New Issue"
+        status = (
+            "Incomplete Fix"
+            if patch_sig == base_sig
+            or (known_baseline and patch_sig == baseline_signature)
+            else "New Issue"
+        )
         findings.append(
             (
                 status,
@@ -276,7 +298,9 @@ def compare_case(case, mode, runs, baseline_signature):
         notes.append(
             "Baseline does not satisfy the independent valid-input expectation"
         )
-    if not patch_ok and not vulnerability and not regression:
+    if case["expected"] is None:
+        notes.append("Diagnostic regression has no independent functional expectation")
+    elif not patch_ok and not vulnerability and not regression:
         notes.append("Patched behavior does not satisfy the independent expectation")
     if (
         case.get("baseline_signature")
@@ -331,7 +355,7 @@ def record_reproducer(
     mismatch = {
         "fields": sorted(
             key
-            for key in case["expected"]
+            for key in (case["expected"] or {})
             if observation["execution"][key] != case["expected"][key]
         ),
         "error_type": observation["triage"]["error_type"],
@@ -448,7 +472,8 @@ def record_reproducer(
         "expected": expected,
         "original_expected": case["expected"],
         "valid_input": case["valid_input"],
-        "regression_input": "original.input" if expected is None else "minimized.input",
+        "regression_input": "minimized.input",
+        "diagnostic_only": expected is None,
         "settings": asdict(settings),
         "runs": runs,
         "minimization_log": replay_log,
@@ -490,44 +515,49 @@ def record_reproducer(
     evidence["reproducers"].append(bundle.relative_to(run_directory).as_posix())
     if stable:
         # Unknown functional behavior must never become a generated expectation.
-        regression_payload = case["payload"] if expected is None else minimized
-        regression_digest = hashlib.sha256(regression_payload).hexdigest()
-        regression_runs = original_runs if expected is None else runs
         regressions = cfg.config_directory / cfg.test_suites.regression_directory
         if not regressions.resolve().is_relative_to(cfg.config_directory):
             raise ConfigError(
                 "Regression directory escapes the configuration directory"
             )
         regressions.mkdir(parents=True, exist_ok=True)
-        key = hashlib.sha256(
-            (cfg.base_ref + location + regression_digest + mode).encode()
-        ).hexdigest()
-        input_path = regressions / (key + ".input")
-        manifest_path = regressions / (key + ".json")
-        for path in (input_path, manifest_path):
-            if path.is_symlink():
-                raise ConfigError(
-                    "Refusing to replace a symlink in generated regressions"
-                )
-        input_path.write_bytes(regression_payload)
-        manifest_path.write_text(
-            json.dumps(
-                {
-                    "input": input_path.name,
-                    "sha256": regression_digest,
-                    "base_ref": cfg.base_ref,
-                    "signature": regression_runs["base"][0]["signature"],
-                    "finding_signature": signature,
-                    "finding_side": side,
-                    "mode": mode,
-                    "kind": "functional" if functional else "security",
-                    "valid_input": case["valid_input"],
-                    "expected": case["expected"] if expected is None else expected,
-                },
-                indent=2,
-            ),
-            encoding="utf-8",
-        )
+        entries = [(minimized, expected, runs)]
+        if expected is None and case["expected"] is not None:
+            entries.append((case["payload"], case["expected"], original_runs))
+        for payload, expectation, regression_runs in entries:
+            regression_digest = hashlib.sha256(payload).hexdigest()
+            key = hashlib.sha256(
+                (cfg.base_ref + location + regression_digest + mode).encode()
+            ).hexdigest()
+            input_path = regressions / (key + ".input")
+            manifest_path = regressions / (key + ".json")
+            for path in (input_path, manifest_path):
+                if path.is_symlink():
+                    raise ConfigError(
+                        "Refusing to replace a symlink in generated regressions"
+                    )
+            input_path.write_bytes(payload)
+            manifest_path.write_text(
+                json.dumps(
+                    {
+                        "input": input_path.name,
+                        "sha256": regression_digest,
+                        "base_ref": cfg.base_ref,
+                        "signature": regression_runs["base"][0]["signature"],
+                        "finding_signature": signature,
+                        "finding_side": side,
+                        "mode": mode,
+                        "kind": "functional" if functional else "security",
+                        "check": "diagnostic" if expectation is None else "full",
+                        "valid_input": (
+                            case["valid_input"] if expectation is not None else False
+                        ),
+                        "expected": expectation,
+                    },
+                    indent=2,
+                ),
+                encoding="utf-8",
+            )
     return (bundle.relative_to(run_directory) / "minimized.input").as_posix(), stable
 
 
@@ -643,6 +673,8 @@ def run_pipeline(cfg, artifact_root):
         incomplete |= bool(warnings)
         known_expectations = {}
         for case in cases:
+            if case["expected"] is None:
+                continue
             if (
                 case["sha256"] in known_expectations
                 and known_expectations[case["sha256"]] != case["expected"]
@@ -651,99 +683,157 @@ def run_pipeline(cfg, artifact_root):
                     "Identical payloads have conflicting independent expectations"
                 )
             known_expectations[case["sha256"]] = case["expected"]
-        for case in cases:
-            for mode in ("release", "sanitized"):
-                runs = {}
-                record = {key: value for key, value in case.items() if key != "payload"}
-                record.update(mode=mode, runs=runs)
-                evidence["cases"].append(record)
-                for side in ("base", "patch"):
-                    runs[side] = []
-                    for _ in range(3):
-                        runs[side].append(
-                            observe(
-                                *artifacts[side][mode],
-                                case["payload"],
-                                settings,
-                                side,
-                                hunks,
-                            )
+        observations = []
+        observation_error = None
+        try:
+            for case in cases:
+                if case["expected"] is None:
+                    if (
+                        case["sha256"] not in known_expectations
+                        and cfg.test_suites.independent_reference_command
+                    ):
+                        reference = run_container(
+                            cfg.config_directory,
+                            cfg.test_suites.independent_reference_command,
+                            settings,
+                            payload=case["payload"],
                         )
-                        summary.total_tests_run += 1
-                decision = compare_case(case, mode, runs, cfg.baseline_signature)
-                baseline_seen |= decision["baseline_seen"]
-                vulnerability |= decision["vulnerability"]
-                regression |= decision["regression"]
-                incomplete |= bool(decision["notes"])
-                if case["valid_input"]:
-                    summary.functional_passed += int(
-                        decision["base_ok"] and decision["patch_ok"]
-                    )
-                    summary.functional_failed += int(
-                        not (decision["base_ok"] and decision["patch_ok"])
-                    )
-                for status, observation, reason in decision["findings"]:
-                    finding = FindingReport(
-                        f"finding-{len(summary.findings) + 1}",
-                        status,
-                        observation["triage"]["error_type"],
-                        observation["triage"]["detection_mechanism"],
-                        case["id"],
-                        None,
-                        observation["correlation"]["correlation_type"],
-                        decision["stable"],
-                        {
-                            "mode": mode,
-                            "signature": observation["signature"],
-                            "reason": reason,
-                            "case_index": len(evidence["cases"]) - 1,
-                            "correlation": observation["correlation"],
-                        },
-                    )
-                    summary.findings.append(finding)
-                if decision["stable"]:
+                        if (
+                            reference.exit_code
+                            or reference.timed_out
+                            or reference.resource_limited
+                            or reference.output_limited
+                        ):
+                            raise RuntimeError(
+                                "Independent reference command failed "
+                                "for diagnostic regression"
+                            )
+                        known_expectations[case["sha256"]] = expected_result(
+                            json.loads(reference.stdout)
+                        )
+                    case["expected"] = known_expectations.get(case["sha256"])
+                    case["diagnostic_only"] = case["expected"] is None
+                for mode in ("release", "sanitized"):
+                    if case.get("diagnostic_only") and mode != case["baseline_mode"]:
+                        continue
+                    runs = {}
+                    record = {
+                        key: value for key, value in case.items() if key != "payload"
+                    }
+                    record.update(mode=mode, runs=runs)
+                    evidence["cases"].append(record)
                     for side in ("base", "patch"):
-                        observation = runs[side][0]
-                        functional = (
-                            side == "patch"
-                            and decision["regression"]
-                            and not observation["signature"]
-                        )
-                        if observation["signature"] or functional:
-                            minimized, stable = record_reproducer(
-                                case,
-                                mode,
-                                side,
-                                observation,
-                                artifacts,
-                                settings,
-                                hunks,
-                                cfg,
-                                directory,
-                                known_expectations,
-                                evidence,
-                                runs,
-                                functional,
-                            )
-                            incomplete |= not stable
-                            if not stable:
-                                summary.notes.append(
-                                    f"Unstable reproducer: {case['id']} {mode} {side}"
+                        runs[side] = []
+                        for _ in range(3):
+                            runs[side].append(
+                                observe(
+                                    *artifacts[side][mode],
+                                    case["payload"],
+                                    settings,
+                                    side,
+                                    hunks,
                                 )
-                            for finding in summary.findings:
-                                if (
-                                    finding.triggering_input == case["id"]
-                                    and finding.evidence["mode"] == mode
-                                    and finding.evidence["signature"]
-                                    == observation["signature"]
-                                ):
-                                    finding.minimized_input = minimized
-                                    finding.reproduced_cleanly = stable
-                                    if not stable:
-                                        finding.status = "Inconclusive"
-                                        finding.evidence["reason"] = (
-                                            "Later reproducer replays were unstable"
-                                        )
+                            )
+                            summary.total_tests_run += 1
+                    observations.append((case, mode, runs, len(evidence["cases"]) - 1))
+        except Exception as error:
+            observation_error = error
+        known_baseline_modes = {
+            mode
+            for _, mode, runs, _ in observations
+            if stable_observations(runs["base"])
+            and runs["base"][0]["signature"] == cfg.baseline_signature
+        }
+        evidence["baseline_identity_modes"] = sorted(known_baseline_modes)
+        for case, mode, runs, case_index in observations:
+            decision = compare_case(
+                case, mode, runs, cfg.baseline_signature, mode in known_baseline_modes
+            )
+            baseline_seen |= decision["baseline_seen"]
+            vulnerability |= decision["vulnerability"]
+            regression |= decision["regression"]
+            incomplete |= bool(decision["notes"])
+            if case["valid_input"]:
+                summary.functional_passed += int(
+                    decision["base_ok"] and decision["patch_ok"]
+                )
+                summary.functional_failed += int(
+                    not (decision["base_ok"] and decision["patch_ok"])
+                )
+            for status, observation, reason in decision["findings"]:
+                finding = FindingReport(
+                    f"finding-{len(summary.findings) + 1}",
+                    status,
+                    observation["triage"]["error_type"],
+                    observation["triage"]["detection_mechanism"],
+                    case["id"],
+                    None,
+                    observation["correlation"]["correlation_type"],
+                    decision["stable"],
+                    {
+                        "mode": mode,
+                        "signature": observation["signature"],
+                        "reason": reason,
+                        "case_index": case_index,
+                        "correlation": observation["correlation"],
+                    },
+                )
+                summary.findings.append(finding)
+            if decision["stable"]:
+                for side in ("base", "patch"):
+                    observation = runs[side][0]
+                    functional = (
+                        side == "patch"
+                        and decision["regression"]
+                        and not observation["signature"]
+                    )
+                    if observation["signature"] or functional:
+                        minimized, stable = record_reproducer(
+                            case,
+                            mode,
+                            side,
+                            observation,
+                            artifacts,
+                            settings,
+                            hunks,
+                            cfg,
+                            directory,
+                            known_expectations,
+                            evidence,
+                            runs,
+                            functional,
+                        )
+                        incomplete |= not stable
+                        if (
+                            compute_sha256(directory / minimized)
+                            not in known_expectations
+                        ):
+                            incomplete = True
+                            summary.notes.append(
+                                f"Minimized diagnostic input for {case['id']} {mode} "
+                                "has no independent expectation; full regression "
+                                "check is incomplete"
+                            )
+                        if not stable:
+                            summary.notes.append(
+                                f"Unstable reproducer: {case['id']} {mode} {side}"
+                            )
+                        for finding in summary.findings:
+                            if (
+                                finding.triggering_input == case["id"]
+                                and finding.evidence["mode"] == mode
+                                and finding.evidence["signature"]
+                                == observation["signature"]
+                            ):
+                                finding.minimized_input = minimized
+                                finding.reproduced_cleanly = stable
+                                if not stable:
+                                    finding.status = "Inconclusive"
+                                    finding.evidence["reason"] = (
+                                        "Later reproducer replays were unstable"
+                                    )
+        if observation_error is not None:
+            raise observation_error
         vulnerability = any(
             f.status in {"Incomplete Fix", "New Issue"} and f.reproduced_cleanly
             for f in summary.findings

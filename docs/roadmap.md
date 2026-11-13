@@ -8,16 +8,16 @@ handoff instructions are in [`agent_handoff_prompt.md`](agent_handoff_prompt.md)
 
 ## Current assessment
 
-The three implementation defects identified in the audit are fixed in the current
-source. Their focused tests, full-suite records, and package builds are retained under
-`artifacts/checkpoints/`. The final checkpoint records 134 passing Linux tests with no
-skips, including a harmless native Docker fixture. The Windows run records 133 passes
-and the Docker test skipped. Formatting, lint, packaging, source hashes, and runtime
-details are also documented in the [final checkpoint](../artifacts/checkpoints/insertion/README.md).
+The three earlier audited defects and the four subsequently identified workflow
+and pipeline gaps have implementations with focused checks. The current source,
+verification results, native evidence, and package are recorded in the
+[workflow checkpoint](../artifacts/checkpoints/workflow/README.md). This checkpoint
+is ready for review; it does not record team or instructor acceptance.
 
 The native fixture is infrastructure evidence only. It does not demonstrate a real
-vulnerability or course-target acceptance. The workflow gaps below remain open.
-See the [target record](target_scenarios.md) for proposals and approval status.
+vulnerability or course-target acceptance. See the [target record](target_scenarios.md)
+for proposals and approval status. Hosted GitHub execution with an approved target
+still depends on that target's assets and approval.
 
 ## Completed implementation checkpoints
 
@@ -40,37 +40,30 @@ See the [target record](target_scenarios.md) for proposals and approval status.
    establish implementation behavior within the tested cases, not correctness for all
    targets.
 
-## Remaining workflow and pipeline implementation
+## Workflow and pipeline implementation ready for review
 
-The CLI already builds exact baseline and patch revisions, runs corresponding
-release and sanitized binaries in isolated containers, and produces JSON, replay
-bundles, and prioritized exit codes. Four parts of the assignment still need code.
-
-1. **Run patch validation in CI (ยงยง3.5, 5).** The current
-   [workflow](../.github/workflows/verify_patch.yml) runs unit tests and the harmless
-   container fixture. Add a job that runs the existing CLI with a target config and
-   exact baseline and patch refs. Retain the report and run bundle on every outcome.
-   Use the actual CLI exit code to decide whether a patch passes. A separate scenario
-   demonstration can compare the observed code with its expected code (0, 10, or 20).
-2. **Carry minimized regressions into later runs (ยง3.3).** The pipeline generates and
-   reloads regression manifests, but when a reduced input has no independent expected
-   output it saves the original input to the suite and keeps the reduction in the
-   replay bundle only. Enroll the reduced input with a diagnostic check and use an
-   independent expectation for its patched behavior before crediting the full
-   regression check. Keep the original case with its own expectation. The CI job
-   must load the retained regression suite on subsequent runs.
-3. **Classify a known baseline finding across inputs (ยง3.1).** `compare_case()` calls
-   a patch diagnostic an incomplete fix only when the same input produces the same
-   signature on the baseline. Use the designated baseline identity once it has been
-   reproduced in the same build mode, even if a different input exposed it. Keep
-   genuinely distinct diagnostics separate and report uncertain identity or
-   attribution as such.
-4. **Include raw hardening indicators in the report (ยง3.4).** The release audit
-   currently stores NX, PIE, RELRO, and canary statuses and warns on downgrades.
-   Retain the indicators behind those results in JSON, including GNU stack flags,
-   the PIE marker, the GNU RELRO segment and binding flags, and any canary symbol
-   found. Distinguish PIE executables from shared objects rather than treating every
-   `ET_DYN` file as PIE.
+1. **CI patch validation (งง3.5, 5).** The reusable/manual
+   [target workflow](../.github/workflows/validate_target.yml) runs the CLI using a
+   config with exact source refs. The actual process exit code gates the job, and
+   report/run artifacts are uploaded on every outcome where they exist. Regression
+   caches are restored and updated across runs, with a retained artifact copy.
+   Configure the main verification workflow with `DIFFSHERIFF_TARGET_CONFIG` after
+   target approval. See [CI usage](ci.md); no hosted target run is claimed.
+2. **Minimized regression enrollment (ง3.3).** Unknown reduced inputs are enrolled as
+   diagnostic regressions and executed in their recorded build mode on later runs.
+   The original input retains its independent expectation. Missing reduced-input
+   expectations make analysis inconclusive immediately; an independent reference
+   or supplied expectation is required to complete the full regression check.
+3. **Finding identity across inputs (ง3.1).** Suite observations establish the
+   designated baseline identity per build mode before classification. A matching
+   patch diagnostic on a different input is an incomplete fix even when that input
+   is processed first. Unstable baselines and evidence from other build modes do not
+   establish that identity. Distinct findings and inconclusive attribution stay
+   separate; matching a signature does not prove causation.
+4. **Hardening evidence (ง3.4).** JSON includes GNU stack flags, ELF type, interpreter
+   presence, the PIE marker, RELRO-segment presence, binding flags, and canary symbol
+   names. `ET_DYN` alone does not establish PIE; an interpreter or `DF_1_PIE` marker
+   is required. Sectionless dynamic flags are read through program headers.
 
 ## Target and delivery work
 
@@ -108,11 +101,14 @@ participation.
 
 ## Current checkpoint
 
-- The audited implementation gaps are fixed and have focused tests plus retained
-  verification records.
-- Start with the CI entry point for the existing CLI. The other workflow changes
-  above can also proceed independently of target approval.
-- See `target_scenarios.md` for the approval checkpoint.
+- The earlier audited fixes and all four listed workflow/pipeline gaps are implemented.
+  Review the current checkpoint's evidence before accepting it.
+- Next dependency: instructor confirmation for the candidate targets, source pairs,
+  input scope, and independent expected behavior in `target_scenarios.md`.
+- Then prepare authorized target scenarios and run their acceptance matrices, including
+  hosted CI. Target evidence, unseen-patch evaluation, and contributor defense remain.
+- Do not manufacture target approval or mark the project accepted from synthetic or
+  harmless native checks.
 
 ## Engineering constraints
 

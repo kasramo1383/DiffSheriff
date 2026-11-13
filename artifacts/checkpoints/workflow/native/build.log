@@ -1,0 +1,61 @@
+#0 building with "default" instance using docker driver
+
+#1 [internal] load build definition from runtime.Dockerfile
+#1 transferring dockerfile: 439B done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/diffsheriff:workflow-base
+#2 DONE 0.0s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 120B 0.0s done
+#3 DONE 0.0s
+
+#4 [1/6] FROM docker.io/library/diffsheriff:workflow-base@sha256:ec88e772250a0af68a300f5b17eaccc37f401a6b024d2b14add921a3c071c482
+#4 resolve docker.io/library/diffsheriff:workflow-base@sha256:ec88e772250a0af68a300f5b17eaccc37f401a6b024d2b14add921a3c071c482 0.0s done
+#4 DONE 0.0s
+
+#5 [internal] load build context
+#5 transferring context: 77.95kB 0.1s done
+#5 DONE 0.1s
+
+#6 [2/6] WORKDIR /opt/diffsheriff
+#6 CACHED
+
+#7 [3/6] COPY pyproject.toml README.md ./
+#7 CACHED
+
+#8 [4/6] COPY diffsheriff/ diffsheriff/
+#8 DONE 0.0s
+
+#9 [5/6] RUN pip install --no-cache-dir --no-build-isolation --no-deps .
+#9 0.540 Processing /opt/diffsheriff
+#9 0.542   Preparing metadata (pyproject.toml): started
+#9 0.785   Preparing metadata (pyproject.toml): finished with status 'done'
+#9 0.787 Building wheels for collected packages: diffsheriff
+#9 0.788   Building wheel for diffsheriff (pyproject.toml): started
+#9 0.941   Building wheel for diffsheriff (pyproject.toml): finished with status 'done'
+#9 0.941   Created wheel for diffsheriff: filename=diffsheriff-0.1.0-py3-none-any.whl size=33226 sha256=2d38cc62043a4a6ade51aaeda17c15494b9ac401142b1553a7fd55da7192d81b
+#9 0.941   Stored in directory: /tmp/pip-ephem-wheel-cache-logy4a5c/wheels/6c/fe/2b/1e8cce40a7c5201a1df6fdd695fb206bf5e46c2bec15500784
+#9 0.944 Successfully built diffsheriff
+#9 0.944 Installing collected packages: diffsheriff
+#9 0.944   Attempting uninstall: diffsheriff
+#9 0.945     Found existing installation: diffsheriff 0.1.0
+#9 0.948     Uninstalling diffsheriff-0.1.0:
+#9 0.957       Successfully uninstalled diffsheriff-0.1.0
+#9 0.980 Successfully installed diffsheriff-0.1.0
+#9 DONE 1.0s
+
+#10 [6/6] WORKDIR /src
+#10 DONE 0.0s
+
+#11 exporting to image
+#11 exporting layers 0.1s done
+#11 exporting manifest sha256:902601b297331998ca7bae2beef23ee37b86cd16efc06755247aa7821d5ccbd1 done
+#11 exporting config sha256:721b3ad75d609e231a2309ad333c165498c291a6010f74cea559a67feecca6ad done
+#11 exporting attestation manifest sha256:a5c7d4264c9f6d56105d273b814e362f76c1b9c6e57b143bba66456ac9274fd1
+#11 exporting attestation manifest sha256:a5c7d4264c9f6d56105d273b814e362f76c1b9c6e57b143bba66456ac9274fd1 0.0s done
+#11 exporting manifest list sha256:e8c4e3dd4d497a15b4973a0cd575b246538490fc80909990eb4c0411581372b5 done
+#11 naming to docker.io/library/diffsheriff:workflow done
+#11 unpacking to docker.io/library/diffsheriff:workflow 0.0s done
+#11 DONE 0.2s

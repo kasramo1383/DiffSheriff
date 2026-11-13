@@ -158,9 +158,12 @@ configured regression directory. Later validator runs load those with the same
 baseline commit, replay the expected baseline signature when applicable, and check
 independent patched behavior. Keep these files if they are part of the delivered test
 suite. Do not edit their expectations to copy patched output.
-When a reduced input has no independent expectation, generation uses the original
-input and its expectation instead. The bundle's `regression_input` identifies which
-input supports those checks. Both original and minimized bytes remain in the bundle.
+When a reduced input has no independent expectation, it is enrolled as a diagnostic
+regression, and the original input keeps a separate full expectation. Missing reduced
+expectations keep analysis incomplete, including on the run that creates the case.
+The bundle's `regression_input` points to the minimized input; diagnostic reproduction
+alone does not satisfy the full regression check. See [CI and regression handling](ci.md)
+for supplying independent expectations and transferring suites between runs.
 
 ## Human delivery work
 

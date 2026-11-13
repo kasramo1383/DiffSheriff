@@ -5,6 +5,7 @@ import click
 
 from diffsheriff.config import DiffSheriffConfig
 from diffsheriff.pipeline import empty_summary, run_pipeline
+from diffsheriff.regressions import copy_regressions
 
 
 @click.command()
@@ -23,17 +24,32 @@ from diffsheriff.pipeline import empty_summary, run_pipeline
     default=Path(".diffsheriff/runs"),
     help="Retained builds, logs, inputs, and reproducers.",
 )
-def main(config, output_json, artifacts):
+@click.option("--regressions-from", type=click.Path(file_okay=False, path_type=Path))
+@click.option("--export-regressions", type=click.Path(file_okay=False, path_type=Path))
+def main(config, output_json, artifacts, regressions_from, export_regressions):
     """Validate an authorized local C/C++ patch in isolated Linux containers."""
     summary = empty_summary("unknown")
     try:
         cfg = DiffSheriffConfig.from_yaml(config)
+        regressions = cfg.config_directory / cfg.test_suites.regression_directory
+        if not regressions.resolve().is_relative_to(cfg.config_directory):
+            raise ValueError("Regression directory escapes the configuration directory")
+        if regressions_from is not None:
+            copy_regressions(regressions_from, regressions, cfg.base_ref)
         click.echo(
             f"Validating {cfg.target_name}: {cfg.base_ref[:12]} -> {cfg.patch_ref[:12]}"
         )
         summary = run_pipeline(cfg, artifacts.resolve())
+        if export_regressions is not None:
+            if regressions.exists():
+                copy_regressions(
+                    regressions, export_regressions, cfg.base_ref, replace_existing=True
+                )
+            else:
+                export_regressions.mkdir(parents=True, exist_ok=True)
     except Exception as error:
         summary.exit_code, summary.verdict = 30, "BUILD_OR_CONFIG_ERROR"
+        summary.analysis_complete = False
         summary.notes.append(f"{type(error).__name__}: {error}")
     try:
         summary.write_json(output_json)

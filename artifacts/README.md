@@ -37,14 +37,16 @@ the [roadmap](../docs/roadmap.md) once the checkpoint is accepted.
 ## Package
 
 The latest verified implementation and wheel are in the
-[insertion checkpoint](checkpoints/insertion/README.md), which also completes the
-synthetic acceptance matrix and retains the final native run. Earlier gap checkpoints
-are [minimization](checkpoints/minimization/README.md) and
+[workflow checkpoint](checkpoints/workflow/README.md), including CI integration,
+regression transfer, cross-input identity, raw hardening evidence, and a retained
+native CLI run. Earlier checkpoints are
+[insertion correlation](checkpoints/insertion/README.md),
+[minimization](checkpoints/minimization/README.md), and
 [boundary classification](checkpoints/boundary/README.md). Each records its own
 source hashes, commands, results, and scope; do not combine evidence from different
 checkpoints.
 
 `package/diffsheriff-0.1.0-py3-none-any.whl` is the earlier distribution built from
 commit `07914aa`. The current verified implementation wheel is retained in the
-[insertion checkpoint](checkpoints/insertion/README.md). The [roadmap](../docs/roadmap.md)
+[workflow checkpoint](checkpoints/workflow/README.md). The [roadmap](../docs/roadmap.md)
 records what the implementation checks establish and what course work remains.

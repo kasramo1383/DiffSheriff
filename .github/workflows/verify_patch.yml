@@ -8,6 +8,11 @@ on:
 permissions:
   contents: read
 jobs:
+  target-patch:
+    if: github.event_name != 'pull_request' && vars.DIFFSHERIFF_TARGET_CONFIG != ''
+    uses: ./.github/workflows/validate_target.yml
+    with:
+      config: ${{ vars.DIFFSHERIFF_TARGET_CONFIG }}
   unit:
     runs-on: ubuntu-latest
     strategy:

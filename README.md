@@ -81,6 +81,9 @@ expectations, native smoke testing, and replay. The example configuration at
 [configs/example_target.yaml](configs/example_target.yaml) is illustrative;
 replace its source refs and supply the independently approved test assets.
 
+See [CI setup and retained regressions](docs/ci.md) for the patch-validation job,
+regression import/export, and diagnostic cases awaiting independent expectations.
+
 ```bash
 diffsheriff --config configs/example_target.yaml --output-json validation_report.json
 ```
@@ -102,7 +105,7 @@ produces code `40` because it cannot reproduce the designated baseline security 
 
 ```text
 .
-├── .github/workflows/       Unit and native container verification
+├── .github/workflows/       Tool verification and configurable target patch validation
 ├── configs/                 Illustrative target configuration
 ├── diffsheriff/             Validator pipeline and supporting modules
 ├── docker/                  Development/container baseline

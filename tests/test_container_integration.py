@@ -5,12 +5,14 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+from types import SimpleNamespace
 
 import pytest
 import yaml
+from click.testing import CliRunner
 
+from diffsheriff.cli import main
 from diffsheriff.config import DiffSheriffConfig
-from diffsheriff.pipeline import run_pipeline
 from diffsheriff.runner import execute_container
 from .test_config import VALID_CONFIG
 
@@ -107,13 +109,32 @@ def test_real_native_matrix_and_input_interfaces(tmp_path):
     path = tmp_path / "config.yaml"
     path.write_text(yaml.safe_dump(config))
     cfg = DiffSheriffConfig.from_yaml(path)
-    summary = run_pipeline(cfg, tmp_path / "runs")
+    result = CliRunner().invoke(
+        main,
+        [
+            "--config",
+            str(path),
+            "--output-json",
+            str(tmp_path / "report.json"),
+            "--artifacts",
+            str(tmp_path / "runs"),
+            "--export-regressions",
+            str(tmp_path / "retained"),
+        ],
+    )
+    assert result.exit_code == 40, result.output
+    report = json.loads((tmp_path / "report.json").read_text())
+    summary = SimpleNamespace(**report)
     assert summary.exit_code == 40, summary.notes
     assert summary.functional_status == "PASS"
     assert summary.total_tests_run == 36
     assert summary.notes == [
         "Designated baseline flaw was not reproduced with stable source evidence"
     ]
+    for hardening in summary.evidence["hardening"].values():
+        assert hardening["indicators"]["gnu_stack_flags"] == [6]
+        assert hardening["indicators"]["canary_symbols"]
+        assert hardening["indicators"]["df_1_pie"]
     record = summary.evidence["builds"]["patch"]["release"]
     for method, fixed in [("stdin", []), ("file", []), ("argv", ["--argv"])]:
         from dataclasses import replace

@@ -26,6 +26,7 @@ only in `roadmap.md`.
 | `minimizer.py` | Delta debugging against a strict caller-supplied invariant |
 | `hardening.py` | x86_64 ELF validation and NX/PIE/RELRO/canary comparison |
 | `reproduce.py` | Re-execution of retained cases, including hash verification |
+| `regressions.py` | Baseline-filtered regression import/export with hash and conflict checks |
 | `reporter.py` | Independent statuses, JSON evidence, atomic report replacement, and exit priority |
 | `cli.py` | Configuration, pipeline invocation, developer summary, and operation errors |
 

@@ -176,6 +176,28 @@ def test_build_failure_retains_evidence(tmp_path, pipeline_fixture, monkeypatch)
     assert summary.evidence["builds"]["base"]["release"]["stderr"] == "compiler error"
 
 
+def test_late_execution_error_keeps_completed_findings(
+    tmp_path, pipeline_fixture, monkeypatch
+):
+    import diffsheriff.pipeline as pipeline
+
+    cfg, _, state = pipeline_fixture
+    state["scenario"] = "regression"
+    execute = pipeline.execute_container
+
+    def fail_later(source, binary, payload, settings):
+        if payload == b"diagnostic":
+            raise OSError("later runtime failure")
+        return execute(source, binary, payload, settings)
+
+    monkeypatch.setattr(pipeline, "execute_container", fail_later)
+    summary = run_pipeline(cfg, tmp_path / "runs")
+    assert summary.exit_code == 30
+    assert summary.functional_status == "FAIL"
+    assert any(f.status == "Functional Regression" for f in summary.findings)
+    assert any("later runtime failure" in note for note in summary.notes)
+
+
 def test_missing_expected_case_is_configuration_error(tmp_path, pipeline_fixture):
     cfg, _, _ = pipeline_fixture
     (tmp_path / "expected.json").write_text("{}")
@@ -485,7 +507,7 @@ def test_security_minimization_and_regression_expectations(
             str(tmp_path / "runs"),
         ],
     )
-    assert result.exit_code == 0, result.output
+    assert result.exit_code == (0 if with_reference else 40), result.output
     report = json.loads(report_path.read_text())
     bundle = (
         Path(report["evidence"]["run_directory"]) / report["evidence"]["reproducers"][0]
@@ -501,12 +523,22 @@ def test_security_minimization_and_regression_expectations(
     assert replay(bundle, check_regression=True) == with_reference
     generated = [c for c in discover_cases(cfg)[0] if c["suite"] == "regression"]
     assert generated
-    assert all(
-        c["payload"] == (b"d" if with_reference else b"diagnostic")
-        and c["expected"]["stdout"] == "ok\n"
-        for c in generated
+    assert {c["payload"] for c in generated} == (
+        {b"d"} if with_reference else {b"d", b"diagnostic"}
     )
-    assert run_pipeline(cfg, tmp_path / "second-run").exit_code == 0
+    diagnostic = [c for c in generated if c["diagnostic_only"]]
+    assert bool(diagnostic) == (not with_reference)
+    assert all(c["expected"] is None and c["payload"] == b"d" for c in diagnostic)
+    second = run_pipeline(cfg, tmp_path / "second-run")
+    assert second.exit_code == (0 if with_reference else 40)
+    assert any(
+        c["id"].startswith("regression/")
+        and c["sha256"] == metadata["minimized_sha256"]
+        for c in second.evidence["cases"]
+    )
+    if not with_reference:
+        cfg.test_suites.independent_reference_command = ["reference"]
+        assert run_pipeline(cfg, tmp_path / "with-expectation").exit_code == 0
 
 
 @pytest.mark.parametrize(
@@ -609,6 +641,115 @@ def test_second_run_consumes_regressions_without_mixing_modes(
     second = run_pipeline(cfg, tmp_path / "runs")
     assert first.exit_code == second.exit_code == 0, second.notes
     assert second.total_tests_run > first.total_tests_run
+
+
+@pytest.mark.parametrize(
+    "patch_mode,new_kind,unstable,status",
+    [
+        ("sanitized", False, False, "Incomplete Fix"),
+        ("release", False, False, "New Issue"),
+        ("sanitized", True, False, "New Issue"),
+        ("sanitized", False, True, "New Issue"),
+    ],
+)
+def test_known_baseline_identity_is_shared_only_within_mode(
+    tmp_path, pipeline_fixture, monkeypatch, patch_mode, new_kind, unstable, status
+):
+    cfg, _, state = pipeline_fixture
+    if unstable:
+        state["scenario"] = "unstable"
+    import diffsheriff.pipeline as pipeline
+
+    execute = pipeline.execute_container
+
+    def alternate(source, binary, payload, settings):
+        if (
+            source.parent.name == "patch"
+            and source.name == patch_mode
+            and payload == b"ordinary"
+        ):
+            kind = "heap-use-after-free" if new_kind else "heap-buffer-overflow"
+            return ExecutionResult(
+                1,
+                "",
+                f"ERROR: AddressSanitizer: {kind}\n"
+                " #0 0x1234 in parse /src/source.c:8:1\n",
+                False,
+            )
+        return execute(source, binary, payload, settings)
+
+    monkeypatch.setattr(pipeline, "execute_container", alternate)
+    summary = run_pipeline(cfg, tmp_path / "runs")
+    assert summary.exit_code == 10
+    # This input is processed before the separate baseline trigger.
+    findings = [f for f in summary.findings if f.triggering_input == "valid/input"]
+    assert status in {f.status for f in findings}
+    assert ("New Issue" if status == "Incomplete Fix" else "Incomplete Fix") not in {
+        f.status for f in findings
+    }
+    assert summary.evidence["baseline_identity_modes"] == (
+        [] if unstable else ["sanitized"]
+    )
+    for finding in findings:
+        record = summary.evidence["cases"][finding.evidence["case_index"]]
+        assert record["id"] == finding.triggering_input
+        assert record["mode"] == finding.evidence["mode"]
+
+
+def test_cli_exports_and_restores_generated_regressions(tmp_path, pipeline_fixture):
+    cfg, config_path, _ = pipeline_fixture
+    retained = tmp_path / "retained"
+    args = [
+        "--config",
+        str(config_path),
+        "--output-json",
+        str(tmp_path / "report.json"),
+        "--artifacts",
+        str(tmp_path / "runs"),
+        "--export-regressions",
+        str(retained),
+    ]
+    first = CliRunner().invoke(main, args)
+    assert first.exit_code == 0, first.output
+    first_report = json.loads((tmp_path / "report.json").read_text())
+    for path in (tmp_path / "regressions").iterdir():
+        path.unlink()
+    second = CliRunner().invoke(main, args + ["--regressions-from", str(retained)])
+    assert second.exit_code == 0, second.output
+    second_report = json.loads((tmp_path / "report.json").read_text())
+    assert second_report["total_tests_run"] > first_report["total_tests_run"]
+    assert list(retained.glob("*.json"))
+
+
+@pytest.mark.parametrize(
+    "scenario,code",
+    [
+        ("remaining", 10),
+        ("regression", 20),
+        ("no-baseline", 40),
+        ("operation-error", 30),
+    ],
+)
+def test_cli_export_preserves_failure_exit_codes(
+    tmp_path, pipeline_fixture, scenario, code
+):
+    _, config_path, state = pipeline_fixture
+    state["scenario"] = scenario
+    result = CliRunner().invoke(
+        main,
+        [
+            "--config",
+            str(config_path),
+            "--output-json",
+            str(tmp_path / "report.json"),
+            "--artifacts",
+            str(tmp_path / "runs"),
+            "--export-regressions",
+            str(tmp_path / "retained"),
+        ],
+    )
+    assert result.exit_code == code, result.output
+    assert json.loads((tmp_path / "report.json").read_text())["exit_code"] == code
 
 
 def test_retained_report_failure_preserves_collected_evidence(

@@ -14,9 +14,9 @@ before acting:
 
 Current scope
 
-Use the roadmap's workflow and pipeline section to choose the next code change.
-The current checkpoint names the next task. See the target record for work that
-depends on instructor approval.
+Use the roadmap's current checkpoint to choose the next task. Its implementation
+section records completed code and verification scope. See the target record for
+work that depends on instructor approval.
 
 Work one bounded stage at a time. Begin with the next action in the roadmap checkpoint.
 For the next step only, inspect the relevant source, make a small focused change or

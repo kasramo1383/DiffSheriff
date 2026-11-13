@@ -1,0 +1,12 @@
+{
+  "actionlint": {
+    "command": ".diffsheriff/tools/actionlint.exe -color=false .github/workflows/verify_patch.yml .github/workflows/validate_target.yml",
+    "exit_code": 0,
+    "output": ""
+  },
+  "wheel": {
+    "path": "artifacts/checkpoints/workflow/package/diffsheriff-0.1.0-py3-none-any.whl",
+    "sha256": "696e6f9a60140806fd8607832d35e1ad70568b3b8931f60ddb0bdae5ad7bcc0a",
+    "python_sources_match_checkout": true
+  }
+}

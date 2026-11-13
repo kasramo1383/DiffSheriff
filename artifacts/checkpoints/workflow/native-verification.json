@@ -1,0 +1,10 @@
+{
+  "image": "sha256:e8c4e3dd4d497a15b4973a0cd575b246538490fc80909990eb4c0411581372b5",
+  "linux_snapshot": "/var/tmp/diffsheriff-workflow.l8nEdR",
+  "cli_exit": 40,
+  "suite_executions": 36,
+  "verified_source_archives": 4,
+  "verified_binaries": 4,
+  "verified_case_inputs": 6,
+  "runtime_source_matches_checkout": true
+}

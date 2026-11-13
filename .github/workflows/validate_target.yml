@@ -1,0 +1,65 @@
+name: Validate target patch
+on:
+  workflow_dispatch:
+    inputs:
+      config:
+        description: Approved target config with full baseline and patch commit hashes
+        required: true
+        type: string
+  workflow_call:
+    inputs:
+      config:
+        required: true
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: diffsheriff-target-${{ inputs.config }}-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+          submodules: recursive
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install .
+      - run: docker build -t diffsheriff:local -f docker/Dockerfile .
+      - name: Restore previously generated regressions
+        uses: actions/cache/restore@v4
+        with:
+          path: .diffsheriff/retained-regressions
+          key: regressions-v1-${{ inputs.config }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            regressions-v1-${{ inputs.config }}-
+      - name: Run patch validation
+        env:
+          TARGET_CONFIG: ${{ inputs.config }}
+        run: |
+          mkdir -p .diffsheriff/ci .diffsheriff/retained-regressions
+          diffsheriff --config "$TARGET_CONFIG" \
+            --regressions-from .diffsheriff/retained-regressions \
+            --export-regressions .diffsheriff/retained-regressions \
+            --output-json .diffsheriff/ci/report.json \
+            --artifacts .diffsheriff/ci/runs
+      - name: Save generated regressions for later runs
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: .diffsheriff/retained-regressions
+          key: regressions-v1-${{ inputs.config }}-${{ github.run_id }}-${{ github.run_attempt }}
+      - name: Retain report, run bundles, and regression suite
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: patch-validation
+          path: |
+            .diffsheriff/ci
+            .diffsheriff/retained-regressions
+          include-hidden-files: true
