@@ -18,7 +18,7 @@ def elf_fixture(
     pie=True,
     marker=True,
     interpreter=False,
-    bind_now=False
+    bind_now=False,
 ):
     ident = b"\x7fELF" + bytes([2, 1, 1]) + bytes(9)
     header = struct.pack(

@@ -1,0 +1,10 @@
+{
+  "base_revision": "d319a10370a2d4dfc890171458867671c13b53a6",
+  "normalization": "CRLF to LF",
+  "files": {
+    "pyproject.toml": "b931f52d3b82c30d4dca01ac0492636489d6b8ddddc99fdcb5baf43f426344a6",
+    "tests/test_hardening.py": "1762220504ee8e1f0390bd1449996bd1f002e079f4e7563819822398edd301c5",
+    "artifacts/checkpoints/ci-format/README.md": "699d124a7040d824c0242872343d5134b68582fe1e39fa09436a90ca06184e3a",
+    "artifacts/checkpoints/ci-format/unit-linux.xml": "8fd00512e8d4392a59dad4abb1cfb72c8015364a2da31a295e6454ae46506f3c"
+  }
+}

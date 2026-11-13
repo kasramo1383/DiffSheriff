@@ -33,3 +33,6 @@ diffsheriff = "diffsheriff.cli:main"
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["diffsheriff*"]
+
+[tool.black]
+target-version = ["py310"]
