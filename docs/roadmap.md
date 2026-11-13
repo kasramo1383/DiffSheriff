@@ -17,8 +17,13 @@ regression generation, documentation, and tests. Local checks reproduced 90 pass
 1 skipped (Docker unavailable), with Black, Flake8, and wheel construction passing.
 GitHub Actions run `42911443863` also succeeded, including its native-container job.
 That job is a harmless echo-fixture smoke test; it does not validate vulnerability
-classification. The claimed `.diffsheriff/native-*` local evidence was not present in
-the pulled tree. Treat that claim as unverified until artifacts are supplied.
+classification. Previously Git-ignored local evidence is now retained in
+[`../artifacts/native/`](../artifacts/native/): a JUnit record of 91 passing Linux
+tests, the corresponding native validation report, and a separate earlier CLI run's
+source archives, binaries, inputs, and report. These are distinct runs, as documented
+in `artifacts/README.md`; they establish harmless-fixture coverage, not course-target
+acceptance. The known implementation gaps and unaccepted staged checkpoints below
+remain unchanged.
 
 The following defects were reproduced by direct code-level probes:
 

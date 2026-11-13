@@ -1,0 +1,7 @@
+diff --git a/main.c b/main.c
+index 2120a23..77376a9 100644
+--- a/main.c
++++ b/main.c
+@@ -24,0 +25,2 @@ int main(int argc, char **argv) {
++
++/* An independently changed source revision. */

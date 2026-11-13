@@ -1,0 +1,2240 @@
+{
+  "target_name": "sample",
+  "exit_code": 40,
+  "verdict": "INCONCLUSIVE",
+  "total_tests_run": 36,
+  "functional_passed": 2,
+  "functional_failed": 0,
+  "security_flaws_fixed": 0,
+  "security_flaws_lingering": 0,
+  "hardening_degraded": false,
+  "analysis_complete": false,
+  "notes": [
+    "Designated baseline flaw was not reproduced with stable source evidence"
+  ],
+  "schema_version": "2.0",
+  "security_status": "INCONCLUSIVE",
+  "functional_status": "PASS",
+  "evidence": {
+    "run_directory": "/var/tmp/diffsheriff-check-yUy5fY/cli-runs/run-v7xulloc",
+    "versions": {
+      "base": "3d639864acbd7fd72271cf7ed784afd6b1b6db25",
+      "patch": "59260b1a98c5f6275e470313b219be4e5ae04e7d"
+    },
+    "configuration": {
+      "target_name": "sample",
+      "language": "c",
+      "repository_path": "/var/tmp/diffsheriff-check-yUy5fY/test-output/test_real_native_matrix_and_in0/repository",
+      "build": {
+        "clean_command": "",
+        "release_command": "cc -g -fno-omit-frame-pointer -fstack-protector-all -fPIE -pie -Wl,-z,relro,-z,now main.c -o program",
+        "release_binary_path": "program",
+        "sanitized_command": "clang -fsanitize=address,undefined -g -fno-omit-frame-pointer -fstack-protector-all -fPIE -pie -Wl,-z,relro,-z,now main.c -o program",
+        "sanitized_binary_path": "program",
+        "timeout_seconds": 120
+      },
+      "execution": {
+        "timeout_seconds": 5,
+        "input_method": "stdin",
+        "file_argument_flag": "--file",
+        "fixed_arguments": [],
+        "environment_variables": {
+          "ASAN_OPTIONS": "detect_leaks=0",
+          "UBSAN_OPTIONS": "print_stacktrace=1:halt_on_error=1"
+        },
+        "image": "diffsheriff:local",
+        "memory_mb": 2048,
+        "cpus": 2.0,
+        "pids_limit": 128,
+        "output_limit_bytes": 1048576
+      },
+      "hardening": {
+        "enforce_nx": true,
+        "enforce_pie": true,
+        "min_relro": "partial",
+        "enforce_canary": true
+      },
+      "test_suites": {
+        "valid_directory": "tests/valid",
+        "boundary_directory": "tests/boundary",
+        "malicious_directory": "tests/invalid",
+        "expectations": "expected.json",
+        "provenance": "Independent test specification",
+        "regression_directory": "regressions",
+        "independent_reference_command": []
+      },
+      "base_ref": "3d639864acbd7fd72271cf7ed784afd6b1b6db25",
+      "patch_ref": "59260b1a98c5f6275e470313b219be4e5ae04e7d",
+      "baseline_signature": {
+        "error_type": "heap-buffer-overflow",
+        "file": "source.c",
+        "function": "parse",
+        "line": 8
+      },
+      "config_directory": "/var/tmp/diffsheriff-check-yUy5fY/test-output/test_real_native_matrix_and_in0"
+    },
+    "oracle": {
+      "sha256": "990492c074410e8e741846021ba1195b7b28732cfe668dbf71e1a93ec12b38a5",
+      "provenance": "Independent test specification"
+    },
+    "builds": {
+      "base": {
+        "release": {
+          "commit": "3d639864acbd7fd72271cf7ed784afd6b1b6db25",
+          "source_archive": "/var/tmp/diffsheriff-check-yUy5fY/cli-runs/run-v7xulloc/base/release.zip",
+          "source_archive_sha256": "6a61af67050de4bab78e261c6c0e544c407741ac4bba508791f8b4e1001bebe6",
+          "commands": [
+            {
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "timed_out": false,
+              "output_limited": false,
+              "resource_limited": false,
+              "command": [
+                "docker",
+                "run",
+                "--name",
+                "diffsheriff-ba8930768bd541198f1119c0cb4b5aed",
+                "--pull=never",
+                "--platform=linux/amd64",
+                "--network=none",
+                "--cap-drop=ALL",
+                "--security-opt=no-new-privileges",
+                "--read-only",
+                "--user",
+                "1000",
+                "--memory",
+                "2048m",
+                "--memory-swap",
+                "2048m",
+                "--cpus",
+                "2.0",
+                "--pids-limit",
+                "128",
+                "--ulimit",
+                "core=0",
+                "--tmpfs",
+                "/tmp:rw,nosuid,size=256m,mode=1777",
+                "--mount",
+                "type=bind,src=/var/tmp/diffsheriff-check-yUy5fY/cli-runs/run-v7xulloc/base/release,dst=/src",
+                "--workdir",
+                "/src",
+                "--log-driver=none",
+                "--env",
+                "ALL_PROXY=",
+                "--env",
+                "ASAN_OPTIONS=detect_leaks=0",
+                "--env",
+                "HTTPS_PROXY=",
+                "--env",
+                "HTTP_PROXY=",
+                "--env",
+                "NO_PROXY=",
+                "--env",
+                "UBSAN_OPTIONS=print_stacktrace=1:halt_on_error=1",
+                "--env",
+                "all_proxy=",
+                "--env",
+                "http_proxy=",
+                "--env",
+                "https_proxy=",
+                "--env",
+                "no_proxy=",
+                "--entrypoint",
+                "/bin/sh",
+                "sha256:b6343260eb6f835cdaea6d18ea0cec9fda33421da6ee32966a6664acd6602a0f",
+                "-c",
+                "cc -g -fno-omit-frame-pointer -fstack-protector-all -fPIE -pie -Wl,-z,relro,-z,now main.c -o program"
+              ],
+              "container_state": {
+                "Status": "exited",
+                "Running": false,
+                "Paused": false,
+                "Restarting": false,
+                "OOMKilled": false,
+                "Dead": false,
+                "Pid": 0,
+                "ExitCode": 0,
+                "Error": "",
+                "StartedAt": "2026-11-10T21:29:38.356498056Z",
+                "FinishedAt": "2026-11-10T21:29:38.533951335Z"
+              }
+            }
+          ],
+          "binary": "program",
+          "sha256": "69d82bb76101e95251fb602c74d3276c2f38240689613963a26dcba1633077d5",
+          "source": "/var/tmp/diffsheriff-check-yUy5fY/cli-runs/run-v7xulloc/base/release"
+        },
+        "sanitized": {
+          "commit": "3d639864acbd7fd72271cf7ed784afd6b1b6db25",
+          "source_archive": "/var/tmp/diffsheriff-check-yUy5fY/cli-runs/run-v7xulloc/base/sanitized.zip",
+          "source_archive_sha256": "6a61af67050de4bab78e261c6c0e544c407741ac4bba508791f8b4e1001bebe6",
+          "commands": [
+            {
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "timed_out": false,
+              "output_limited": false,
+              "resource_limited": false,
+              "command": [
+                "docker",
+                "run",
+                "--name",
+                "diffsheriff-43ba1c08af2c4c46a1e1777e9bdc5169",
+                "--pull=never",
+                "--platform=linux/amd64",
+                "--network=none",
+                "--cap-drop=ALL",
+                "--security-opt=no-new-privileges",
+                "--read-only",
+                "--user",
+                "1000",
+                "--memory",
+                "2048m",
+                "--memory-swap",
+                "2048m",
+                "--cpus",
+                "2.0",
+                "--pids-limit",
+                "128",
+                "--ulimit",
+                "core=0",
+                "--tmpfs",
+                "/tmp:rw,nosuid,size=256m,mode=1777",
+                "--mount",
+                "type=bind,src=/var/tmp/diffsheriff-check-yUy5fY/cli-runs/run-v7xulloc/base/sanitized,dst=/src",
+                "--workdir",
+                "/src",
+                "--log-driver=none",
+                "--env",
+                "ALL_PROXY=",
+                "--env",
+                "ASAN_OPTIONS=detect_leaks=0",
+                "--env",
+                "HTTPS_PROXY=",
+                "--env",
+                "HTTP_PROXY=",
+                "--env",
+                "NO_PROXY=",
+                "--env",
+                "UBSAN_OPTIONS=print_stacktrace=1:halt_on_error=1",
+                "--env",
+                "all_proxy=",
+                "--env",
+                "http_proxy=",
+                "--env",
+                "https_proxy=",
+                "--env",
+                "no_proxy=",
+                "--entrypoint",
+                "/bin/sh",
+                "sha256:b6343260eb6f835cdaea6d18ea0cec9fda33421da6ee32966a6664acd6602a0f",
+                "-c",
+                "clang -fsanitize=address,undefined -g -fno-omit-frame-pointer -fstack-protector-all -fPIE -pie -Wl,-z,relro,-z,now main.c -o program"
+              ],
+              "container_state": {
+                "Status": "exited",
+                "Running": false,
+                "Paused": false,
+                "Restarting": false,
+                "OOMKilled": false,
+                "Dead": false,
+                "Pid": 0,
+                "ExitCode": 0,
+                "Error": "",
+                "StartedAt": "2026-11-10T21:29:38.886247109Z",
+                "FinishedAt": "2026-11-10T21:29:39.233618598Z"
+              }
+            }
+          ],
+          "binary": "program",
+          "sha256": "13acb78147521e1193ffa8aa12621e06c5e2ced53b622d2e5cd6090726e446f6",
+          "source": "/var/tmp/diffsheriff-check-yUy5fY/cli-runs/run-v7xulloc/base/sanitized"
+        }
+      },
+      "patch": {
+        "release": {
+          "commit": "59260b1a98c5f6275e470313b219be4e5ae04e7d",
+          "source_archive": "/var/tmp/diffsheriff-check-yUy5fY/cli-runs/run-v7xulloc/patch/release.zip",
+          "source_archive_sha256": "6a60fb58d099f38d3f121957be2831cc0a02bbd60b7d9346b277e7714ae209aa",
+          "commands": [
+            {
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "timed_out": false,
+              "output_limited": false,
+              "resource_limited": false,
+              "command": [
+                "docker",
+                "run",
+                "--name",
+                "diffsheriff-ab60336faee5469285a784efc0950917",
+                "--pull=never",
+                "--platform=linux/amd64",
+                "--network=none",
+                "--cap-drop=ALL",
+                "--security-opt=no-new-privileges",
+                "--read-only",
+                "--user",
+                "1000",
+                "--memory",
+                "2048m",
+                "--memory-swap",
+                "2048m",
+                "--cpus",
+                "2.0",
+                "--pids-limit",
+                "128",
+                "--ulimit",
+                "core=0",
+                "--tmpfs",
+                "/tmp:rw,nosuid,size=256m,mode=1777",
+                "--mount",
+                "type=bind,src=/var/tmp/diffsheriff-check-yUy5fY/cli-runs/run-v7xulloc/patch/release,dst=/src",
+                "--workdir",
+                "/src",
+                "--log-driver=none",
+                "--env",
+                "ALL_PROXY=",
+                "--env",
+                "ASAN_OPTIONS=detect_leaks=0",
+                "--env",
+                "HTTPS_PROXY=",
+                "--env",
+                "HTTP_PROXY=",
+                "--env",
+                "NO_PROXY=",
+                "--env",
+                "UBSAN_OPTIONS=print_stacktrace=1:halt_on_error=1",
+                "--env",
+                "all_proxy=",
+                "--env",
+                "http_proxy=",
+                "--env",
+                "https_proxy=",
+                "--env",
+                "no_proxy=",
+                "--entrypoint",
+                "/bin/sh",
+                "sha256:b6343260eb6f835cdaea6d18ea0cec9fda33421da6ee32966a6664acd6602a0f",
+                "-c",
+                "cc -g -fno-omit-frame-pointer -fstack-protector-all -fPIE -pie -Wl,-z,relro,-z,now main.c -o program"
+              ],
+              "container_state": {
+                "Status": "exited",
+                "Running": false,
+                "Paused": false,
+                "Restarting": false,
+                "OOMKilled": false,
+                "Dead": false,
+                "Pid": 0,
+                "ExitCode": 0,
+                "Error": "",
+                "StartedAt": "2026-11-10T21:29:39.575848138Z",
+                "FinishedAt": "2026-11-10T21:29:39.638275906Z"
+              }
+            }
+          ],
+          "binary": "program",
+          "sha256": "69d82bb76101e95251fb602c74d3276c2f38240689613963a26dcba1633077d5",
+          "source": "/var/tmp/diffsheriff-check-yUy5fY/cli-runs/run-v7xulloc/patch/release"
+        },
+        "sanitized": {
+          "commit": "59260b1a98c5f6275e470313b219be4e5ae04e7d",
+          "source_archive": "/var/tmp/diffsheriff-check-yUy5fY/cli-runs/run-v7xulloc/patch/sanitized.zip",
+          "source_archive_sha256": "6a60fb58d099f38d3f121957be2831cc0a02bbd60b7d9346b277e7714ae209aa",
+          "commands": [
+            {
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "timed_out": false,
+              "output_limited": false,
+              "resource_limited": false,
+              "command": [
+                "docker",
+                "run",
+                "--name",
+                "diffsheriff-e7fe5a0ea6b348e68c39785337640b51",
+                "--pull=never",
+                "--platform=linux/amd64",
+                "--network=none",
+                "--cap-drop=ALL",
+                "--security-opt=no-new-privileges",
+                "--read-only",
+                "--user",
+                "1000",
+                "--memory",
+                "2048m",
+                "--memory-swap",
+                "2048m",
+                "--cpus",
+                "2.0",
+                "--pids-limit",
+                "128",
+                "--ulimit",
+                "core=0",
+                "--tmpfs",
+                "/tmp:rw,nosuid,size=256m,mode=1777",
+                "--mount",
+                "type=bind,src=/var/tmp/diffsheriff-check-yUy5fY/cli-runs/run-v7xulloc/patch/sanitized,dst=/src",
+                "--workdir",
+                "/src",
+                "--log-driver=none",
+                "--env",
+                "ALL_PROXY=",
+                "--env",
+                "ASAN_OPTIONS=detect_leaks=0",
+                "--env",
+                "HTTPS_PROXY=",
+                "--env",
+                "HTTP_PROXY=",
+                "--env",
+                "NO_PROXY=",
+                "--env",
+                "UBSAN_OPTIONS=print_stacktrace=1:halt_on_error=1",
+                "--env",
+                "all_proxy=",
+                "--env",
+                "http_proxy=",
+                "--env",
+                "https_proxy=",
+                "--env",
+                "no_proxy=",
+                "--entrypoint",
+                "/bin/sh",
+                "sha256:b6343260eb6f835cdaea6d18ea0cec9fda33421da6ee32966a6664acd6602a0f",
+                "-c",
+                "clang -fsanitize=address,undefined -g -fno-omit-frame-pointer -fstack-protector-all -fPIE -pie -Wl,-z,relro,-z,now main.c -o program"
+              ],
+              "container_state": {
+                "Status": "exited",
+                "Running": false,
+                "Paused": false,
+                "Restarting": false,
+                "OOMKilled": false,
+                "Dead": false,
+                "Pid": 0,
+                "ExitCode": 0,
+                "Error": "",
+                "StartedAt": "2026-11-10T21:29:39.946531239Z",
+                "FinishedAt": "2026-11-10T21:29:40.059867102Z"
+              }
+            }
+          ],
+          "binary": "program",
+          "sha256": "52e56dcbf0d2e226250d9be13b35a64c6e9f9ee41ea49e46eb2bfc02e0fed00d",
+          "source": "/var/tmp/diffsheriff-check-yUy5fY/cli-runs/run-v7xulloc/patch/sanitized"
+        }
+      }
+    },
+    "cases": [
+      {
+        "id": "valid/input",
+        "suite": "valid",
+        "sha256": "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824",
+        "expected": {
+          "exit_code": 0,
+          "stdout": "hello",
+          "stderr": ""
+        },
+        "input_file": "inputs/2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824.input",
+        "mode": "release",
+        "runs": {
+          "base": [
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "hello",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-10T21:29:40.496863541Z",
+                  "FinishedAt": "2026-11-10T21:29:40.635195049Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "hello",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No runtime frame intersects an edited line; attribution is unsupported."
+              }
+            },
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "hello",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-10T21:29:40.974917975Z",
+                  "FinishedAt": "2026-11-10T21:29:41.058665979Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "hello",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No runtime frame intersects an edited line; attribution is unsupported."
+              }
+            },
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "hello",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-10T21:29:41.448215909Z",
+                  "FinishedAt": "2026-11-10T21:29:41.530889537Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "hello",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No runtime frame intersects an edited line; attribution is unsupported."
+              }
+            }
+          ],
+          "patch": [
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "hello",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-10T21:29:41.835791238Z",
+                  "FinishedAt": "2026-11-10T21:29:41.920417512Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "hello",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No runtime frame intersects an edited line; attribution is unsupported."
+              }
+            },
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "hello",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-10T21:29:42.230472541Z",
+                  "FinishedAt": "2026-11-10T21:29:42.310749331Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "hello",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No runtime frame intersects an edited line; attribution is unsupported."
+              }
+            },
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "hello",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-10T21:29:42.621200818Z",
+                  "FinishedAt": "2026-11-10T21:29:42.700614016Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "hello",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No runtime frame intersects an edited line; attribution is unsupported."
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "valid/input",
+        "suite": "valid",
+        "sha256": "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824",
+        "expected": {
+          "exit_code": 0,
+          "stdout": "hello",
+          "stderr": ""
+        },
+        "input_file": "inputs/2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824.input",
+        "mode": "sanitized",
+        "runs": {
+          "base": [
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "hello",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-10T21:29:43.022428519Z",
+                  "FinishedAt": "2026-11-10T21:29:43.102140494Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "hello",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No runtime frame intersects an edited line; attribution is unsupported."
+              }
+            },
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "hello",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-10T21:29:43.43061144Z",
+                  "FinishedAt": "2026-11-10T21:29:43.511375486Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "hello",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No runtime frame intersects an edited line; attribution is unsupported."
+              }
+            },
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "hello",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-10T21:29:43.832835344Z",
+                  "FinishedAt": "2026-11-10T21:29:43.915752817Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "hello",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No runtime frame intersects an edited line; attribution is unsupported."
+              }
+            }
+          ],
+          "patch": [
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "hello",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-10T21:29:44.273944451Z",
+                  "FinishedAt": "2026-11-10T21:29:44.352027796Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "hello",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No runtime frame intersects an edited line; attribution is unsupported."
+              }
+            },
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "hello",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-10T21:29:44.692067031Z",
+                  "FinishedAt": "2026-11-10T21:29:44.774391577Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "hello",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No runtime frame intersects an edited line; attribution is unsupported."
+              }
+            },
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "hello",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-10T21:29:45.107716808Z",
+                  "FinishedAt": "2026-11-10T21:29:45.18887506Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "hello",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No runtime frame intersects an edited line; attribution is unsupported."
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "boundary/input",
+        "suite": "boundary",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "expected": {
+          "exit_code": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "input_file": "inputs/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.input",
+        "mode": "release",
+        "runs": {
+          "base": [
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-10T21:29:45.508082649Z",
+                  "FinishedAt": "2026-11-10T21:29:45.588691867Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No runtime frame intersects an edited line; attribution is unsupported."
+              }
+            },
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-10T21:29:45.892930113Z",
+                  "FinishedAt": "2026-11-10T21:29:45.976675022Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No runtime frame intersects an edited line; attribution is unsupported."
+              }
+            },
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-10T21:29:46.283558275Z",
+                  "FinishedAt": "2026-11-10T21:29:46.36267626Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No runtime frame intersects an edited line; attribution is unsupported."
+              }
+            }
+          ],
+          "patch": [
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-10T21:29:46.677521965Z",
+                  "FinishedAt": "2026-11-10T21:29:46.756514843Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No runtime frame intersects an edited line; attribution is unsupported."
+              }
+            },
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-10T21:29:47.107379101Z",
+                  "FinishedAt": "2026-11-10T21:29:47.18690364Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No runtime frame intersects an edited line; attribution is unsupported."
+              }
+            },
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-10T21:29:47.513378731Z",
+                  "FinishedAt": "2026-11-10T21:29:47.593945104Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No runtime frame intersects an edited line; attribution is unsupported."
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "boundary/input",
+        "suite": "boundary",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "expected": {
+          "exit_code": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "input_file": "inputs/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.input",
+        "mode": "sanitized",
+        "runs": {
+          "base": [
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-10T21:29:47.906496212Z",
+                  "FinishedAt": "2026-11-10T21:29:47.98571962Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No runtime frame intersects an edited line; attribution is unsupported."
+              }
+            },
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-10T21:29:48.304699375Z",
+                  "FinishedAt": "2026-11-10T21:29:48.384192092Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No runtime frame intersects an edited line; attribution is unsupported."
+              }
+            },
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-10T21:29:48.717310896Z",
+                  "FinishedAt": "2026-11-10T21:29:48.797221583Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No runtime frame intersects an edited line; attribution is unsupported."
+              }
+            }
+          ],
+          "patch": [
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-10T21:29:49.110831688Z",
+                  "FinishedAt": "2026-11-10T21:29:49.190059633Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No runtime frame intersects an edited line; attribution is unsupported."
+              }
+            },
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-10T21:29:49.515340088Z",
+                  "FinishedAt": "2026-11-10T21:29:49.601539448Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No runtime frame intersects an edited line; attribution is unsupported."
+              }
+            },
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-10T21:29:49.940637156Z",
+                  "FinishedAt": "2026-11-10T21:29:50.020229808Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No runtime frame intersects an edited line; attribution is unsupported."
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "malicious/input",
+        "suite": "malicious",
+        "sha256": "a8100ae6aa1940d0b663bb31cd466142ebbdbd5187131b92d93818987832eb89",
+        "expected": {
+          "exit_code": 0,
+          "stdout": "\u00ff",
+          "stderr": ""
+        },
+        "input_file": "inputs/a8100ae6aa1940d0b663bb31cd466142ebbdbd5187131b92d93818987832eb89.input",
+        "mode": "release",
+        "runs": {
+          "base": [
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "\u00ff",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-10T21:29:50.352722563Z",
+                  "FinishedAt": "2026-11-10T21:29:50.435237106Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "\u00ff",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No runtime frame intersects an edited line; attribution is unsupported."
+              }
+            },
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "\u00ff",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-10T21:29:50.764209344Z",
+                  "FinishedAt": "2026-11-10T21:29:50.845348897Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "\u00ff",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No runtime frame intersects an edited line; attribution is unsupported."
+              }
+            },
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "\u00ff",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-10T21:29:51.606973063Z",
+                  "FinishedAt": "2026-11-10T21:29:51.677746434Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "\u00ff",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No runtime frame intersects an edited line; attribution is unsupported."
+              }
+            }
+          ],
+          "patch": [
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "\u00ff",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-10T21:29:52.004183953Z",
+                  "FinishedAt": "2026-11-10T21:29:52.087660349Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "\u00ff",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No runtime frame intersects an edited line; attribution is unsupported."
+              }
+            },
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "\u00ff",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-10T21:29:52.413405346Z",
+                  "FinishedAt": "2026-11-10T21:29:52.497100673Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "\u00ff",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No runtime frame intersects an edited line; attribution is unsupported."
+              }
+            },
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "\u00ff",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-10T21:29:52.825647878Z",
+                  "FinishedAt": "2026-11-10T21:29:52.906722853Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "\u00ff",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No runtime frame intersects an edited line; attribution is unsupported."
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "malicious/input",
+        "suite": "malicious",
+        "sha256": "a8100ae6aa1940d0b663bb31cd466142ebbdbd5187131b92d93818987832eb89",
+        "expected": {
+          "exit_code": 0,
+          "stdout": "\u00ff",
+          "stderr": ""
+        },
+        "input_file": "inputs/a8100ae6aa1940d0b663bb31cd466142ebbdbd5187131b92d93818987832eb89.input",
+        "mode": "sanitized",
+        "runs": {
+          "base": [
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "\u00ff",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-10T21:29:53.200703137Z",
+                  "FinishedAt": "2026-11-10T21:29:53.280803173Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "\u00ff",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No runtime frame intersects an edited line; attribution is unsupported."
+              }
+            },
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "\u00ff",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-10T21:29:53.590012155Z",
+                  "FinishedAt": "2026-11-10T21:29:53.670042092Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "\u00ff",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No runtime frame intersects an edited line; attribution is unsupported."
+              }
+            },
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "\u00ff",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-10T21:29:53.980587741Z",
+                  "FinishedAt": "2026-11-10T21:29:54.060932315Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "\u00ff",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No runtime frame intersects an edited line; attribution is unsupported."
+              }
+            }
+          ],
+          "patch": [
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "\u00ff",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-10T21:29:54.481727475Z",
+                  "FinishedAt": "2026-11-10T21:29:54.569654837Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "\u00ff",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No runtime frame intersects an edited line; attribution is unsupported."
+              }
+            },
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "\u00ff",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-10T21:29:54.949837581Z",
+                  "FinishedAt": "2026-11-10T21:29:55.031110861Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "\u00ff",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No runtime frame intersects an edited line; attribution is unsupported."
+              }
+            },
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "\u00ff",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-10T21:29:55.358889969Z",
+                  "FinishedAt": "2026-11-10T21:29:55.43943671Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "\u00ff",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No runtime frame intersects an edited line; attribution is unsupported."
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "reproducers": [],
+    "execution_settings": {
+      "timeout_seconds": 5,
+      "input_method": "stdin",
+      "file_argument_flag": "--file",
+      "fixed_arguments": [],
+      "environment_variables": {
+        "HTTP_PROXY": "",
+        "HTTPS_PROXY": "",
+        "ALL_PROXY": "",
+        "NO_PROXY": "",
+        "http_proxy": "",
+        "https_proxy": "",
+        "all_proxy": "",
+        "no_proxy": "",
+        "ASAN_OPTIONS": "detect_leaks=0",
+        "UBSAN_OPTIONS": "print_stacktrace=1:halt_on_error=1"
+      },
+      "image": "sha256:b6343260eb6f835cdaea6d18ea0cec9fda33421da6ee32966a6664acd6602a0f",
+      "memory_mb": 2048,
+      "cpus": 2.0,
+      "pids_limit": 128,
+      "output_limit_bytes": 1048576
+    },
+    "hardening": {
+      "base": {
+        "nx": true,
+        "pie": true,
+        "relro": "full",
+        "canary": true
+      },
+      "patch": {
+        "nx": true,
+        "pie": true,
+        "relro": "full",
+        "canary": true
+      }
+    }
+  },
+  "findings": []
+}

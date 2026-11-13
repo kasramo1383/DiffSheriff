@@ -47,7 +47,6 @@ wheels/
 .pytest_cache/
 .coverage
 htmlcov/
-validation_report.json
 
 # Editor & OS Artifacts
 .vscode/
@@ -64,3 +63,7 @@ ehthumbs.db
 .diffsheriff/
 scratch/
 reproducers/temp/
+
+# Durable project artifacts belong in Git, including generated and binary evidence.
+!/artifacts/
+!/artifacts/**
