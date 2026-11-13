@@ -16,9 +16,8 @@ and the Docker test skipped. Formatting, lint, packaging, source hashes, and run
 details are also documented in the [final checkpoint](../artifacts/checkpoints/insertion/README.md).
 
 The native fixture is infrastructure evidence only. It does not demonstrate a real
-vulnerability or course-target acceptance. The project remains incomplete because no
-course targets, instructor approval, independent target oracle, or target acceptance
-reports have been supplied.
+vulnerability or course-target acceptance. The workflow gaps below remain open.
+See the [target record](target_scenarios.md) for proposals and approval status.
 
 ## Completed implementation checkpoints
 
@@ -31,24 +30,55 @@ reports have been supplied.
    designation. Valid boundary cases contribute to functional results and can produce
    exit 20. Invalid cases do not become regressions unless explicitly marked valid.
    See the [boundary checkpoint](../artifacts/checkpoints/boundary/README.md).
-3. Insertion-only patches can be related to a baseline finding when a single
-   unambiguous inserted function declaration matches the runtime stack across three
-   baseline observations. This is function-level relation evidence, not proof that
-   the inserted branch executed. Ambiguous evidence remains inconclusive. See the
+3. Insertion-only patches can be related to a baseline finding when one unambiguous
+   function declaration in the hunk context matches the runtime stack across three
+   baseline observations. The match establishes a function-level relation.
+   Ambiguous evidence remains inconclusive. See the
    [insertion checkpoint](../artifacts/checkpoints/insertion/README.md).
 4. Synthetic CLI coverage exercises verdicts, replay, and generated regression loading.
    The native smoke fixture checks Docker execution and input handling. These checks
    establish implementation behavior within the tested cases, not correctness for all
    targets.
 
-## Remaining project work
+## Remaining workflow and pipeline implementation
 
-### 1. Select and obtain approval for two targets
+The CLI already builds exact baseline and patch revisions, runs corresponding
+release and sanitized binaries in isolated containers, and produces JSON, replay
+bundles, and prioritized exit codes. Four parts of the assignment still need code.
+
+1. **Run patch validation in CI (§§3.5, 5).** The current
+   [workflow](../.github/workflows/verify_patch.yml) runs unit tests and the harmless
+   container fixture. Add a job that runs the existing CLI with a target config and
+   exact baseline and patch refs. Retain the report and run bundle on every outcome.
+   Use the actual CLI exit code to decide whether a patch passes. A separate scenario
+   demonstration can compare the observed code with its expected code (0, 10, or 20).
+2. **Carry minimized regressions into later runs (§3.3).** The pipeline generates and
+   reloads regression manifests, but when a reduced input has no independent expected
+   output it saves the original input to the suite and keeps the reduction in the
+   replay bundle only. Enroll the reduced input with a diagnostic check and use an
+   independent expectation for its patched behavior before crediting the full
+   regression check. Keep the original case with its own expectation. The CI job
+   must load the retained regression suite on subsequent runs.
+3. **Classify a known baseline finding across inputs (§3.1).** `compare_case()` calls
+   a patch diagnostic an incomplete fix only when the same input produces the same
+   signature on the baseline. Use the designated baseline identity once it has been
+   reproduced in the same build mode, even if a different input exposed it. Keep
+   genuinely distinct diagnostics separate and report uncertain identity or
+   attribution as such.
+4. **Include raw hardening indicators in the report (§3.4).** The release audit
+   currently stores NX, PIE, RELRO, and canary statuses and warns on downgrades.
+   Retain the indicators behind those results in JSON, including GNU stack flags,
+   the PIE marker, the GNU RELRO segment and binding flags, and any canary symbol
+   found. Distinguish PIE executables from shared objects rather than treating every
+   `ET_DYN` file as PIE.
+
+## Target and delivery work
+
+### 1. Obtain approval for two targets
 
 The team must provide source provenance, licenses, exact references, and instructor
 approval evidence for two C/C++ targets. At least one must be a real non-toy project or
-library. Record these facts in `target_scenarios.md`. No target or approval is currently
-recorded.
+library. The proposals are recorded in `target_scenarios.md`. Approval is pending.
 
 ### 2. Prepare four scenarios and independent test assets per target
 
@@ -80,10 +110,9 @@ participation.
 
 - The audited implementation gaps are fixed and have focused tests plus retained
   verification records.
-- The project is not ready for course acceptance. Target selection, approval, scenario
-  assets, end-to-end runs, unseen-patch evaluation, and contributor defense remain.
-- First next action: record candidate targets and obtain instructor approval in
-  `target_scenarios.md`.
+- Start with the CI entry point for the existing CLI. The other workflow changes
+  above can also proceed independently of target approval.
+- See `target_scenarios.md` for the approval checkpoint.
 
 ## Engineering constraints
 

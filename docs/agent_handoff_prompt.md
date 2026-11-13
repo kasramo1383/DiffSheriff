@@ -14,14 +14,11 @@ before acting:
 
 Current scope
 
-The three audited implementation defects and synthetic verification steps are
-complete. The remaining work is course acceptance: two approved C/C++ targets,
-four required source scenarios per target, independent test expectations, end-to-end
-reports and retained evidence, unseen-patch evaluation, and contributor defense.
-At least one target must be a real non-toy project or library. The roadmap and target
-record are authoritative if this prompt becomes stale.
+Use the roadmap's workflow and pipeline section to choose the next code change.
+The current checkpoint names the next task. See the target record for work that
+depends on instructor approval.
 
-Work one bounded stage at a time. Begin with the first unfinished step in the roadmap.
+Work one bounded stage at a time. Begin with the next action in the roadmap checkpoint.
 For the next step only, inspect the relevant source, make a small focused change or
 prepare the requested evidence, and verify that step. Do not start a later step in the
 same assignment. Leave the repository in a clear, reviewable state and report what
