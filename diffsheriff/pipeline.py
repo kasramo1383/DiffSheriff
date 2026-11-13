@@ -302,6 +302,7 @@ def record_reproducer(
     run_directory,
     known_expectations,
     evidence,
+    original_runs,
     functional=False,
 ):
     """Reduce supplied cases only; never generate a new trigger or bypass."""
@@ -329,9 +330,16 @@ def record_reproducer(
 
     def oracle(payload):
         digest = hashlib.sha256(payload).hexdigest()
-        if digest not in known_expectations:
-            if not cfg.test_suites.independent_reference_command:
-                return False, "", ""
+        if (
+            functional
+            and digest not in known_expectations
+            and not cfg.test_suites.independent_reference_command
+        ):
+            return False, "", ""
+        if (
+            digest not in known_expectations
+            and cfg.test_suites.independent_reference_command
+        ):
             reference = run_container(
                 cfg.config_directory,
                 cfg.test_suites.independent_reference_command,
@@ -369,7 +377,9 @@ def record_reproducer(
                 mismatch,
             )
         else:
-            preserved = all(item["signature"] == signature for item in observations)
+            preserved = stable_observations(observations) and all(
+                item["signature"] == signature for item in observations
+            )
         return preserved, identity["error_type"], location
 
     minimization_stable = True
@@ -394,13 +404,16 @@ def record_reproducer(
         ]
         for version in ("base", "patch")
     }
-    expected = known_expectations[digest]
+    expected = known_expectations.get(digest)
     reproduced = minimization_stable and (
         functional_failure(runs, expected, mismatch)
         if functional
-        else all(item["signature"] == signature for item in runs[side])
+        else stable_observations(runs[side])
+        and all(item["signature"] == signature for item in runs[side])
     )
-    corrected = all(matches_expected(item, expected) for item in runs["patch"])
+    corrected = expected is not None and all(
+        matches_expected(item, expected) for item in runs["patch"]
+    )
     stable = reproduced and all(stable_observations(items) for items in runs.values())
     metadata = {
         "case": case["id"],
@@ -412,6 +425,8 @@ def record_reproducer(
         "original_sha256": case["sha256"],
         "minimized_sha256": digest,
         "expected": expected,
+        "original_expected": case["expected"],
+        "regression_input": "original.input" if expected is None else "minimized.input",
         "settings": asdict(settings),
         "runs": runs,
         "minimization_log": replay_log,
@@ -420,9 +435,13 @@ def record_reproducer(
         "minimization_scope": (
             "reference oracle"
             if cfg.test_suites.independent_reference_command
-            else "approved corpus payloads only"
+            else (
+                "approved corpus payloads only"
+                if functional
+                else "diagnostic invariant"
+            )
         ),
-        "baseline_fail_patch_pass": side == "base" and reproduced and corrected,
+        "baseline_fail_patch_pass": side == "base" and stable and corrected,
         "versions": {"base": cfg.base_ref, "patch": cfg.patch_ref},
         "artifacts": {
             version: {
@@ -448,6 +467,10 @@ def record_reproducer(
     )
     evidence["reproducers"].append(bundle.relative_to(run_directory).as_posix())
     if stable:
+        # Unknown functional behavior must never become a generated expectation.
+        regression_payload = case["payload"] if expected is None else minimized
+        regression_digest = hashlib.sha256(regression_payload).hexdigest()
+        regression_runs = original_runs if expected is None else runs
         regressions = cfg.config_directory / cfg.test_suites.regression_directory
         if not regressions.resolve().is_relative_to(cfg.config_directory):
             raise ConfigError(
@@ -455,7 +478,7 @@ def record_reproducer(
             )
         regressions.mkdir(parents=True, exist_ok=True)
         key = hashlib.sha256(
-            (cfg.base_ref + location + digest + mode).encode()
+            (cfg.base_ref + location + regression_digest + mode).encode()
         ).hexdigest()
         input_path = regressions / (key + ".input")
         manifest_path = regressions / (key + ".json")
@@ -464,19 +487,19 @@ def record_reproducer(
                 raise ConfigError(
                     "Refusing to replace a symlink in generated regressions"
                 )
-        input_path.write_bytes(minimized)
+        input_path.write_bytes(regression_payload)
         manifest_path.write_text(
             json.dumps(
                 {
                     "input": input_path.name,
-                    "sha256": digest,
+                    "sha256": regression_digest,
                     "base_ref": cfg.base_ref,
-                    "signature": runs["base"][0]["signature"],
+                    "signature": regression_runs["base"][0]["signature"],
                     "finding_signature": signature,
                     "finding_side": side,
                     "mode": mode,
                     "kind": "functional" if functional else "security",
-                    "expected": expected,
+                    "expected": case["expected"] if expected is None else expected,
                 },
                 indent=2,
             ),
@@ -676,6 +699,7 @@ def run_pipeline(cfg, artifact_root):
                                 directory,
                                 known_expectations,
                                 evidence,
+                                runs,
                                 functional,
                             )
                             incomplete |= not stable

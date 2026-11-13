@@ -51,12 +51,14 @@ def replay(bundle, check_regression=False):
         metadata["finding_side"] == "base"
         and reproduced
         and stable
+        and metadata["expected"] is not None
         and all(matches_expected(item, metadata["expected"]) for item in runs["patch"])
     )
     result = {
         "reproduced": reproduced,
         "stable": stable,
         "regression_pass": regression_pass,
+        "functional_expectation_available": metadata["expected"] is not None,
         "runs": runs,
     }
     (bundle / "replay.json").write_text(json.dumps(result, indent=2), encoding="utf-8")

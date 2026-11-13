@@ -75,9 +75,12 @@ mapping, so byte `ff` is JSON `"\u00ff"`. JSON Unicode text must represent the e
 expected output bytes. `provenance` records the independent specification/test source;
 it is not evidence of instructor approval by itself.
 
-Without `independent_reference_command`, reduction is constrained to payloads with
-known independent expectations. For unrestricted byte deletion, supply an independent
-reference executable as an argv list, for example `["python3", "/src/reference.py"]`.
+Security-input reduction preserves the classified error and source location across
+three executions, even without an independent functional reference. Timeouts,
+resource/output limits, different locations, and generic nonzero exits do not match.
+Functional-input reduction still requires known independent expectations. To obtain
+expectations for new reduced inputs, supply an independent reference executable as
+an argv list, for example `["python3", "/src/reference.py"]`.
 It receives candidate bytes on stdin and must emit one JSON object with `exit_code`,
 `stdout`, and `stderr`, exiting 0. It runs in a restricted container with the config
 directory at `/src`, read-only, and never receives target observations. Its logic
@@ -122,12 +125,19 @@ returns 0 only when the security baseline reproduces and the patched counterpart
 satisfies independent expected behavior. A still-broken functional-regression bundle
 therefore does not pass that check. Errors return 30; unmatched/unstable evidence 40.
 Results are written to `replay.json`; altered inputs or binaries are rejected by hash.
+If a reduced security input has no independent expectation, its bundle records
+`expected: null`. Diagnostic replay can succeed, but `--check-regression` returns 40
+and `functional_expectation_available` is false. The original expectation is retained
+separately; it is never applied to different reduced bytes.
 
 Generated regression manifests and inputs are automatically inserted into the
 configured regression directory. Later validator runs load those with the same
 baseline commit, replay the expected baseline signature when applicable, and check
 independent patched behavior. Keep these files if they are part of the delivered test
 suite. Do not edit their expectations to copy patched output.
+When a reduced input has no independent expectation, generation uses the original
+input and its expectation instead. The bundle's `regression_input` identifies which
+input supports those checks. Both original and minimized bytes remain in the bundle.
 
 ## Human delivery work
 

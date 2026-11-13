@@ -209,11 +209,16 @@ def test_only_designated_baseline_can_pass(tmp_path, pipeline_fixture):
     assert run_pipeline(cfg, tmp_path / "runs").exit_code == 40
 
 
-def test_minimization_uses_independent_reference(
-    tmp_path, pipeline_fixture, monkeypatch
+@pytest.mark.parametrize("with_reference", [False, True])
+def test_security_minimization_and_regression_expectations(
+    tmp_path, pipeline_fixture, monkeypatch, with_reference
 ):
+    from diffsheriff.pipeline import discover_cases
+    from diffsheriff.reproduce import replay
+
     cfg, _, _ = pipeline_fixture
-    cfg.test_suites.independent_reference_command = ["reference"]
+    if with_reference:
+        cfg.test_suites.independent_reference_command = ["reference"]
     real_execute = __import__(
         "diffsheriff.pipeline", fromlist=["execute_container"]
     ).execute_container
@@ -244,6 +249,70 @@ def test_minimization_uses_independent_reference(
     )
     assert (bundle / "minimized.input").read_bytes() == b"d"
     assert (bundle / "original.input").read_bytes() == b"diagnostic"
+    metadata = json.loads((bundle / "reproducer.json").read_text())
+    assert metadata["stable"]
+    assert len(metadata["runs"]["base"]) == 3
+    assert bool(metadata["expected"]) == with_reference
+    assert metadata["baseline_fail_patch_pass"] == with_reference
+    assert replay(bundle)
+    assert replay(bundle, check_regression=True) == with_reference
+    generated = [c for c in discover_cases(cfg)[0] if c["suite"] == "regression"]
+    assert generated
+    assert all(
+        c["payload"] == (b"d" if with_reference else b"diagnostic")
+        and c["expected"]["stdout"] == "ok\n"
+        for c in generated
+    )
+    assert run_pipeline(cfg, tmp_path / "second-run").exit_code == 0
+
+
+@pytest.mark.parametrize(
+    "rejection",
+    [
+        "timed_out",
+        "resource_limited",
+        "output_limited",
+        "signal",
+        "location",
+        "unstable",
+    ],
+)
+def test_security_minimization_rejects_different_or_limited_failures(
+    tmp_path, pipeline_fixture, monkeypatch, rejection
+):
+    import diffsheriff.pipeline as pipeline
+
+    cfg, _, _ = pipeline_fixture
+    execute = pipeline.execute_container
+    candidates = []
+
+    def reduced(source, binary, payload, settings):
+        if (
+            source.name == "sanitized"
+            and source.parent.name == "base"
+            and payload not in (b"ordinary", b"boundary", b"diagnostic")
+        ):
+            candidates.append(payload)
+            result = execute(source, binary, b"diagnostic", settings)
+            if rejection in {"timed_out", "resource_limited", "output_limited"}:
+                return replace(result, **{rejection: True})
+            if rejection == "signal":
+                return ExecutionResult(-11, "", "", False)
+            if rejection == "location":
+                return replace(result, stderr=result.stderr.replace(":8:1", ":88:1"))
+            if len(candidates) % 3 == 0:
+                return ExecutionResult(0, "ok\n", "", False)
+            return result
+        return execute(source, binary, payload, settings)
+
+    monkeypatch.setattr(pipeline, "execute_container", reduced)
+    summary = run_pipeline(cfg, tmp_path / "runs")
+    assert summary.exit_code == 0, summary.notes
+    assert candidates, "Unknown reduced candidates must actually be executed"
+    bundle = (
+        Path(summary.evidence["run_directory"]) / summary.evidence["reproducers"][0]
+    )
+    assert (bundle / "minimized.input").read_bytes() == b"diagnostic"
 
 
 def test_reproducer_replays_and_detects_tampering(tmp_path, pipeline_fixture):

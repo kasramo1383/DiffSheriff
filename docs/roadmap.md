@@ -22,17 +22,19 @@ echo fixture. The test results cover the existing suite, and the CLI bundle prov
 the inputs, builds, and report for that run. Steps 1 and 5 describe the remaining
 test coverage, and Step 6 covers course acceptance.
 
-The following defects were reproduced by direct code-level probes:
+The following defects remain open:
 
 1. A correct insertion-only guard patch can remain inconclusive: the fixed verdict
    requires baseline stack correlation to an old changed line, which such a patch
    does not have. See `pipeline.py` `compare_case()` and `correlator.py`.
-2. Security minimization without an independent reference rejects every unseen
-   candidate before executing it. It therefore cannot perform ordinary byte-level
-   reduction under the default configuration. See `pipeline.py` `record_reproducer()`.
-3. A baseline-passing boundary case that violates its independent expected result on
+2. A baseline-passing boundary case that violates its independent expected result on
    the patch is not classified as a functional regression because only suite `valid`
    can set the regression flag. See `pipeline.py` `compare_case()`.
+
+Security minimization now executes unknown reductions against the diagnostic
+invariant without requiring expected functional output. Replay distinguishes those
+checks, and generated functional checks keep the original input when necessary.
+Verification is retained in [the minimization checkpoint](../artifacts/checkpoints/minimization/README.md).
 
 ## Agent handoff and review contract
 
@@ -153,7 +155,10 @@ not a transcript or activity log.
 
 ## Current checkpoint
 
-- Step 1 is next and covers tests only. Kasra has yet to accept any of the staged changes.
+- The user authorized implementing, verifying, and committing each gap before moving
+  to the next. Step 1(b) and Step 2 are implemented and locally verified; this does
+  not record human acceptance or course-target approval.
+- Next: Step 1(c) and Step 3, boundary functional regression classification.
 - Step 6 depends on instructor-approved targets and the assets in the
   [target scenario record](target_scenarios.md).
 
