@@ -1,0 +1,133 @@
+{
+  "review_date": "2026-11-13",
+  "diffsheriff_base_revision": "f76fe091f0ff5cafd0f062005366bd647ee45b52",
+  "scope": "Public-source candidate research only; no target builds, execution, scenario preparation, or approval. Commit fields are selected from upstream API responses; file digests cover downloaded bytes.",
+  "candidates": [
+    {
+      "name": "zlib",
+      "repository": "madler/zlib",
+      "cve": "CVE-2018-25032",
+      "baseline": "e99813dbfe9a09e33d42e8da9e550a0c4b7ff734",
+      "patch": "5c44459c3b28a9bd3283aaceab7c615f8020c531",
+      "approval": "pending",
+      "runtime_verified": false,
+      "commits": {
+        "baseline": {
+          "sha": "e99813dbfe9a09e33d42e8da9e550a0c4b7ff734",
+          "parents": [
+            "bf88202e314898f74b42995a71bb67d1bcc51883"
+          ],
+          "tree_sha": "396bf6913afce54a8cde744224c6e7d2658b6834",
+          "subject": "Correct the initialization requirements for deflateInit2().",
+          "api_url": "https://api.github.com/repos/madler/zlib/commits/e99813dbfe9a09e33d42e8da9e550a0c4b7ff734",
+          "html_url": "https://github.com/madler/zlib/commit/e99813dbfe9a09e33d42e8da9e550a0c4b7ff734",
+          "response_sha256": "9523c6530483624780b96cf08e8b9af2d7373d89548c5a809d4c877e3475425f"
+        },
+        "patch": {
+          "sha": "5c44459c3b28a9bd3283aaceab7c615f8020c531",
+          "parents": [
+            "e99813dbfe9a09e33d42e8da9e550a0c4b7ff734"
+          ],
+          "tree_sha": "7a5d9e7a3fd8c0438f592de2f3ee89a91d2cd06a",
+          "subject": "Fix a bug that can crash deflate on some input when using Z_FIXED.",
+          "api_url": "https://api.github.com/repos/madler/zlib/commits/5c44459c3b28a9bd3283aaceab7c615f8020c531",
+          "html_url": "https://github.com/madler/zlib/commit/5c44459c3b28a9bd3283aaceab7c615f8020c531",
+          "response_sha256": "10cfbd0df645b50a746be5d53cb982c8d3a5365e2489ba73e9fba0c1943a2a09"
+        }
+      },
+      "inspected_files": [
+        {
+          "path": "README",
+          "ref": "5c44459c3b28a9bd3283aaceab7c615f8020c531",
+          "url": "https://raw.githubusercontent.com/madler/zlib/5c44459c3b28a9bd3283aaceab7c615f8020c531/README",
+          "bytes": 5372,
+          "sha256": "888817de534c2daff9f03c3c575063ebb0b6619d5d7cdadb77f9a6df93a0f83a"
+        },
+        {
+          "path": "zlib.h",
+          "ref": "5c44459c3b28a9bd3283aaceab7c615f8020c531",
+          "url": "https://raw.githubusercontent.com/madler/zlib/5c44459c3b28a9bd3283aaceab7c615f8020c531/zlib.h",
+          "bytes": 96387,
+          "sha256": "e27343c31e30b46b296c0ea03cc015a42c4a92246aa26319efdb0d9826f29ace"
+        },
+        {
+          "path": "CMakeLists.txt",
+          "ref": "5c44459c3b28a9bd3283aaceab7c615f8020c531",
+          "url": "https://raw.githubusercontent.com/madler/zlib/5c44459c3b28a9bd3283aaceab7c615f8020c531/CMakeLists.txt",
+          "bytes": 8101,
+          "sha256": "4b0257ef368589cd5cb0ac86a5ca227f769c1f846c9c2cb2e6dea5eff858f2ef"
+        },
+        {
+          "path": "test/minigzip.c",
+          "ref": "5c44459c3b28a9bd3283aaceab7c615f8020c531",
+          "url": "https://raw.githubusercontent.com/madler/zlib/5c44459c3b28a9bd3283aaceab7c615f8020c531/test/minigzip.c",
+          "bytes": 15797,
+          "sha256": "91089b21e692797bb6208b2b45eeb90f5f1f1e4f6b67b99dea5676f51b811193"
+        }
+      ]
+    },
+    {
+      "name": "libpng",
+      "repository": "pnggroup/libpng",
+      "cve": "CVE-2019-7317",
+      "baseline": "8439534daa1d3a5705ba92e653eda9251246dd61",
+      "patch": "9c0d5c77bf5bf2d7c1e11f388de40a70e0191550",
+      "approval": "pending",
+      "runtime_verified": false,
+      "commits": {
+        "baseline": {
+          "sha": "8439534daa1d3a5705ba92e653eda9251246dd61",
+          "parents": [
+            "70d122aac42933ab8a708c538f973c3307853212"
+          ],
+          "tree_sha": "5add14152b5805af202ea47e22730cfb7738abf6",
+          "subject": "Fix a memory leak in pngtest.c",
+          "api_url": "https://api.github.com/repos/pnggroup/libpng/commits/8439534daa1d3a5705ba92e653eda9251246dd61",
+          "html_url": "https://github.com/pnggroup/libpng/commit/8439534daa1d3a5705ba92e653eda9251246dd61",
+          "response_sha256": "75b23cc1ec8f93ab5454f081db0c3eb314caabb58389b84dd3e403987eb0baa0"
+        },
+        "patch": {
+          "sha": "9c0d5c77bf5bf2d7c1e11f388de40a70e0191550",
+          "parents": [
+            "8439534daa1d3a5705ba92e653eda9251246dd61"
+          ],
+          "tree_sha": "72e2e0c455f684527aae176a5886ed49e8609020",
+          "subject": "Call png_image_free_function without guarding it with png_safe_execute",
+          "api_url": "https://api.github.com/repos/pnggroup/libpng/commits/9c0d5c77bf5bf2d7c1e11f388de40a70e0191550",
+          "html_url": "https://github.com/pnggroup/libpng/commit/9c0d5c77bf5bf2d7c1e11f388de40a70e0191550",
+          "response_sha256": "6ffb9358715827b43d6cb1e059fa239f7fcf84b2af4b995465b8134b9a95be92"
+        }
+      },
+      "inspected_files": [
+        {
+          "path": "LICENSE",
+          "ref": "9c0d5c77bf5bf2d7c1e11f388de40a70e0191550",
+          "url": "https://raw.githubusercontent.com/pnggroup/libpng/9c0d5c77bf5bf2d7c1e11f388de40a70e0191550/LICENSE",
+          "bytes": 5344,
+          "sha256": "7b7b507ce6d29bcd161f923ef4453cc2ed4c4bef52348b3ab0d6c1a5f5adc1ca"
+        },
+        {
+          "path": "README",
+          "ref": "9c0d5c77bf5bf2d7c1e11f388de40a70e0191550",
+          "url": "https://raw.githubusercontent.com/pnggroup/libpng/9c0d5c77bf5bf2d7c1e11f388de40a70e0191550/README",
+          "bytes": 9366,
+          "sha256": "ef34425e75c63861e65ecf0f724b598eb187ebc206d71df65507c7869291a61e"
+        },
+        {
+          "path": "CMakeLists.txt",
+          "ref": "9c0d5c77bf5bf2d7c1e11f388de40a70e0191550",
+          "url": "https://raw.githubusercontent.com/pnggroup/libpng/9c0d5c77bf5bf2d7c1e11f388de40a70e0191550/CMakeLists.txt",
+          "bytes": 33829,
+          "sha256": "a39257a296c7699cd2b765bb1ef10b5be9d3a1ae0ffc8a6057d6984a740c5e97"
+        },
+        {
+          "path": "contrib/libtests/pngstest.c",
+          "ref": "9c0d5c77bf5bf2d7c1e11f388de40a70e0191550",
+          "url": "https://raw.githubusercontent.com/pnggroup/libpng/9c0d5c77bf5bf2d7c1e11f388de40a70e0191550/contrib/libtests/pngstest.c",
+          "bytes": 105880,
+          "sha256": "649d331302aaedd19fe23315e35c9ddc95a608eec734b0ea6946189fc4f805f4"
+        }
+      ]
+    }
+  ]
+}
