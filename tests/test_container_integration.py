@@ -135,6 +135,11 @@ def test_real_native_matrix_and_input_interfaces(tmp_path):
         assert hardening["indicators"]["gnu_stack_flags"] == [6]
         assert hardening["indicators"]["canary_symbols"]
         assert hardening["indicators"]["df_1_pie"]
+    for side in ("base", "patch"):
+        builds = summary.evidence["builds"][side]
+        assert not builds["release"]["elf"]["indicators"]["sanitizer_symbols"]
+        assert "asan" in builds["sanitized"]["elf"]["indicators"]["sanitizer_symbols"]
+    assert "sanitizer symbols=asan" in result.output
     record = summary.evidence["builds"]["patch"]["release"]
     for method, fixed in [("stdin", []), ("file", []), ("argv", ["--argv"])]:
         from dataclasses import replace

@@ -17,6 +17,114 @@ from diffsheriff.runner import ExecutionResult
 from .test_config import VALID_CONFIG, write_config
 
 
+def test_reference_json_decodes_utf8_before_expected_output_bytes():
+    from diffsheriff.pipeline import record_reference_expectation
+
+    expected = {"exit_code": 0, "stdout": "caf\u00e9", "stderr": ""}
+    captured = json.dumps(expected, ensure_ascii=False).encode("utf-8").decode("latin1")
+    expectations, validity = {}, {}
+    record_reference_expectation(captured, "digest", expectations, validity)
+    assert expectations["digest"] == expected
+
+
+def test_argv_reduction_skips_invalid_utf8_candidates(
+    tmp_path, pipeline_fixture, monkeypatch
+):
+    import diffsheriff.pipeline as pipeline
+
+    cfg, _, _ = pipeline_fixture
+    cfg.execution.input_method = "argv"
+    payload = "\u00e9".encode()
+    (tmp_path / "tests/invalid/input").write_bytes(payload)
+    execute = pipeline.execute_container
+
+    def utf8_execute(source, binary, candidate, settings):
+        candidate.decode("utf-8")
+        return execute(
+            source,
+            binary,
+            b"diagnostic" if candidate == payload else candidate,
+            settings,
+        )
+
+    monkeypatch.setattr(pipeline, "execute_container", utf8_execute)
+    summary = run_pipeline(cfg, tmp_path / "runs")
+    assert summary.exit_code == 0, summary.notes
+    bundle = (
+        Path(summary.evidence["run_directory"]) / summary.evidence["reproducers"][0]
+    )
+    assert (bundle / "minimized.input").read_bytes() == payload
+
+
+def test_instrumented_release_is_configuration_error(
+    tmp_path, pipeline_fixture, monkeypatch
+):
+    cfg, _, state = pipeline_fixture
+    monkeypatch.setattr(
+        "diffsheriff.pipeline.inspect_elf_hardening",
+        lambda p: HardeningResult(
+            True, True, "full", True, {"sanitizer_symbols": {"asan": ["__asan_init"]}}
+        ),
+    )
+    summary = run_pipeline(cfg, tmp_path / "runs")
+    assert summary.exit_code == 30
+    assert state["calls"] == 0
+    assert any("release" in note and "sanitizer" in note for note in summary.notes)
+
+
+def test_replay_rejects_missing_security_identity(
+    tmp_path, pipeline_fixture, monkeypatch
+):
+    import diffsheriff.reproduce as reproduce
+
+    cfg, _, _ = pipeline_fixture
+    summary = run_pipeline(cfg, tmp_path / "runs")
+    bundle = (
+        Path(summary.evidence["run_directory"]) / summary.evidence["reproducers"][0]
+    )
+    path = bundle / "reproducer.json"
+    metadata = json.loads(path.read_text())
+    metadata["signature"] = None
+    path.write_text(json.dumps(metadata))
+    monkeypatch.setattr(
+        reproduce,
+        "observe",
+        lambda *a: {
+            "signature": None,
+            "execution": {
+                "exit_code": 0,
+                "stdout": "ok\n",
+                "stderr": "",
+                "timed_out": False,
+                "resource_limited": False,
+                "output_limited": False,
+            },
+            "triage": {"is_crash": False},
+        },
+    )
+    with pytest.raises(ValueError, match="signature"):
+        reproduce.replay(bundle, check_regression=True)
+
+
+def test_replay_does_not_follow_output_symlink(tmp_path, pipeline_fixture):
+    from diffsheriff.reproduce import replay
+
+    cfg, _, _ = pipeline_fixture
+    summary = run_pipeline(cfg, tmp_path / "runs")
+    bundle = (
+        Path(summary.evidence["run_directory"]) / summary.evidence["reproducers"][0]
+    )
+    original = tmp_path / "keep.txt"
+    original.write_text("keep")
+    try:
+        (bundle / "replay.json").symlink_to(original)
+    except OSError:
+        pytest.skip("Host does not allow test symlinks")
+    with pytest.raises(ValueError, match="symlink"):
+        replay(bundle)
+    assert original.read_text() == "keep"
+
+
 @pytest.fixture
 def pipeline_fixture(tmp_path, monkeypatch):
     config_path = write_config(tmp_path, VALID_CONFIG)
@@ -919,7 +1027,13 @@ def test_cli_exports_and_restores_generated_regressions(tmp_path, pipeline_fixtu
     ]
     first = CliRunner().invoke(main, args)
     assert first.exit_code == 0, first.output
+    assert "Hardening (release) base:" in first.output
+    assert "correlation:" in first.output
+    assert "Evidence directory:" in first.output
     first_report = json.loads((tmp_path / "report.json").read_text())
+    for side in ("base", "patch"):
+        for mode in ("release", "sanitized"):
+            assert "elf" in first_report["evidence"]["builds"][side][mode]
     for path in (tmp_path / "regressions").iterdir():
         path.unlink()
     second = CliRunner().invoke(main, args + ["--regressions-from", str(retained)])

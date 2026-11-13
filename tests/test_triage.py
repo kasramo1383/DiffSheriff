@@ -1,5 +1,7 @@
 """Unit tests for sanitizer and signal classification."""
 
+import pytest
+
 from diffsheriff.triage import triage_execution_result
 
 
@@ -24,6 +26,19 @@ def test_ubsan_runtime_error_is_classified_separately():
     )
     assert report.is_crash is True
     assert report.error_type == "division-by-zero"
+    assert report.detection_mechanism == "UndefinedBehaviorSanitizer"
+
+
+@pytest.mark.parametrize(
+    "code,shell,expected",
+    [(-6, False, "SIGABRT"), (134, True, "SIGABRT"), (134, False, None)],
+)
+def test_ubsan_preserves_actual_termination(code, shell, expected):
+    report = triage_execution_result(
+        code, "", "source.c:8:3: runtime error: division by zero", shell_status=shell
+    )
+    assert report.signal_name == expected
+    assert report.exit_code == code
     assert report.detection_mechanism == "UndefinedBehaviorSanitizer"
 
 

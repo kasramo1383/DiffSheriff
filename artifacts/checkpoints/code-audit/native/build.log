@@ -1,0 +1,66 @@
+#0 building with "default" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 DONE 0.0s
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 238B done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/diffsheriff:code-audit-base
+#2 DONE 0.0s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
+
+#4 [internal] load build context
+#4 transferring context: 382.67kB done
+#4 DONE 0.0s
+
+#5 [1/6] FROM docker.io/library/diffsheriff:code-audit-base@sha256:b5bbef31e8ab12df9a99d0b446a0edf5f19294fbc66a43e13aca1b49742a0ab6
+#5 resolve docker.io/library/diffsheriff:code-audit-base@sha256:b5bbef31e8ab12df9a99d0b446a0edf5f19294fbc66a43e13aca1b49742a0ab6 0.0s done
+#5 DONE 0.1s
+
+#6 [2/6] WORKDIR /opt/diffsheriff
+#6 DONE 0.1s
+
+#7 [3/6] COPY pyproject.toml README.md ./
+#7 DONE 0.0s
+
+#8 [4/6] COPY diffsheriff/ diffsheriff/
+#8 DONE 0.0s
+
+#9 [5/6] RUN pip install --no-cache-dir --no-build-isolation --no-deps .
+#9 0.612 Processing /opt/diffsheriff
+#9 0.614   Preparing metadata (pyproject.toml): started
+#9 0.876   Preparing metadata (pyproject.toml): finished with status 'done'
+#9 0.879 Building wheels for collected packages: diffsheriff
+#9 0.880   Building wheel for diffsheriff (pyproject.toml): started
+#9 1.051   Building wheel for diffsheriff (pyproject.toml): finished with status 'done'
+#9 1.052   Created wheel for diffsheriff: filename=diffsheriff-0.1.0-py3-none-any.whl size=36396 sha256=0a07268a5ce2ec07df5202755a3cd776e5e37a54dad40ea959f9b49a9c079389
+#9 1.052   Stored in directory: /tmp/pip-ephem-wheel-cache-gcaqnlrm/wheels/6c/fe/2b/1e8cce40a7c5201a1df6fdd695fb206bf5e46c2bec15500784
+#9 1.054 Successfully built diffsheriff
+#9 1.054 Installing collected packages: diffsheriff
+#9 1.054   Attempting uninstall: diffsheriff
+#9 1.056     Found existing installation: diffsheriff 0.1.0
+#9 1.058     Uninstalling diffsheriff-0.1.0:
+#9 1.069       Successfully uninstalled diffsheriff-0.1.0
+#9 1.091 Successfully installed diffsheriff-0.1.0
+#9 DONE 1.1s
+
+#10 [6/6] WORKDIR /src
+#10 DONE 0.0s
+
+#11 exporting to image
+#11 exporting layers
+#11 exporting layers 0.3s done
+#11 exporting manifest sha256:86072d59373e6e4e77a9174903d6554ebe60091928da4b5b645c6d10e35ff2dd done
+#11 exporting config sha256:ebd5087b6bc99e3cf5f411fc0239dc22bc64de19f1bc55bfcb59abdfec8b334e 0.0s done
+#11 exporting attestation manifest sha256:c53021fc83f3af25f2bea657c78c7398794f14b9eb61441a874f21430adbb9ab 0.1s done
+#11 exporting manifest list sha256:a82a5b7e8a58caea82cc8fa066b656fc96c9b4ec4f4b8a9f4fe11d080e8f65c1
+#11 exporting manifest list sha256:a82a5b7e8a58caea82cc8fa066b656fc96c9b4ec4f4b8a9f4fe11d080e8f65c1 done
+#11 naming to docker.io/library/diffsheriff:code-audit done
+#11 unpacking to docker.io/library/diffsheriff:code-audit
+#11 unpacking to docker.io/library/diffsheriff:code-audit 0.2s done
+#11 DONE 0.6s

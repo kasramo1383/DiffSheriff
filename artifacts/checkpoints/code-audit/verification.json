@@ -1,0 +1,15 @@
+{
+  "base_commit": "5d15a831ed6c29486628f00bf30dd6f5c3be1bde",
+  "linux_snapshot": "/var/tmp/diffsheriff-code-audit.geqSAN",
+  "verification_directory": "/var/tmp/diffsheriff-code-audit.geqSAN/.diffsheriff/verification.1seVbh",
+  "image": "sha256:a82a5b7e8a58caea82cc8fa066b656fc96c9b4ec4f4b8a9f4fe11d080e8f65c1",
+  "linux_source_and_tests_match_checkout": true,
+  "runtime_source_matches_checkout": true,
+  "wheel_sources_match_checkout": true,
+  "wheel_sha256": "48f3dedeb0c53b55b3529d014a68cd7047b7ee3c7b170091b478c49911b7bf41",
+  "native_exit": 40,
+  "native_suite_executions": 36,
+  "verified_binaries": 4,
+  "verified_source_archives": 4,
+  "verified_native_case_inputs": 6
+}

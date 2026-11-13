@@ -1,5 +1,7 @@
 # Running DiffSheriff
 
+For the short, ordered assessment procedure, see [evaluation.md](evaluation.md).
+
 ## Install and prepare the runtime
 
 Use Python 3.10 or newer, Git, and Docker with Linux amd64 containers. The Docker
@@ -34,6 +36,21 @@ Set `DIFFSHERIFF_TEST_IMAGE` to test a different locally built runtime image wit
 replacing `diffsheriff:local`.
 The other integration tests simulate diagnostic output to exercise verdicts; they
 are not security-target acceptance evidence.
+
+For one-command tool verification on Linux/WSL after installing the development
+dependencies and building the runtime image:
+
+```sh
+bash verify.sh
+```
+
+This checks prerequisites, Black, standard Flake8 checks, the complete test suite
+including the harmless native matrix, and wheel construction. It fails on any failed
+step and retains results in a fresh `.diffsheriff/verification.*` directory without
+deleting earlier evidence. `PYTHON` selects the Python executable;
+`DIFFSHERIFF_TEST_IMAGE` selects an already-built image. Copy accepted results into
+`artifacts/` with source/image identities when retaining a checkpoint. This command
+does not claim the approved-target matrices or clean-room delivery are complete.
 
 ## Configure an authorized target
 
@@ -108,6 +125,11 @@ cases. New results identify their minimized input and parent case in the report;
 results already represented by that parent are deduplicated. This comparison reuses
 recorded observations and never recursively minimizes the reduced case.
 
+Reference output is a UTF-8 JSON document. Expected stdout/stderr strings inside that
+document still represent output bytes with the Latin-1 mapping described above.
+For argv delivery, reduction skips byte slices that are not valid UTF-8 or contain
+NUL, instead of treating an unrepresentable candidate as a validator failure.
+
 ## Validate and inspect
 
 ```sh
@@ -137,6 +159,18 @@ The report identifies its run directory. `total_tests_run` counts suite executio
 are recorded in the corresponding replay logs. stdout/stderr are bounded per stream;
 exceeding a bound prevents a passing result.
 
+The console also prints release hardening, per-build symbol observations, and finding
+detection/correlation/stability/reason and minimized-input paths. Full details remain
+in JSON. `evidence.builds.SIDE.MODE.elf` retains the ELF observations for each binary;
+`evidence.hardening` remains the release-only comparison. Its indicators include
+available symbol tables, conventional FORTIFY symbol candidates, and sanitizer
+symbols by family. No observed symbols is not proof that a build lacks protection:
+symbols or calls may have been stripped/optimized out. These observations do not
+override the configured build mode, establish coverage, or measure runtime ASLR.
+Observed sanitizer symbols in a configured release binary are a build-mode
+contradiction and return code 30; supply separate ordinary and instrumented builds.
+Missing symbols alone are not used to infer that a build is uninstrumented.
+
 ## Replay and generated regressions
 
 Keep the entire run directory together. It includes source archives and hashes,
@@ -157,6 +191,9 @@ returns 0 only when the security baseline reproduces and the patched counterpart
 satisfies independent expected behavior. A still-broken functional-regression bundle
 therefore does not pass that check. Errors return 30; unmatched/unstable evidence 40.
 Results are written to `replay.json`; altered inputs or binaries are rejected by hash.
+Replay rejects missing security identities, incomplete artifact pairs, and symlink
+metadata/diff/output paths instead of reporting an empty identity as reproduced or
+writing through an existing output link.
 If a reduced security input has no independent expectation, its bundle records
 `expected: null`. Diagnostic replay can succeed, but `--check-regression` returns 40
 and `functional_expectation_available` is false. The original expectation is retained

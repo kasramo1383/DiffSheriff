@@ -1,0 +1,24 @@
+WARNING: No blkio throttle.read_bps_device support
+WARNING: No blkio throttle.write_bps_device support
+WARNING: No blkio throttle.read_iops_device support
+WARNING: No blkio throttle.write_iops_device support
+WARNING: Support for cgroup v1 is deprecated and planned to be removed by no later than May 2029 (https://github.com/moby/moby/issues/51111)
+Verification evidence: /var/tmp/diffsheriff-reference-parity.t6wmZz/.diffsheriff/verification.NDWLTk
+All done! ✨ 🍰 ✨
+28 files would be left unchanged.
+........................................................................ [ 35%]
+........................................................................ [ 70%]
+...........................................................              [100%]
+- generated xml file: /var/tmp/diffsheriff-reference-parity.t6wmZz/.diffsheriff/verification.NDWLTk/tests.xml -
+203 passed in 25.57s
+Processing /var/tmp/diffsheriff-reference-parity.t6wmZz
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: diffsheriff
+  Building wheel for diffsheriff (pyproject.toml): started
+  Building wheel for diffsheriff (pyproject.toml): finished with status 'done'
+  Created wheel for diffsheriff: filename=diffsheriff-0.1.0-py3-none-any.whl size=35982 sha256=f0cfb98a323ea6be584d1bb8f37537da40819b7fdcb7432896ccbb4a6c963879
+  Stored in directory: /home/javadi/.cache/pip/wheels/22/14/84/fd92b0c01727ffcccc9ff8b35e5e974377084eb99f9d285984
+Successfully built diffsheriff
+TOOL VERIFICATION PASSED (synthetic tests and harmless native fixture).
+Approved-target matrices, clean-room delivery, and individual defenses remain separate gates.

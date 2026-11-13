@@ -1,0 +1,38 @@
+{
+  "nx": true,
+  "pie": true,
+  "relro": "partial",
+  "canary": true,
+  "indicators": {
+    "elf_type": "ET_DYN",
+    "gnu_stack_flags": [
+      6
+    ],
+    "has_interpreter": false,
+    "df_1_pie": true,
+    "gnu_relro_segment": true,
+    "dynamic_flags": [
+      {
+        "tag": "DT_FLAGS_1",
+        "value": 134217728
+      }
+    ],
+    "canary_symbols": [
+      "__stack_chk_fail"
+    ],
+    "symbol_tables": [
+      ".symtab"
+    ],
+    "fortify_symbols": [
+      "__memcpy_chk"
+    ],
+    "sanitizer_symbols": {
+      "asan": [
+        "__asan_init"
+      ],
+      "ubsan": [
+        "__ubsan_handle_add_overflow"
+      ]
+    }
+  }
+}

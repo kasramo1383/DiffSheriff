@@ -19,6 +19,8 @@ The Markdown files in `docs/` are maintained working notes:
 - [Architecture](docs/architecture.md) distinguishes implemented modules from planned integration.
 - [Roadmap](docs/roadmap.md) lists acceptance gates, not claims of completion.
 - [Target scenarios](docs/target_scenarios.md) records what must be approved before target work begins.
+- [Reference comparison](docs/reference_comparison.md) maps DNS-P1's features to this project's contracts and evidence.
+- [Defense preparation](docs/defense_guide.md) gives each engineering role a code/evidence study path.
 
 ## Assignment requirements at a glance
 
@@ -75,6 +77,10 @@ Build the runtime image before running the CLI:
 ```bash
 docker build --platform linux/amd64 -t diffsheriff:local -f docker/Dockerfile .
 ```
+
+On Linux/WSL, run `bash verify.sh` after installing development dependencies and
+building the image to check formatting, lint, all tests including the harmless native
+matrix, and wheel creation. Its success means tool verification, not target acceptance.
 
 Follow [the standalone guide](docs/usage.md) for schema version 2, independent
 expectations, native smoke testing, and replay. The example configuration at

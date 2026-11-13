@@ -1,0 +1,3249 @@
+{
+  "target_name": "sample",
+  "exit_code": 40,
+  "verdict": "INCONCLUSIVE",
+  "total_tests_run": 36,
+  "functional_passed": 2,
+  "functional_failed": 0,
+  "security_flaws_fixed": 0,
+  "security_flaws_lingering": 0,
+  "hardening_degraded": false,
+  "analysis_complete": false,
+  "notes": [
+    "Designated baseline flaw was not reproduced with stable source evidence"
+  ],
+  "schema_version": "2.0",
+  "security_status": "INCONCLUSIVE",
+  "functional_status": "PASS",
+  "evidence": {
+    "run_directory": "/var/tmp/diffsheriff-code-audit.geqSAN/.diffsheriff/verification.1seVbh/tests/test_real_native_matrix_and_in0/runs/run-heu4z935",
+    "versions": {
+      "base": "9a20effa6be1b17a2f4fd572dc9fb20ae76c4566",
+      "patch": "ba1c08b78352d92c97b6e430a72b1c5d06fc043c"
+    },
+    "configuration": {
+      "target_name": "sample",
+      "language": "c",
+      "repository_path": "/var/tmp/diffsheriff-code-audit.geqSAN/.diffsheriff/verification.1seVbh/tests/test_real_native_matrix_and_in0/repository",
+      "build": {
+        "clean_command": "",
+        "release_command": "cc -g -fno-omit-frame-pointer -fstack-protector-all -fPIE -pie -Wl,-z,relro,-z,now main.c -o program",
+        "release_binary_path": "program",
+        "sanitized_command": "clang -fsanitize=address,undefined -g -fno-omit-frame-pointer -fstack-protector-all -fPIE -pie -Wl,-z,relro,-z,now main.c -o program",
+        "sanitized_binary_path": "program",
+        "timeout_seconds": 120
+      },
+      "execution": {
+        "timeout_seconds": 5,
+        "input_method": "stdin",
+        "file_argument_flag": "--file",
+        "fixed_arguments": [],
+        "environment_variables": {
+          "ASAN_OPTIONS": "detect_leaks=0",
+          "UBSAN_OPTIONS": "print_stacktrace=1:halt_on_error=1"
+        },
+        "image": "diffsheriff:code-audit",
+        "memory_mb": 2048,
+        "cpus": 2.0,
+        "pids_limit": 128,
+        "output_limit_bytes": 1048576
+      },
+      "hardening": {
+        "enforce_nx": true,
+        "enforce_pie": true,
+        "min_relro": "partial",
+        "enforce_canary": true
+      },
+      "test_suites": {
+        "valid_directory": "tests/valid",
+        "boundary_directory": "tests/boundary",
+        "malicious_directory": "tests/invalid",
+        "expectations": "expected.json",
+        "provenance": "Independent test specification",
+        "regression_directory": "regressions",
+        "independent_reference_command": []
+      },
+      "base_ref": "9a20effa6be1b17a2f4fd572dc9fb20ae76c4566",
+      "patch_ref": "ba1c08b78352d92c97b6e430a72b1c5d06fc043c",
+      "baseline_signature": {
+        "error_type": "heap-buffer-overflow",
+        "file": "source.c",
+        "function": "parse",
+        "line": 8
+      },
+      "config_directory": "/var/tmp/diffsheriff-code-audit.geqSAN/.diffsheriff/verification.1seVbh/tests/test_real_native_matrix_and_in0"
+    },
+    "oracle": {
+      "sha256": "990492c074410e8e741846021ba1195b7b28732cfe668dbf71e1a93ec12b38a5",
+      "provenance": "Independent test specification"
+    },
+    "builds": {
+      "base": {
+        "release": {
+          "commit": "9a20effa6be1b17a2f4fd572dc9fb20ae76c4566",
+          "source_archive": "/var/tmp/diffsheriff-code-audit.geqSAN/.diffsheriff/verification.1seVbh/tests/test_real_native_matrix_and_in0/runs/run-heu4z935/base/release.zip",
+          "source_archive_sha256": "61baa87d744f35aed179b2daf32bd2f3ad35be247c29e34a214a8000d02cc3ef",
+          "commands": [
+            {
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "timed_out": false,
+              "output_limited": false,
+              "resource_limited": false,
+              "command": [
+                "docker",
+                "run",
+                "--name",
+                "diffsheriff-6c3ee0ec1325483db37fb975fd22bfce",
+                "--pull=never",
+                "--platform=linux/amd64",
+                "--network=none",
+                "--cap-drop=ALL",
+                "--security-opt=no-new-privileges",
+                "--read-only",
+                "--user",
+                "1000",
+                "--memory",
+                "2048m",
+                "--memory-swap",
+                "2048m",
+                "--cpus",
+                "2.0",
+                "--pids-limit",
+                "128",
+                "--ulimit",
+                "core=0",
+                "--tmpfs",
+                "/tmp:rw,nosuid,size=256m,mode=1777",
+                "--mount",
+                "type=bind,src=/var/tmp/diffsheriff-code-audit.geqSAN/.diffsheriff/verification.1seVbh/tests/test_real_native_matrix_and_in0/runs/run-heu4z935/base/release,dst=/src",
+                "--workdir",
+                "/src",
+                "--log-driver=none",
+                "--env",
+                "ALL_PROXY=",
+                "--env",
+                "ASAN_OPTIONS=detect_leaks=0",
+                "--env",
+                "HTTPS_PROXY=",
+                "--env",
+                "HTTP_PROXY=",
+                "--env",
+                "NO_PROXY=",
+                "--env",
+                "UBSAN_OPTIONS=print_stacktrace=1:halt_on_error=1",
+                "--env",
+                "all_proxy=",
+                "--env",
+                "http_proxy=",
+                "--env",
+                "https_proxy=",
+                "--env",
+                "no_proxy=",
+                "--entrypoint",
+                "/bin/sh",
+                "sha256:a82a5b7e8a58caea82cc8fa066b656fc96c9b4ec4f4b8a9f4fe11d080e8f65c1",
+                "-c",
+                "cc -g -fno-omit-frame-pointer -fstack-protector-all -fPIE -pie -Wl,-z,relro,-z,now main.c -o program"
+              ],
+              "container_state": {
+                "Status": "exited",
+                "Running": false,
+                "Paused": false,
+                "Restarting": false,
+                "OOMKilled": false,
+                "Dead": false,
+                "Pid": 0,
+                "ExitCode": 0,
+                "Error": "",
+                "StartedAt": "2026-11-13T17:38:47.96318808Z",
+                "FinishedAt": "2026-11-13T17:38:48.216849681Z"
+              }
+            }
+          ],
+          "binary": "program",
+          "sha256": "69d82bb76101e95251fb602c74d3276c2f38240689613963a26dcba1633077d5",
+          "source": "/var/tmp/diffsheriff-code-audit.geqSAN/.diffsheriff/verification.1seVbh/tests/test_real_native_matrix_and_in0/runs/run-heu4z935/base/release",
+          "elf": {
+            "nx": true,
+            "pie": true,
+            "relro": "full",
+            "canary": true,
+            "indicators": {
+              "elf_type": "ET_DYN",
+              "gnu_stack_flags": [
+                6
+              ],
+              "has_interpreter": true,
+              "df_1_pie": true,
+              "gnu_relro_segment": true,
+              "dynamic_flags": [
+                {
+                  "tag": "DT_FLAGS",
+                  "value": 8
+                },
+                {
+                  "tag": "DT_FLAGS_1",
+                  "value": 134217729
+                }
+              ],
+              "canary_symbols": [
+                "__stack_chk_fail"
+              ],
+              "symbol_tables": [
+                ".dynsym",
+                ".symtab"
+              ],
+              "fortify_symbols": [],
+              "sanitizer_symbols": {}
+            }
+          }
+        },
+        "sanitized": {
+          "commit": "9a20effa6be1b17a2f4fd572dc9fb20ae76c4566",
+          "source_archive": "/var/tmp/diffsheriff-code-audit.geqSAN/.diffsheriff/verification.1seVbh/tests/test_real_native_matrix_and_in0/runs/run-heu4z935/base/sanitized.zip",
+          "source_archive_sha256": "61baa87d744f35aed179b2daf32bd2f3ad35be247c29e34a214a8000d02cc3ef",
+          "commands": [
+            {
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "timed_out": false,
+              "output_limited": false,
+              "resource_limited": false,
+              "command": [
+                "docker",
+                "run",
+                "--name",
+                "diffsheriff-4d1dadb9a58d4e9e822c153ad6f354eb",
+                "--pull=never",
+                "--platform=linux/amd64",
+                "--network=none",
+                "--cap-drop=ALL",
+                "--security-opt=no-new-privileges",
+                "--read-only",
+                "--user",
+                "1000",
+                "--memory",
+                "2048m",
+                "--memory-swap",
+                "2048m",
+                "--cpus",
+                "2.0",
+                "--pids-limit",
+                "128",
+                "--ulimit",
+                "core=0",
+                "--tmpfs",
+                "/tmp:rw,nosuid,size=256m,mode=1777",
+                "--mount",
+                "type=bind,src=/var/tmp/diffsheriff-code-audit.geqSAN/.diffsheriff/verification.1seVbh/tests/test_real_native_matrix_and_in0/runs/run-heu4z935/base/sanitized,dst=/src",
+                "--workdir",
+                "/src",
+                "--log-driver=none",
+                "--env",
+                "ALL_PROXY=",
+                "--env",
+                "ASAN_OPTIONS=detect_leaks=0",
+                "--env",
+                "HTTPS_PROXY=",
+                "--env",
+                "HTTP_PROXY=",
+                "--env",
+                "NO_PROXY=",
+                "--env",
+                "UBSAN_OPTIONS=print_stacktrace=1:halt_on_error=1",
+                "--env",
+                "all_proxy=",
+                "--env",
+                "http_proxy=",
+                "--env",
+                "https_proxy=",
+                "--env",
+                "no_proxy=",
+                "--entrypoint",
+                "/bin/sh",
+                "sha256:a82a5b7e8a58caea82cc8fa066b656fc96c9b4ec4f4b8a9f4fe11d080e8f65c1",
+                "-c",
+                "clang -fsanitize=address,undefined -g -fno-omit-frame-pointer -fstack-protector-all -fPIE -pie -Wl,-z,relro,-z,now main.c -o program"
+              ],
+              "container_state": {
+                "Status": "exited",
+                "Running": false,
+                "Paused": false,
+                "Restarting": false,
+                "OOMKilled": false,
+                "Dead": false,
+                "Pid": 0,
+                "ExitCode": 0,
+                "Error": "",
+                "StartedAt": "2026-11-13T17:38:48.943849914Z",
+                "FinishedAt": "2026-11-13T17:38:49.510361082Z"
+              }
+            }
+          ],
+          "binary": "program",
+          "sha256": "13acb78147521e1193ffa8aa12621e06c5e2ced53b622d2e5cd6090726e446f6",
+          "source": "/var/tmp/diffsheriff-code-audit.geqSAN/.diffsheriff/verification.1seVbh/tests/test_real_native_matrix_and_in0/runs/run-heu4z935/base/sanitized",
+          "elf": {
+            "nx": true,
+            "pie": true,
+            "relro": "full",
+            "canary": true,
+            "indicators": {
+              "elf_type": "ET_DYN",
+              "gnu_stack_flags": [
+                6
+              ],
+              "has_interpreter": true,
+              "df_1_pie": true,
+              "gnu_relro_segment": true,
+              "dynamic_flags": [
+                {
+                  "tag": "DT_FLAGS",
+                  "value": 8
+                },
+                {
+                  "tag": "DT_FLAGS_1",
+                  "value": 134217729
+                }
+              ],
+              "canary_symbols": [
+                "__stack_chk_fail"
+              ],
+              "symbol_tables": [
+                ".dynsym",
+                ".symtab"
+              ],
+              "fortify_symbols": [
+                "___interceptor___fprintf_chk",
+                "___interceptor___longjmp_chk",
+                "___interceptor___snprintf_chk",
+                "___interceptor___sprintf_chk",
+                "___interceptor___vsnprintf_chk",
+                "___interceptor___vsprintf_chk",
+                "__fprintf_chk",
+                "__interceptor___fprintf_chk",
+                "__interceptor___longjmp_chk",
+                "__interceptor___snprintf_chk",
+                "__interceptor___sprintf_chk",
+                "__interceptor___vsnprintf_chk",
+                "__interceptor___vsprintf_chk",
+                "__interceptor_trampoline___fprintf_chk",
+                "__interceptor_trampoline___longjmp_chk",
+                "__interceptor_trampoline___snprintf_chk",
+                "__interceptor_trampoline___sprintf_chk",
+                "__interceptor_trampoline___vsnprintf_chk",
+                "__interceptor_trampoline___vsprintf_chk",
+                "__longjmp_chk",
+                "__snprintf_chk",
+                "__sprintf_chk",
+                "__vsnprintf_chk",
+                "__vsprintf_chk"
+              ],
+              "sanitizer_symbols": {
+                "asan": [
+                  "__asan_addr_is_in_fake_stack",
+                  "__asan_address_is_poisoned",
+                  "__asan_after_dynamic_init",
+                  "__asan_alloca_poison",
+                  "__asan_allocas_unpoison",
+                  "__asan_before_dynamic_init",
+                  "__asan_check_load_add_16_R12",
+                  "__asan_check_load_add_16_R13",
+                  "__asan_check_load_add_16_R14",
+                  "__asan_check_load_add_16_R15",
+                  "__asan_check_load_add_16_R8",
+                  "__asan_check_load_add_16_R9",
+                  "__asan_check_load_add_16_RAX",
+                  "__asan_check_load_add_16_RBP",
+                  "__asan_check_load_add_16_RBX",
+                  "__asan_check_load_add_16_RCX",
+                  "__asan_check_load_add_16_RDI",
+                  "__asan_check_load_add_16_RDX",
+                  "__asan_check_load_add_16_RSI",
+                  "__asan_check_load_add_1_R12",
+                  "__asan_check_load_add_1_R13",
+                  "__asan_check_load_add_1_R14",
+                  "__asan_check_load_add_1_R15",
+                  "__asan_check_load_add_1_R8",
+                  "__asan_check_load_add_1_R9",
+                  "__asan_check_load_add_1_RAX",
+                  "__asan_check_load_add_1_RBP",
+                  "__asan_check_load_add_1_RBX",
+                  "__asan_check_load_add_1_RCX",
+                  "__asan_check_load_add_1_RDI",
+                  "__asan_check_load_add_1_RDX",
+                  "__asan_check_load_add_1_RSI",
+                  "__asan_check_load_add_2_R12",
+                  "__asan_check_load_add_2_R13",
+                  "__asan_check_load_add_2_R14",
+                  "__asan_check_load_add_2_R15",
+                  "__asan_check_load_add_2_R8",
+                  "__asan_check_load_add_2_R9",
+                  "__asan_check_load_add_2_RAX",
+                  "__asan_check_load_add_2_RBP",
+                  "__asan_check_load_add_2_RBX",
+                  "__asan_check_load_add_2_RCX",
+                  "__asan_check_load_add_2_RDI",
+                  "__asan_check_load_add_2_RDX",
+                  "__asan_check_load_add_2_RSI",
+                  "__asan_check_load_add_4_R12",
+                  "__asan_check_load_add_4_R13",
+                  "__asan_check_load_add_4_R14",
+                  "__asan_check_load_add_4_R15",
+                  "__asan_check_load_add_4_R8",
+                  "__asan_check_load_add_4_R9",
+                  "__asan_check_load_add_4_RAX",
+                  "__asan_check_load_add_4_RBP",
+                  "__asan_check_load_add_4_RBX",
+                  "__asan_check_load_add_4_RCX",
+                  "__asan_check_load_add_4_RDI",
+                  "__asan_check_load_add_4_RDX",
+                  "__asan_check_load_add_4_RSI",
+                  "__asan_check_load_add_8_R12",
+                  "__asan_check_load_add_8_R13",
+                  "__asan_check_load_add_8_R14",
+                  "__asan_check_load_add_8_R15",
+                  "__asan_check_load_add_8_R8",
+                  "__asan_check_load_add_8_R9",
+                  "__asan_check_load_add_8_RAX",
+                  "__asan_check_load_add_8_RBP",
+                  "__asan_check_load_add_8_RBX",
+                  "__asan_check_load_add_8_RCX",
+                  "__asan_check_load_add_8_RDI",
+                  "__asan_check_load_add_8_RDX",
+                  "__asan_check_load_add_8_RSI",
+                  "__asan_check_store_add_16_R12",
+                  "__asan_check_store_add_16_R13",
+                  "__asan_check_store_add_16_R14",
+                  "__asan_check_store_add_16_R15",
+                  "__asan_check_store_add_16_R8",
+                  "__asan_check_store_add_16_R9",
+                  "__asan_check_store_add_16_RAX",
+                  "__asan_check_store_add_16_RBP",
+                  "__asan_check_store_add_16_RBX",
+                  "__asan_check_store_add_16_RCX",
+                  "__asan_check_store_add_16_RDI",
+                  "__asan_check_store_add_16_RDX",
+                  "__asan_check_store_add_16_RSI",
+                  "__asan_check_store_add_1_R12",
+                  "__asan_check_store_add_1_R13",
+                  "__asan_check_store_add_1_R14",
+                  "__asan_check_store_add_1_R15",
+                  "__asan_check_store_add_1_R8",
+                  "__asan_check_store_add_1_R9",
+                  "__asan_check_store_add_1_RAX",
+                  "__asan_check_store_add_1_RBP",
+                  "__asan_check_store_add_1_RBX",
+                  "__asan_check_store_add_1_RCX",
+                  "__asan_check_store_add_1_RDI",
+                  "__asan_check_store_add_1_RDX",
+                  "__asan_check_store_add_1_RSI",
+                  "__asan_check_store_add_2_R12",
+                  "__asan_check_store_add_2_R13",
+                  "__asan_check_store_add_2_R14",
+                  "__asan_check_store_add_2_R15",
+                  "__asan_check_store_add_2_R8",
+                  "__asan_check_store_add_2_R9",
+                  "__asan_check_store_add_2_RAX",
+                  "__asan_check_store_add_2_RBP",
+                  "__asan_check_store_add_2_RBX",
+                  "__asan_check_store_add_2_RCX",
+                  "__asan_check_store_add_2_RDI",
+                  "__asan_check_store_add_2_RDX",
+                  "__asan_check_store_add_2_RSI",
+                  "__asan_check_store_add_4_R12",
+                  "__asan_check_store_add_4_R13",
+                  "__asan_check_store_add_4_R14",
+                  "__asan_check_store_add_4_R15",
+                  "__asan_check_store_add_4_R8",
+                  "__asan_check_store_add_4_R9",
+                  "__asan_check_store_add_4_RAX",
+                  "__asan_check_store_add_4_RBP",
+                  "__asan_check_store_add_4_RBX",
+                  "__asan_check_store_add_4_RCX",
+                  "__asan_check_store_add_4_RDI",
+                  "__asan_check_store_add_4_RDX",
+                  "__asan_check_store_add_4_RSI",
+                  "__asan_check_store_add_8_R12",
+                  "__asan_check_store_add_8_R13",
+                  "__asan_check_store_add_8_R14",
+                  "__asan_check_store_add_8_R15",
+                  "__asan_check_store_add_8_R8",
+                  "__asan_check_store_add_8_R9",
+                  "__asan_check_store_add_8_RAX",
+                  "__asan_check_store_add_8_RBP",
+                  "__asan_check_store_add_8_RBX",
+                  "__asan_check_store_add_8_RCX",
+                  "__asan_check_store_add_8_RDI",
+                  "__asan_check_store_add_8_RDX",
+                  "__asan_check_store_add_8_RSI",
+                  "__asan_default_options",
+                  "__asan_default_suppressions",
+                  "__asan_describe_address",
+                  "__asan_exp_load1",
+                  "__asan_exp_load16",
+                  "__asan_exp_load2",
+                  "__asan_exp_load4",
+                  "__asan_exp_load8",
+                  "__asan_exp_loadN",
+                  "__asan_exp_store1",
+                  "__asan_exp_store16",
+                  "__asan_exp_store2",
+                  "__asan_exp_store4",
+                  "__asan_exp_store8",
+                  "__asan_exp_storeN",
+                  "__asan_extra_spill_area",
+                  "__asan_get_alloc_stack",
+                  "__asan_get_current_fake_stack",
+                  "__asan_get_free_stack",
+                  "__asan_get_report_access_size",
+                  "__asan_get_report_access_type",
+                  "__asan_get_report_address",
+                  "__asan_get_report_bp",
+                  "__asan_get_report_description",
+                  "__asan_get_report_pc",
+                  "__asan_get_report_sp",
+                  "__asan_get_shadow_mapping",
+                  "__asan_handle_no_return",
+                  "__asan_handle_vfork",
+                  "__asan_init",
+                  "__asan_load1",
+                  "__asan_load16",
+                  "__asan_load16_noabort",
+                  "__asan_load1_noabort",
+                  "__asan_load2",
+                  "__asan_load2_noabort",
+                  "__asan_load4",
+                  "__asan_load4_noabort",
+                  "__asan_load8",
+                  "__asan_load8_noabort",
+                  "__asan_loadN",
+                  "__asan_loadN_noabort",
+                  "__asan_load_cxx_array_cookie",
+                  "__asan_locate_address",
+                  "__asan_memcpy",
+                  "__asan_memmove",
+                  "__asan_memset",
+                  "__asan_on_error",
+                  "__asan_option_detect_stack_use_after_return",
+                  "__asan_poison_cxx_array_cookie",
+                  "__asan_poison_intra_object_redzone",
+                  "__asan_poison_memory_region",
+                  "__asan_poison_stack_memory",
+                  "__asan_print_accumulated_stats",
+                  "__asan_region_is_poisoned",
+                  "__asan_register_elf_globals",
+                  "__asan_register_globals",
+                  "__asan_register_image_globals",
+                  "__asan_report_error",
+                  "__asan_report_exp_load1",
+                  "__asan_report_exp_load16",
+                  "__asan_report_exp_load2",
+                  "__asan_report_exp_load4",
+                  "__asan_report_exp_load8",
+                  "__asan_report_exp_load_n",
+                  "__asan_report_exp_store1",
+                  "__asan_report_exp_store16",
+                  "__asan_report_exp_store2",
+                  "__asan_report_exp_store4",
+                  "__asan_report_exp_store8",
+                  "__asan_report_exp_store_n",
+                  "__asan_report_load1",
+                  "__asan_report_load16",
+                  "__asan_report_load16_asm",
+                  "__asan_report_load16_noabort",
+                  "__asan_report_load1_asm",
+                  "__asan_report_load1_noabort",
+                  "__asan_report_load2",
+                  "__asan_report_load2_asm",
+                  "__asan_report_load2_noabort",
+                  "__asan_report_load4",
+                  "__asan_report_load4_asm",
+                  "__asan_report_load4_noabort",
+                  "__asan_report_load8",
+                  "__asan_report_load8_asm",
+                  "__asan_report_load8_noabort",
+                  "__asan_report_load_n",
+                  "__asan_report_load_n_noabort",
+                  "__asan_report_present",
+                  "__asan_report_store1",
+                  "__asan_report_store16",
+                  "__asan_report_store16_asm",
+                  "__asan_report_store16_noabort",
+                  "__asan_report_store1_asm",
+                  "__asan_report_store1_noabort",
+                  "__asan_report_store2",
+                  "__asan_report_store2_asm",
+                  "__asan_report_store2_noabort",
+                  "__asan_report_store4",
+                  "__asan_report_store4_asm",
+                  "__asan_report_store4_noabort",
+                  "__asan_report_store8",
+                  "__asan_report_store8_asm",
+                  "__asan_report_store8_noabort",
+                  "__asan_report_store_n",
+                  "__asan_report_store_n_noabort",
+                  "__asan_rt_version",
+                  "__asan_set_death_callback",
+                  "__asan_set_error_report_callback",
+                  "__asan_set_shadow_00",
+                  "__asan_set_shadow_01",
+                  "__asan_set_shadow_02",
+                  "__asan_set_shadow_03",
+                  "__asan_set_shadow_04",
+                  "__asan_set_shadow_05",
+                  "__asan_set_shadow_06",
+                  "__asan_set_shadow_07",
+                  "__asan_set_shadow_f1",
+                  "__asan_set_shadow_f2",
+                  "__asan_set_shadow_f3",
+                  "__asan_set_shadow_f5",
+                  "__asan_set_shadow_f8",
+                  "__asan_shadow_memory_dynamic_address",
+                  "__asan_stack_free_0",
+                  "__asan_stack_free_1",
+                  "__asan_stack_free_10",
+                  "__asan_stack_free_2",
+                  "__asan_stack_free_3",
+                  "__asan_stack_free_4",
+                  "__asan_stack_free_5",
+                  "__asan_stack_free_6",
+                  "__asan_stack_free_7",
+                  "__asan_stack_free_8",
+                  "__asan_stack_free_9",
+                  "__asan_stack_malloc_0",
+                  "__asan_stack_malloc_1",
+                  "__asan_stack_malloc_10",
+                  "__asan_stack_malloc_2",
+                  "__asan_stack_malloc_3",
+                  "__asan_stack_malloc_4",
+                  "__asan_stack_malloc_5",
+                  "__asan_stack_malloc_6",
+                  "__asan_stack_malloc_7",
+                  "__asan_stack_malloc_8",
+                  "__asan_stack_malloc_9",
+                  "__asan_stack_malloc_always_0",
+                  "__asan_stack_malloc_always_1",
+                  "__asan_stack_malloc_always_10",
+                  "__asan_stack_malloc_always_2",
+                  "__asan_stack_malloc_always_3",
+                  "__asan_stack_malloc_always_4",
+                  "__asan_stack_malloc_always_5",
+                  "__asan_stack_malloc_always_6",
+                  "__asan_stack_malloc_always_7",
+                  "__asan_stack_malloc_always_8",
+                  "__asan_stack_malloc_always_9",
+                  "__asan_store1",
+                  "__asan_store16",
+                  "__asan_store16_noabort",
+                  "__asan_store1_noabort",
+                  "__asan_store2",
+                  "__asan_store2_noabort",
+                  "__asan_store4",
+                  "__asan_store4_noabort",
+                  "__asan_store8",
+                  "__asan_store8_noabort",
+                  "__asan_storeN",
+                  "__asan_storeN_noabort",
+                  "__asan_test_only_reported_buggy_pointer",
+                  "__asan_unpoison_intra_object_redzone",
+                  "__asan_unpoison_memory_region",
+                  "__asan_unpoison_stack_memory",
+                  "__asan_unregister_elf_globals",
+                  "__asan_unregister_globals",
+                  "__asan_unregister_image_globals",
+                  "__asan_update_allocation_context",
+                  "__asan_version_mismatch_check_v8"
+                ],
+                "ubsan": [
+                  "__ubsan_default_options",
+                  "__ubsan_get_current_report_data",
+                  "__ubsan_handle_add_overflow",
+                  "__ubsan_handle_add_overflow_abort",
+                  "__ubsan_handle_alignment_assumption",
+                  "__ubsan_handle_alignment_assumption_abort",
+                  "__ubsan_handle_builtin_unreachable",
+                  "__ubsan_handle_cfi_bad_type",
+                  "__ubsan_handle_cfi_check_fail",
+                  "__ubsan_handle_cfi_check_fail_abort",
+                  "__ubsan_handle_divrem_overflow",
+                  "__ubsan_handle_divrem_overflow_abort",
+                  "__ubsan_handle_float_cast_overflow",
+                  "__ubsan_handle_float_cast_overflow_abort",
+                  "__ubsan_handle_function_type_mismatch",
+                  "__ubsan_handle_function_type_mismatch_abort",
+                  "__ubsan_handle_implicit_conversion",
+                  "__ubsan_handle_implicit_conversion_abort",
+                  "__ubsan_handle_invalid_builtin",
+                  "__ubsan_handle_invalid_builtin_abort",
+                  "__ubsan_handle_invalid_objc_cast",
+                  "__ubsan_handle_invalid_objc_cast_abort",
+                  "__ubsan_handle_load_invalid_value",
+                  "__ubsan_handle_load_invalid_value_abort",
+                  "__ubsan_handle_missing_return",
+                  "__ubsan_handle_mul_overflow",
+                  "__ubsan_handle_mul_overflow_abort",
+                  "__ubsan_handle_negate_overflow",
+                  "__ubsan_handle_negate_overflow_abort",
+                  "__ubsan_handle_nonnull_arg",
+                  "__ubsan_handle_nonnull_arg_abort",
+                  "__ubsan_handle_nonnull_return_v1",
+                  "__ubsan_handle_nonnull_return_v1_abort",
+                  "__ubsan_handle_nullability_arg",
+                  "__ubsan_handle_nullability_arg_abort",
+                  "__ubsan_handle_nullability_return_v1",
+                  "__ubsan_handle_nullability_return_v1_abort",
+                  "__ubsan_handle_out_of_bounds",
+                  "__ubsan_handle_out_of_bounds_abort",
+                  "__ubsan_handle_pointer_overflow",
+                  "__ubsan_handle_pointer_overflow_abort",
+                  "__ubsan_handle_shift_out_of_bounds",
+                  "__ubsan_handle_shift_out_of_bounds_abort",
+                  "__ubsan_handle_sub_overflow",
+                  "__ubsan_handle_sub_overflow_abort",
+                  "__ubsan_handle_type_mismatch_v1",
+                  "__ubsan_handle_type_mismatch_v1_abort",
+                  "__ubsan_handle_vla_bound_not_positive",
+                  "__ubsan_handle_vla_bound_not_positive_abort",
+                  "__ubsan_on_report"
+                ],
+                "lsan": [
+                  "__lsan_default_options",
+                  "__lsan_default_suppressions",
+                  "__lsan_disable",
+                  "__lsan_do_leak_check",
+                  "__lsan_do_recoverable_leak_check",
+                  "__lsan_enable",
+                  "__lsan_ignore_object",
+                  "__lsan_is_turned_off",
+                  "__lsan_register_root_region",
+                  "__lsan_unregister_root_region"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "release": {
+          "commit": "ba1c08b78352d92c97b6e430a72b1c5d06fc043c",
+          "source_archive": "/var/tmp/diffsheriff-code-audit.geqSAN/.diffsheriff/verification.1seVbh/tests/test_real_native_matrix_and_in0/runs/run-heu4z935/patch/release.zip",
+          "source_archive_sha256": "16ab4804d4000b9109d3d20007da022d748f6a1263636828b6838433ebcb32bf",
+          "commands": [
+            {
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "timed_out": false,
+              "output_limited": false,
+              "resource_limited": false,
+              "command": [
+                "docker",
+                "run",
+                "--name",
+                "diffsheriff-811844779569409c9dbaff014ec1e3a5",
+                "--pull=never",
+                "--platform=linux/amd64",
+                "--network=none",
+                "--cap-drop=ALL",
+                "--security-opt=no-new-privileges",
+                "--read-only",
+                "--user",
+                "1000",
+                "--memory",
+                "2048m",
+                "--memory-swap",
+                "2048m",
+                "--cpus",
+                "2.0",
+                "--pids-limit",
+                "128",
+                "--ulimit",
+                "core=0",
+                "--tmpfs",
+                "/tmp:rw,nosuid,size=256m,mode=1777",
+                "--mount",
+                "type=bind,src=/var/tmp/diffsheriff-code-audit.geqSAN/.diffsheriff/verification.1seVbh/tests/test_real_native_matrix_and_in0/runs/run-heu4z935/patch/release,dst=/src",
+                "--workdir",
+                "/src",
+                "--log-driver=none",
+                "--env",
+                "ALL_PROXY=",
+                "--env",
+                "ASAN_OPTIONS=detect_leaks=0",
+                "--env",
+                "HTTPS_PROXY=",
+                "--env",
+                "HTTP_PROXY=",
+                "--env",
+                "NO_PROXY=",
+                "--env",
+                "UBSAN_OPTIONS=print_stacktrace=1:halt_on_error=1",
+                "--env",
+                "all_proxy=",
+                "--env",
+                "http_proxy=",
+                "--env",
+                "https_proxy=",
+                "--env",
+                "no_proxy=",
+                "--entrypoint",
+                "/bin/sh",
+                "sha256:a82a5b7e8a58caea82cc8fa066b656fc96c9b4ec4f4b8a9f4fe11d080e8f65c1",
+                "-c",
+                "cc -g -fno-omit-frame-pointer -fstack-protector-all -fPIE -pie -Wl,-z,relro,-z,now main.c -o program"
+              ],
+              "container_state": {
+                "Status": "exited",
+                "Running": false,
+                "Paused": false,
+                "Restarting": false,
+                "OOMKilled": false,
+                "Dead": false,
+                "Pid": 0,
+                "ExitCode": 0,
+                "Error": "",
+                "StartedAt": "2026-11-13T17:38:49.990658799Z",
+                "FinishedAt": "2026-11-13T17:38:50.087533078Z"
+              }
+            }
+          ],
+          "binary": "program",
+          "sha256": "69d82bb76101e95251fb602c74d3276c2f38240689613963a26dcba1633077d5",
+          "source": "/var/tmp/diffsheriff-code-audit.geqSAN/.diffsheriff/verification.1seVbh/tests/test_real_native_matrix_and_in0/runs/run-heu4z935/patch/release",
+          "elf": {
+            "nx": true,
+            "pie": true,
+            "relro": "full",
+            "canary": true,
+            "indicators": {
+              "elf_type": "ET_DYN",
+              "gnu_stack_flags": [
+                6
+              ],
+              "has_interpreter": true,
+              "df_1_pie": true,
+              "gnu_relro_segment": true,
+              "dynamic_flags": [
+                {
+                  "tag": "DT_FLAGS",
+                  "value": 8
+                },
+                {
+                  "tag": "DT_FLAGS_1",
+                  "value": 134217729
+                }
+              ],
+              "canary_symbols": [
+                "__stack_chk_fail"
+              ],
+              "symbol_tables": [
+                ".dynsym",
+                ".symtab"
+              ],
+              "fortify_symbols": [],
+              "sanitizer_symbols": {}
+            }
+          }
+        },
+        "sanitized": {
+          "commit": "ba1c08b78352d92c97b6e430a72b1c5d06fc043c",
+          "source_archive": "/var/tmp/diffsheriff-code-audit.geqSAN/.diffsheriff/verification.1seVbh/tests/test_real_native_matrix_and_in0/runs/run-heu4z935/patch/sanitized.zip",
+          "source_archive_sha256": "16ab4804d4000b9109d3d20007da022d748f6a1263636828b6838433ebcb32bf",
+          "commands": [
+            {
+              "exit_code": 0,
+              "stdout": "",
+              "stderr": "",
+              "timed_out": false,
+              "output_limited": false,
+              "resource_limited": false,
+              "command": [
+                "docker",
+                "run",
+                "--name",
+                "diffsheriff-3357dae3c72b4bee8fe3d88b2e25de94",
+                "--pull=never",
+                "--platform=linux/amd64",
+                "--network=none",
+                "--cap-drop=ALL",
+                "--security-opt=no-new-privileges",
+                "--read-only",
+                "--user",
+                "1000",
+                "--memory",
+                "2048m",
+                "--memory-swap",
+                "2048m",
+                "--cpus",
+                "2.0",
+                "--pids-limit",
+                "128",
+                "--ulimit",
+                "core=0",
+                "--tmpfs",
+                "/tmp:rw,nosuid,size=256m,mode=1777",
+                "--mount",
+                "type=bind,src=/var/tmp/diffsheriff-code-audit.geqSAN/.diffsheriff/verification.1seVbh/tests/test_real_native_matrix_and_in0/runs/run-heu4z935/patch/sanitized,dst=/src",
+                "--workdir",
+                "/src",
+                "--log-driver=none",
+                "--env",
+                "ALL_PROXY=",
+                "--env",
+                "ASAN_OPTIONS=detect_leaks=0",
+                "--env",
+                "HTTPS_PROXY=",
+                "--env",
+                "HTTP_PROXY=",
+                "--env",
+                "NO_PROXY=",
+                "--env",
+                "UBSAN_OPTIONS=print_stacktrace=1:halt_on_error=1",
+                "--env",
+                "all_proxy=",
+                "--env",
+                "http_proxy=",
+                "--env",
+                "https_proxy=",
+                "--env",
+                "no_proxy=",
+                "--entrypoint",
+                "/bin/sh",
+                "sha256:a82a5b7e8a58caea82cc8fa066b656fc96c9b4ec4f4b8a9f4fe11d080e8f65c1",
+                "-c",
+                "clang -fsanitize=address,undefined -g -fno-omit-frame-pointer -fstack-protector-all -fPIE -pie -Wl,-z,relro,-z,now main.c -o program"
+              ],
+              "container_state": {
+                "Status": "exited",
+                "Running": false,
+                "Paused": false,
+                "Restarting": false,
+                "OOMKilled": false,
+                "Dead": false,
+                "Pid": 0,
+                "ExitCode": 0,
+                "Error": "",
+                "StartedAt": "2026-11-13T17:38:50.587727525Z",
+                "FinishedAt": "2026-11-13T17:38:50.710581505Z"
+              }
+            }
+          ],
+          "binary": "program",
+          "sha256": "52e56dcbf0d2e226250d9be13b35a64c6e9f9ee41ea49e46eb2bfc02e0fed00d",
+          "source": "/var/tmp/diffsheriff-code-audit.geqSAN/.diffsheriff/verification.1seVbh/tests/test_real_native_matrix_and_in0/runs/run-heu4z935/patch/sanitized",
+          "elf": {
+            "nx": true,
+            "pie": true,
+            "relro": "full",
+            "canary": true,
+            "indicators": {
+              "elf_type": "ET_DYN",
+              "gnu_stack_flags": [
+                6
+              ],
+              "has_interpreter": true,
+              "df_1_pie": true,
+              "gnu_relro_segment": true,
+              "dynamic_flags": [
+                {
+                  "tag": "DT_FLAGS",
+                  "value": 8
+                },
+                {
+                  "tag": "DT_FLAGS_1",
+                  "value": 134217729
+                }
+              ],
+              "canary_symbols": [
+                "__stack_chk_fail"
+              ],
+              "symbol_tables": [
+                ".dynsym",
+                ".symtab"
+              ],
+              "fortify_symbols": [
+                "___interceptor___fprintf_chk",
+                "___interceptor___longjmp_chk",
+                "___interceptor___snprintf_chk",
+                "___interceptor___sprintf_chk",
+                "___interceptor___vsnprintf_chk",
+                "___interceptor___vsprintf_chk",
+                "__fprintf_chk",
+                "__interceptor___fprintf_chk",
+                "__interceptor___longjmp_chk",
+                "__interceptor___snprintf_chk",
+                "__interceptor___sprintf_chk",
+                "__interceptor___vsnprintf_chk",
+                "__interceptor___vsprintf_chk",
+                "__interceptor_trampoline___fprintf_chk",
+                "__interceptor_trampoline___longjmp_chk",
+                "__interceptor_trampoline___snprintf_chk",
+                "__interceptor_trampoline___sprintf_chk",
+                "__interceptor_trampoline___vsnprintf_chk",
+                "__interceptor_trampoline___vsprintf_chk",
+                "__longjmp_chk",
+                "__snprintf_chk",
+                "__sprintf_chk",
+                "__vsnprintf_chk",
+                "__vsprintf_chk"
+              ],
+              "sanitizer_symbols": {
+                "asan": [
+                  "__asan_addr_is_in_fake_stack",
+                  "__asan_address_is_poisoned",
+                  "__asan_after_dynamic_init",
+                  "__asan_alloca_poison",
+                  "__asan_allocas_unpoison",
+                  "__asan_before_dynamic_init",
+                  "__asan_check_load_add_16_R12",
+                  "__asan_check_load_add_16_R13",
+                  "__asan_check_load_add_16_R14",
+                  "__asan_check_load_add_16_R15",
+                  "__asan_check_load_add_16_R8",
+                  "__asan_check_load_add_16_R9",
+                  "__asan_check_load_add_16_RAX",
+                  "__asan_check_load_add_16_RBP",
+                  "__asan_check_load_add_16_RBX",
+                  "__asan_check_load_add_16_RCX",
+                  "__asan_check_load_add_16_RDI",
+                  "__asan_check_load_add_16_RDX",
+                  "__asan_check_load_add_16_RSI",
+                  "__asan_check_load_add_1_R12",
+                  "__asan_check_load_add_1_R13",
+                  "__asan_check_load_add_1_R14",
+                  "__asan_check_load_add_1_R15",
+                  "__asan_check_load_add_1_R8",
+                  "__asan_check_load_add_1_R9",
+                  "__asan_check_load_add_1_RAX",
+                  "__asan_check_load_add_1_RBP",
+                  "__asan_check_load_add_1_RBX",
+                  "__asan_check_load_add_1_RCX",
+                  "__asan_check_load_add_1_RDI",
+                  "__asan_check_load_add_1_RDX",
+                  "__asan_check_load_add_1_RSI",
+                  "__asan_check_load_add_2_R12",
+                  "__asan_check_load_add_2_R13",
+                  "__asan_check_load_add_2_R14",
+                  "__asan_check_load_add_2_R15",
+                  "__asan_check_load_add_2_R8",
+                  "__asan_check_load_add_2_R9",
+                  "__asan_check_load_add_2_RAX",
+                  "__asan_check_load_add_2_RBP",
+                  "__asan_check_load_add_2_RBX",
+                  "__asan_check_load_add_2_RCX",
+                  "__asan_check_load_add_2_RDI",
+                  "__asan_check_load_add_2_RDX",
+                  "__asan_check_load_add_2_RSI",
+                  "__asan_check_load_add_4_R12",
+                  "__asan_check_load_add_4_R13",
+                  "__asan_check_load_add_4_R14",
+                  "__asan_check_load_add_4_R15",
+                  "__asan_check_load_add_4_R8",
+                  "__asan_check_load_add_4_R9",
+                  "__asan_check_load_add_4_RAX",
+                  "__asan_check_load_add_4_RBP",
+                  "__asan_check_load_add_4_RBX",
+                  "__asan_check_load_add_4_RCX",
+                  "__asan_check_load_add_4_RDI",
+                  "__asan_check_load_add_4_RDX",
+                  "__asan_check_load_add_4_RSI",
+                  "__asan_check_load_add_8_R12",
+                  "__asan_check_load_add_8_R13",
+                  "__asan_check_load_add_8_R14",
+                  "__asan_check_load_add_8_R15",
+                  "__asan_check_load_add_8_R8",
+                  "__asan_check_load_add_8_R9",
+                  "__asan_check_load_add_8_RAX",
+                  "__asan_check_load_add_8_RBP",
+                  "__asan_check_load_add_8_RBX",
+                  "__asan_check_load_add_8_RCX",
+                  "__asan_check_load_add_8_RDI",
+                  "__asan_check_load_add_8_RDX",
+                  "__asan_check_load_add_8_RSI",
+                  "__asan_check_store_add_16_R12",
+                  "__asan_check_store_add_16_R13",
+                  "__asan_check_store_add_16_R14",
+                  "__asan_check_store_add_16_R15",
+                  "__asan_check_store_add_16_R8",
+                  "__asan_check_store_add_16_R9",
+                  "__asan_check_store_add_16_RAX",
+                  "__asan_check_store_add_16_RBP",
+                  "__asan_check_store_add_16_RBX",
+                  "__asan_check_store_add_16_RCX",
+                  "__asan_check_store_add_16_RDI",
+                  "__asan_check_store_add_16_RDX",
+                  "__asan_check_store_add_16_RSI",
+                  "__asan_check_store_add_1_R12",
+                  "__asan_check_store_add_1_R13",
+                  "__asan_check_store_add_1_R14",
+                  "__asan_check_store_add_1_R15",
+                  "__asan_check_store_add_1_R8",
+                  "__asan_check_store_add_1_R9",
+                  "__asan_check_store_add_1_RAX",
+                  "__asan_check_store_add_1_RBP",
+                  "__asan_check_store_add_1_RBX",
+                  "__asan_check_store_add_1_RCX",
+                  "__asan_check_store_add_1_RDI",
+                  "__asan_check_store_add_1_RDX",
+                  "__asan_check_store_add_1_RSI",
+                  "__asan_check_store_add_2_R12",
+                  "__asan_check_store_add_2_R13",
+                  "__asan_check_store_add_2_R14",
+                  "__asan_check_store_add_2_R15",
+                  "__asan_check_store_add_2_R8",
+                  "__asan_check_store_add_2_R9",
+                  "__asan_check_store_add_2_RAX",
+                  "__asan_check_store_add_2_RBP",
+                  "__asan_check_store_add_2_RBX",
+                  "__asan_check_store_add_2_RCX",
+                  "__asan_check_store_add_2_RDI",
+                  "__asan_check_store_add_2_RDX",
+                  "__asan_check_store_add_2_RSI",
+                  "__asan_check_store_add_4_R12",
+                  "__asan_check_store_add_4_R13",
+                  "__asan_check_store_add_4_R14",
+                  "__asan_check_store_add_4_R15",
+                  "__asan_check_store_add_4_R8",
+                  "__asan_check_store_add_4_R9",
+                  "__asan_check_store_add_4_RAX",
+                  "__asan_check_store_add_4_RBP",
+                  "__asan_check_store_add_4_RBX",
+                  "__asan_check_store_add_4_RCX",
+                  "__asan_check_store_add_4_RDI",
+                  "__asan_check_store_add_4_RDX",
+                  "__asan_check_store_add_4_RSI",
+                  "__asan_check_store_add_8_R12",
+                  "__asan_check_store_add_8_R13",
+                  "__asan_check_store_add_8_R14",
+                  "__asan_check_store_add_8_R15",
+                  "__asan_check_store_add_8_R8",
+                  "__asan_check_store_add_8_R9",
+                  "__asan_check_store_add_8_RAX",
+                  "__asan_check_store_add_8_RBP",
+                  "__asan_check_store_add_8_RBX",
+                  "__asan_check_store_add_8_RCX",
+                  "__asan_check_store_add_8_RDI",
+                  "__asan_check_store_add_8_RDX",
+                  "__asan_check_store_add_8_RSI",
+                  "__asan_default_options",
+                  "__asan_default_suppressions",
+                  "__asan_describe_address",
+                  "__asan_exp_load1",
+                  "__asan_exp_load16",
+                  "__asan_exp_load2",
+                  "__asan_exp_load4",
+                  "__asan_exp_load8",
+                  "__asan_exp_loadN",
+                  "__asan_exp_store1",
+                  "__asan_exp_store16",
+                  "__asan_exp_store2",
+                  "__asan_exp_store4",
+                  "__asan_exp_store8",
+                  "__asan_exp_storeN",
+                  "__asan_extra_spill_area",
+                  "__asan_get_alloc_stack",
+                  "__asan_get_current_fake_stack",
+                  "__asan_get_free_stack",
+                  "__asan_get_report_access_size",
+                  "__asan_get_report_access_type",
+                  "__asan_get_report_address",
+                  "__asan_get_report_bp",
+                  "__asan_get_report_description",
+                  "__asan_get_report_pc",
+                  "__asan_get_report_sp",
+                  "__asan_get_shadow_mapping",
+                  "__asan_handle_no_return",
+                  "__asan_handle_vfork",
+                  "__asan_init",
+                  "__asan_load1",
+                  "__asan_load16",
+                  "__asan_load16_noabort",
+                  "__asan_load1_noabort",
+                  "__asan_load2",
+                  "__asan_load2_noabort",
+                  "__asan_load4",
+                  "__asan_load4_noabort",
+                  "__asan_load8",
+                  "__asan_load8_noabort",
+                  "__asan_loadN",
+                  "__asan_loadN_noabort",
+                  "__asan_load_cxx_array_cookie",
+                  "__asan_locate_address",
+                  "__asan_memcpy",
+                  "__asan_memmove",
+                  "__asan_memset",
+                  "__asan_on_error",
+                  "__asan_option_detect_stack_use_after_return",
+                  "__asan_poison_cxx_array_cookie",
+                  "__asan_poison_intra_object_redzone",
+                  "__asan_poison_memory_region",
+                  "__asan_poison_stack_memory",
+                  "__asan_print_accumulated_stats",
+                  "__asan_region_is_poisoned",
+                  "__asan_register_elf_globals",
+                  "__asan_register_globals",
+                  "__asan_register_image_globals",
+                  "__asan_report_error",
+                  "__asan_report_exp_load1",
+                  "__asan_report_exp_load16",
+                  "__asan_report_exp_load2",
+                  "__asan_report_exp_load4",
+                  "__asan_report_exp_load8",
+                  "__asan_report_exp_load_n",
+                  "__asan_report_exp_store1",
+                  "__asan_report_exp_store16",
+                  "__asan_report_exp_store2",
+                  "__asan_report_exp_store4",
+                  "__asan_report_exp_store8",
+                  "__asan_report_exp_store_n",
+                  "__asan_report_load1",
+                  "__asan_report_load16",
+                  "__asan_report_load16_asm",
+                  "__asan_report_load16_noabort",
+                  "__asan_report_load1_asm",
+                  "__asan_report_load1_noabort",
+                  "__asan_report_load2",
+                  "__asan_report_load2_asm",
+                  "__asan_report_load2_noabort",
+                  "__asan_report_load4",
+                  "__asan_report_load4_asm",
+                  "__asan_report_load4_noabort",
+                  "__asan_report_load8",
+                  "__asan_report_load8_asm",
+                  "__asan_report_load8_noabort",
+                  "__asan_report_load_n",
+                  "__asan_report_load_n_noabort",
+                  "__asan_report_present",
+                  "__asan_report_store1",
+                  "__asan_report_store16",
+                  "__asan_report_store16_asm",
+                  "__asan_report_store16_noabort",
+                  "__asan_report_store1_asm",
+                  "__asan_report_store1_noabort",
+                  "__asan_report_store2",
+                  "__asan_report_store2_asm",
+                  "__asan_report_store2_noabort",
+                  "__asan_report_store4",
+                  "__asan_report_store4_asm",
+                  "__asan_report_store4_noabort",
+                  "__asan_report_store8",
+                  "__asan_report_store8_asm",
+                  "__asan_report_store8_noabort",
+                  "__asan_report_store_n",
+                  "__asan_report_store_n_noabort",
+                  "__asan_rt_version",
+                  "__asan_set_death_callback",
+                  "__asan_set_error_report_callback",
+                  "__asan_set_shadow_00",
+                  "__asan_set_shadow_01",
+                  "__asan_set_shadow_02",
+                  "__asan_set_shadow_03",
+                  "__asan_set_shadow_04",
+                  "__asan_set_shadow_05",
+                  "__asan_set_shadow_06",
+                  "__asan_set_shadow_07",
+                  "__asan_set_shadow_f1",
+                  "__asan_set_shadow_f2",
+                  "__asan_set_shadow_f3",
+                  "__asan_set_shadow_f5",
+                  "__asan_set_shadow_f8",
+                  "__asan_shadow_memory_dynamic_address",
+                  "__asan_stack_free_0",
+                  "__asan_stack_free_1",
+                  "__asan_stack_free_10",
+                  "__asan_stack_free_2",
+                  "__asan_stack_free_3",
+                  "__asan_stack_free_4",
+                  "__asan_stack_free_5",
+                  "__asan_stack_free_6",
+                  "__asan_stack_free_7",
+                  "__asan_stack_free_8",
+                  "__asan_stack_free_9",
+                  "__asan_stack_malloc_0",
+                  "__asan_stack_malloc_1",
+                  "__asan_stack_malloc_10",
+                  "__asan_stack_malloc_2",
+                  "__asan_stack_malloc_3",
+                  "__asan_stack_malloc_4",
+                  "__asan_stack_malloc_5",
+                  "__asan_stack_malloc_6",
+                  "__asan_stack_malloc_7",
+                  "__asan_stack_malloc_8",
+                  "__asan_stack_malloc_9",
+                  "__asan_stack_malloc_always_0",
+                  "__asan_stack_malloc_always_1",
+                  "__asan_stack_malloc_always_10",
+                  "__asan_stack_malloc_always_2",
+                  "__asan_stack_malloc_always_3",
+                  "__asan_stack_malloc_always_4",
+                  "__asan_stack_malloc_always_5",
+                  "__asan_stack_malloc_always_6",
+                  "__asan_stack_malloc_always_7",
+                  "__asan_stack_malloc_always_8",
+                  "__asan_stack_malloc_always_9",
+                  "__asan_store1",
+                  "__asan_store16",
+                  "__asan_store16_noabort",
+                  "__asan_store1_noabort",
+                  "__asan_store2",
+                  "__asan_store2_noabort",
+                  "__asan_store4",
+                  "__asan_store4_noabort",
+                  "__asan_store8",
+                  "__asan_store8_noabort",
+                  "__asan_storeN",
+                  "__asan_storeN_noabort",
+                  "__asan_test_only_reported_buggy_pointer",
+                  "__asan_unpoison_intra_object_redzone",
+                  "__asan_unpoison_memory_region",
+                  "__asan_unpoison_stack_memory",
+                  "__asan_unregister_elf_globals",
+                  "__asan_unregister_globals",
+                  "__asan_unregister_image_globals",
+                  "__asan_update_allocation_context",
+                  "__asan_version_mismatch_check_v8"
+                ],
+                "ubsan": [
+                  "__ubsan_default_options",
+                  "__ubsan_get_current_report_data",
+                  "__ubsan_handle_add_overflow",
+                  "__ubsan_handle_add_overflow_abort",
+                  "__ubsan_handle_alignment_assumption",
+                  "__ubsan_handle_alignment_assumption_abort",
+                  "__ubsan_handle_builtin_unreachable",
+                  "__ubsan_handle_cfi_bad_type",
+                  "__ubsan_handle_cfi_check_fail",
+                  "__ubsan_handle_cfi_check_fail_abort",
+                  "__ubsan_handle_divrem_overflow",
+                  "__ubsan_handle_divrem_overflow_abort",
+                  "__ubsan_handle_float_cast_overflow",
+                  "__ubsan_handle_float_cast_overflow_abort",
+                  "__ubsan_handle_function_type_mismatch",
+                  "__ubsan_handle_function_type_mismatch_abort",
+                  "__ubsan_handle_implicit_conversion",
+                  "__ubsan_handle_implicit_conversion_abort",
+                  "__ubsan_handle_invalid_builtin",
+                  "__ubsan_handle_invalid_builtin_abort",
+                  "__ubsan_handle_invalid_objc_cast",
+                  "__ubsan_handle_invalid_objc_cast_abort",
+                  "__ubsan_handle_load_invalid_value",
+                  "__ubsan_handle_load_invalid_value_abort",
+                  "__ubsan_handle_missing_return",
+                  "__ubsan_handle_mul_overflow",
+                  "__ubsan_handle_mul_overflow_abort",
+                  "__ubsan_handle_negate_overflow",
+                  "__ubsan_handle_negate_overflow_abort",
+                  "__ubsan_handle_nonnull_arg",
+                  "__ubsan_handle_nonnull_arg_abort",
+                  "__ubsan_handle_nonnull_return_v1",
+                  "__ubsan_handle_nonnull_return_v1_abort",
+                  "__ubsan_handle_nullability_arg",
+                  "__ubsan_handle_nullability_arg_abort",
+                  "__ubsan_handle_nullability_return_v1",
+                  "__ubsan_handle_nullability_return_v1_abort",
+                  "__ubsan_handle_out_of_bounds",
+                  "__ubsan_handle_out_of_bounds_abort",
+                  "__ubsan_handle_pointer_overflow",
+                  "__ubsan_handle_pointer_overflow_abort",
+                  "__ubsan_handle_shift_out_of_bounds",
+                  "__ubsan_handle_shift_out_of_bounds_abort",
+                  "__ubsan_handle_sub_overflow",
+                  "__ubsan_handle_sub_overflow_abort",
+                  "__ubsan_handle_type_mismatch_v1",
+                  "__ubsan_handle_type_mismatch_v1_abort",
+                  "__ubsan_handle_vla_bound_not_positive",
+                  "__ubsan_handle_vla_bound_not_positive_abort",
+                  "__ubsan_on_report"
+                ],
+                "lsan": [
+                  "__lsan_default_options",
+                  "__lsan_default_suppressions",
+                  "__lsan_disable",
+                  "__lsan_do_leak_check",
+                  "__lsan_do_recoverable_leak_check",
+                  "__lsan_enable",
+                  "__lsan_ignore_object",
+                  "__lsan_is_turned_off",
+                  "__lsan_register_root_region",
+                  "__lsan_unregister_root_region"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "cases": [
+      {
+        "id": "valid/input",
+        "suite": "valid",
+        "sha256": "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824",
+        "expected": {
+          "exit_code": 0,
+          "stdout": "hello",
+          "stderr": ""
+        },
+        "valid_input": true,
+        "input_file": "inputs/2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824.input",
+        "mode": "release",
+        "runs": {
+          "base": [
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "hello",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-13T17:38:52.673132897Z",
+                  "FinishedAt": "2026-11-13T17:38:52.823143985Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "hello",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+              }
+            },
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "hello",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-13T17:38:53.279501531Z",
+                  "FinishedAt": "2026-11-13T17:38:53.399758354Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "hello",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+              }
+            },
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "hello",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-13T17:38:53.861264231Z",
+                  "FinishedAt": "2026-11-13T17:38:53.975166723Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "hello",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+              }
+            }
+          ],
+          "patch": [
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "hello",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-13T17:38:54.369722386Z",
+                  "FinishedAt": "2026-11-13T17:38:54.448808285Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "hello",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+              }
+            },
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "hello",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-13T17:38:54.884994219Z",
+                  "FinishedAt": "2026-11-13T17:38:54.9645205Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "hello",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+              }
+            },
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "hello",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-13T17:38:55.426467133Z",
+                  "FinishedAt": "2026-11-13T17:38:55.510910246Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "hello",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "valid/input",
+        "suite": "valid",
+        "sha256": "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824",
+        "expected": {
+          "exit_code": 0,
+          "stdout": "hello",
+          "stderr": ""
+        },
+        "valid_input": true,
+        "input_file": "inputs/2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824.input",
+        "mode": "sanitized",
+        "runs": {
+          "base": [
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "hello",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-13T17:38:55.98626961Z",
+                  "FinishedAt": "2026-11-13T17:38:56.067941371Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "hello",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+              }
+            },
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "hello",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-13T17:38:56.537770684Z",
+                  "FinishedAt": "2026-11-13T17:38:56.619647499Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "hello",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+              }
+            },
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "hello",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-13T17:38:57.073579938Z",
+                  "FinishedAt": "2026-11-13T17:38:57.182822176Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "hello",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+              }
+            }
+          ],
+          "patch": [
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "hello",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-13T17:38:57.60938344Z",
+                  "FinishedAt": "2026-11-13T17:38:57.722999592Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "hello",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+              }
+            },
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "hello",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-13T17:38:58.136260008Z",
+                  "FinishedAt": "2026-11-13T17:38:58.249179199Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "hello",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+              }
+            },
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "hello",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-13T17:38:58.654367124Z",
+                  "FinishedAt": "2026-11-13T17:38:58.736531532Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "hello",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "boundary/input",
+        "suite": "boundary",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "expected": {
+          "exit_code": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "valid_input": false,
+        "input_file": "inputs/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.input",
+        "mode": "release",
+        "runs": {
+          "base": [
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-13T17:38:59.147031573Z",
+                  "FinishedAt": "2026-11-13T17:38:59.254737821Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+              }
+            },
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-13T17:38:59.64418706Z",
+                  "FinishedAt": "2026-11-13T17:38:59.759079723Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+              }
+            },
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-13T17:39:00.18544551Z",
+                  "FinishedAt": "2026-11-13T17:39:00.299447526Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+              }
+            }
+          ],
+          "patch": [
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-13T17:39:00.738637599Z",
+                  "FinishedAt": "2026-11-13T17:39:00.820076861Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+              }
+            },
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-13T17:39:01.26961088Z",
+                  "FinishedAt": "2026-11-13T17:39:01.350090463Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+              }
+            },
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-13T17:39:01.797776558Z",
+                  "FinishedAt": "2026-11-13T17:39:01.913607619Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "boundary/input",
+        "suite": "boundary",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "expected": {
+          "exit_code": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        "valid_input": false,
+        "input_file": "inputs/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.input",
+        "mode": "sanitized",
+        "runs": {
+          "base": [
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-13T17:39:02.304236468Z",
+                  "FinishedAt": "2026-11-13T17:39:02.380798064Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+              }
+            },
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-13T17:39:02.794098112Z",
+                  "FinishedAt": "2026-11-13T17:39:02.902412389Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+              }
+            },
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-13T17:39:03.284279782Z",
+                  "FinishedAt": "2026-11-13T17:39:03.388230842Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+              }
+            }
+          ],
+          "patch": [
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-13T17:39:03.874328599Z",
+                  "FinishedAt": "2026-11-13T17:39:03.956463477Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+              }
+            },
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-13T17:39:04.544693143Z",
+                  "FinishedAt": "2026-11-13T17:39:04.639416279Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+              }
+            },
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-13T17:39:05.264840743Z",
+                  "FinishedAt": "2026-11-13T17:39:05.361296418Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "malicious/input",
+        "suite": "malicious",
+        "sha256": "a8100ae6aa1940d0b663bb31cd466142ebbdbd5187131b92d93818987832eb89",
+        "expected": {
+          "exit_code": 0,
+          "stdout": "\u00ff",
+          "stderr": ""
+        },
+        "valid_input": false,
+        "input_file": "inputs/a8100ae6aa1940d0b663bb31cd466142ebbdbd5187131b92d93818987832eb89.input",
+        "mode": "release",
+        "runs": {
+          "base": [
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "\u00ff",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-13T17:39:05.973114043Z",
+                  "FinishedAt": "2026-11-13T17:39:06.092681223Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "\u00ff",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+              }
+            },
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "\u00ff",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-13T17:39:06.503978928Z",
+                  "FinishedAt": "2026-11-13T17:39:06.589201157Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "\u00ff",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+              }
+            },
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "\u00ff",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-13T17:39:07.086993666Z",
+                  "FinishedAt": "2026-11-13T17:39:07.175852087Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "\u00ff",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+              }
+            }
+          ],
+          "patch": [
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "\u00ff",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-13T17:39:07.72317778Z",
+                  "FinishedAt": "2026-11-13T17:39:07.84715953Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "\u00ff",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+              }
+            },
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "\u00ff",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-13T17:39:08.336400905Z",
+                  "FinishedAt": "2026-11-13T17:39:08.462163243Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "\u00ff",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+              }
+            },
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "\u00ff",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-13T17:39:09.002521875Z",
+                  "FinishedAt": "2026-11-13T17:39:09.093544881Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "\u00ff",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "malicious/input",
+        "suite": "malicious",
+        "sha256": "a8100ae6aa1940d0b663bb31cd466142ebbdbd5187131b92d93818987832eb89",
+        "expected": {
+          "exit_code": 0,
+          "stdout": "\u00ff",
+          "stderr": ""
+        },
+        "valid_input": false,
+        "input_file": "inputs/a8100ae6aa1940d0b663bb31cd466142ebbdbd5187131b92d93818987832eb89.input",
+        "mode": "sanitized",
+        "runs": {
+          "base": [
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "\u00ff",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-13T17:39:09.721386762Z",
+                  "FinishedAt": "2026-11-13T17:39:09.810713474Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "\u00ff",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+              }
+            },
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "\u00ff",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-13T17:39:10.311686184Z",
+                  "FinishedAt": "2026-11-13T17:39:10.403366183Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "\u00ff",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+              }
+            },
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "\u00ff",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-13T17:39:10.985169943Z",
+                  "FinishedAt": "2026-11-13T17:39:11.087515582Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "\u00ff",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+              }
+            }
+          ],
+          "patch": [
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "\u00ff",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-13T17:39:11.810658954Z",
+                  "FinishedAt": "2026-11-13T17:39:11.905449454Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "\u00ff",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+              }
+            },
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "\u00ff",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-13T17:39:12.469051366Z",
+                  "FinishedAt": "2026-11-13T17:39:12.559353907Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "\u00ff",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+              }
+            },
+            {
+              "execution": {
+                "exit_code": 0,
+                "stdout": "\u00ff",
+                "stderr": "",
+                "timed_out": false,
+                "output_limited": false,
+                "resource_limited": false,
+                "command": [
+                  "/src/program"
+                ],
+                "container_state": {
+                  "Status": "exited",
+                  "Running": false,
+                  "Paused": false,
+                  "Restarting": false,
+                  "OOMKilled": false,
+                  "Dead": false,
+                  "Pid": 0,
+                  "ExitCode": 0,
+                  "Error": "",
+                  "StartedAt": "2026-11-13T17:39:13.082848863Z",
+                  "FinishedAt": "2026-11-13T17:39:13.173349776Z"
+                }
+              },
+              "triage": {
+                "is_crash": false,
+                "error_type": "none",
+                "detection_mechanism": "none",
+                "exit_code": 0,
+                "signal_name": null,
+                "stack_trace": [],
+                "raw_stdout": "\u00ff",
+                "raw_stderr": ""
+              },
+              "signature": null,
+              "correlation": {
+                "is_correlated": false,
+                "correlation_type": "Inconclusive",
+                "matched_file": null,
+                "matched_line": null,
+                "matched_frame": null,
+                "hunk": null,
+                "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "reproducers": [],
+    "execution_settings": {
+      "timeout_seconds": 5,
+      "input_method": "stdin",
+      "file_argument_flag": "--file",
+      "fixed_arguments": [],
+      "environment_variables": {
+        "HTTP_PROXY": "",
+        "HTTPS_PROXY": "",
+        "ALL_PROXY": "",
+        "NO_PROXY": "",
+        "http_proxy": "",
+        "https_proxy": "",
+        "all_proxy": "",
+        "no_proxy": "",
+        "ASAN_OPTIONS": "detect_leaks=0",
+        "UBSAN_OPTIONS": "print_stacktrace=1:halt_on_error=1"
+      },
+      "image": "sha256:a82a5b7e8a58caea82cc8fa066b656fc96c9b4ec4f4b8a9f4fe11d080e8f65c1",
+      "memory_mb": 2048,
+      "cpus": 2.0,
+      "pids_limit": 128,
+      "output_limit_bytes": 1048576
+    },
+    "hardening": {
+      "base": {
+        "nx": true,
+        "pie": true,
+        "relro": "full",
+        "canary": true,
+        "indicators": {
+          "elf_type": "ET_DYN",
+          "gnu_stack_flags": [
+            6
+          ],
+          "has_interpreter": true,
+          "df_1_pie": true,
+          "gnu_relro_segment": true,
+          "dynamic_flags": [
+            {
+              "tag": "DT_FLAGS",
+              "value": 8
+            },
+            {
+              "tag": "DT_FLAGS_1",
+              "value": 134217729
+            }
+          ],
+          "canary_symbols": [
+            "__stack_chk_fail"
+          ],
+          "symbol_tables": [
+            ".dynsym",
+            ".symtab"
+          ],
+          "fortify_symbols": [],
+          "sanitizer_symbols": {}
+        }
+      },
+      "patch": {
+        "nx": true,
+        "pie": true,
+        "relro": "full",
+        "canary": true,
+        "indicators": {
+          "elf_type": "ET_DYN",
+          "gnu_stack_flags": [
+            6
+          ],
+          "has_interpreter": true,
+          "df_1_pie": true,
+          "gnu_relro_segment": true,
+          "dynamic_flags": [
+            {
+              "tag": "DT_FLAGS",
+              "value": 8
+            },
+            {
+              "tag": "DT_FLAGS_1",
+              "value": 134217729
+            }
+          ],
+          "canary_symbols": [
+            "__stack_chk_fail"
+          ],
+          "symbol_tables": [
+            ".dynsym",
+            ".symtab"
+          ],
+          "fortify_symbols": [],
+          "sanitizer_symbols": {}
+        }
+      }
+    },
+    "baseline_identity_modes": []
+  },
+  "findings": []
+}

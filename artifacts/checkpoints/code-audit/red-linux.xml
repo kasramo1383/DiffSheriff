@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites><testsuite name="pytest" errors="0" failures="5" skipped="0" tests="5" time="0.657" timestamp="2026-11-13T21:06:16.112658" hostname="DESKTOP-OVP2LHB"><testcase classname="tests.test_pipeline" name="test_reference_json_decodes_utf8_before_expected_output_bytes" time="0.003"><failure message="AssertionError: assert {'exit_code':...out': 'cafÃ©'} == {'exit_code':...dout': 'café'}&#10;  Omitting 2 identical items, use -vv to show&#10;  Differing items:&#10;  {'stdout': 'cafÃ©'} != {'stdout': 'café'}&#10;  Use -v to get more diff">def test_reference_json_decodes_utf8_before_expected_output_bytes():
+        from diffsheriff.pipeline import record_reference_expectation
+    
+        expected = {"exit_code": 0, "stdout": "caf\u00e9", "stderr": ""}
+        captured = json.dumps(expected, ensure_ascii=False).encode("utf-8").decode("latin1")
+        expectations, validity = {}, {}
+        record_reference_expectation(captured, "digest", expectations, validity)
+&gt;       assert expectations["digest"] == expected
+E       AssertionError: assert {'exit_code':...out': 'cafÃ©'} == {'exit_code':...dout': 'café'}
+E         Omitting 2 identical items, use -vv to show
+E         Differing items:
+E         {'stdout': 'cafÃ©'} != {'stdout': 'café'}
+E         Use -v to get more diff
+
+tests/test_pipeline.py:27: AssertionError</failure></testcase><testcase classname="tests.test_pipeline" name="test_argv_reduction_skips_invalid_utf8_candidates" time="0.010"><failure message="AssertionError: [&quot;UnicodeDecodeError: 'utf-8' codec can't decode byte 0xc3 in position 0: unexpected end of data&quot;]&#10;assert 30 == 0&#10; +  where 30 = ValidationSummary(target_name='sample', exit_code=30, verdict='BUILD_OR_CONFIG_ERROR', total_tests_run=36, functional_...nx': True, 'pie': True, 'relro': 'full', 'canary': True, 'indicators': {}}}, 'baseline_identity_modes': ['sanitized']}).exit_code">tmp_path = PosixPath('/var/tmp/diffsheriff-audit-red/test_argv_reduction_skips_inva0')
+pipeline_fixture = (DiffSheriffConfig(target_name='sample', language='c', repository_path=PosixPath('/var/tmp/diffsheriff-audit-red/test_...Path('/var/tmp/diffsheriff-audit-red/test_argv_reduction_skips_inva0/target.yaml'), {'calls': 42, 'scenario': 'fixed'})
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f52b36ca360&gt;
+
+    def test_argv_reduction_skips_invalid_utf8_candidates(tmp_path, pipeline_fixture, monkeypatch):
+        import diffsheriff.pipeline as pipeline
+    
+        cfg, _, _ = pipeline_fixture
+        cfg.execution.input_method = "argv"
+        payload = "\u00e9".encode()
+        (tmp_path / "tests/invalid/input").write_bytes(payload)
+        execute = pipeline.execute_container
+    
+        def utf8_execute(source, binary, candidate, settings):
+            candidate.decode("utf-8")
+            return execute(source, binary, b"diagnostic" if candidate == payload else candidate, settings)
+    
+        monkeypatch.setattr(pipeline, "execute_container", utf8_execute)
+        summary = run_pipeline(cfg, tmp_path / "runs")
+&gt;       assert summary.exit_code == 0, summary.notes
+E       AssertionError: ["UnicodeDecodeError: 'utf-8' codec can't decode byte 0xc3 in position 0: unexpected end of data"]
+E       assert 30 == 0
+E        +  where 30 = ValidationSummary(target_name='sample', exit_code=30, verdict='BUILD_OR_CONFIG_ERROR', total_tests_run=36, functional_...nx': True, 'pie': True, 'relro': 'full', 'canary': True, 'indicators': {}}}, 'baseline_identity_modes': ['sanitized']}).exit_code
+
+tests/test_pipeline.py:45: AssertionError</failure></testcase><testcase classname="tests.test_pipeline" name="test_instrumented_release_is_configuration_error" time="0.018"><failure message="AssertionError: assert 0 == 30&#10; +  where 0 = ValidationSummary(target_name='sample', exit_code=0, verdict='PASS', total_tests_run=36, functional_passed=2, function...ry': True, 'indicators': {'sanitizer_symbols': {'asan': ['__asan_init']}}}}, 'baseline_identity_modes': ['sanitized']}).exit_code">tmp_path = PosixPath('/var/tmp/diffsheriff-audit-red/test_instrumented_release_is_c0')
+pipeline_fixture = (DiffSheriffConfig(target_name='sample', language='c', repository_path=PosixPath('/var/tmp/diffsheriff-audit-red/test_...ath('/var/tmp/diffsheriff-audit-red/test_instrumented_release_is_c0/target.yaml'), {'calls': 192, 'scenario': 'fixed'})
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f52b36cba40&gt;
+
+    def test_instrumented_release_is_configuration_error(tmp_path, pipeline_fixture, monkeypatch):
+        cfg, _, state = pipeline_fixture
+        monkeypatch.setattr(
+            "diffsheriff.pipeline.inspect_elf_hardening",
+            lambda p: HardeningResult(True, True, "full", True, {"sanitizer_symbols": {"asan": ["__asan_init"]}}),
+        )
+        summary = run_pipeline(cfg, tmp_path / "runs")
+&gt;       assert summary.exit_code == 30
+E       AssertionError: assert 0 == 30
+E        +  where 0 = ValidationSummary(target_name='sample', exit_code=0, verdict='PASS', total_tests_run=36, functional_passed=2, function...ry': True, 'indicators': {'sanitizer_symbols': {'asan': ['__asan_init']}}}}, 'baseline_identity_modes': ['sanitized']}).exit_code
+
+tests/test_pipeline.py:57: AssertionError</failure></testcase><testcase classname="tests.test_pipeline" name="test_replay_rejects_missing_security_identity" time="0.028"><failure message="Failed: DID NOT RAISE &lt;class 'ValueError'&gt;">tmp_path = PosixPath('/var/tmp/diffsheriff-audit-red/test_replay_rejects_missing_se0')
+pipeline_fixture = (DiffSheriffConfig(target_name='sample', language='c', repository_path=PosixPath('/var/tmp/diffsheriff-audit-red/test_...ath('/var/tmp/diffsheriff-audit-red/test_replay_rejects_missing_se0/target.yaml'), {'calls': 192, 'scenario': 'fixed'})
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f52b36cbfb0&gt;
+
+    def test_replay_rejects_missing_security_identity(tmp_path, pipeline_fixture, monkeypatch):
+        import diffsheriff.reproduce as reproduce
+    
+        cfg, _, _ = pipeline_fixture
+        summary = run_pipeline(cfg, tmp_path / "runs")
+        bundle = Path(summary.evidence["run_directory"]) / summary.evidence["reproducers"][0]
+        path = bundle / "reproducer.json"
+        metadata = json.loads(path.read_text())
+        metadata["signature"] = None
+        path.write_text(json.dumps(metadata))
+        monkeypatch.setattr(reproduce, "observe", lambda *a: {"signature": None, "execution": {"exit_code": 0, "stdout": "ok\n", "stderr": "", "timed_out": False, "resource_limited": False, "output_limited": False}, "triage": {"is_crash": False}})
+&gt;       with pytest.raises(ValueError, match="signature"):
+E       Failed: DID NOT RAISE &lt;class 'ValueError'&gt;
+
+tests/test_pipeline.py:73: Failed</failure></testcase><testcase classname="tests.test_pipeline" name="test_replay_does_not_follow_output_symlink" time="0.017"><failure message="Failed: DID NOT RAISE &lt;class 'ValueError'&gt;">tmp_path = PosixPath('/var/tmp/diffsheriff-audit-red/test_replay_does_not_follow_ou0')
+pipeline_fixture = (DiffSheriffConfig(target_name='sample', language='c', repository_path=PosixPath('/var/tmp/diffsheriff-audit-red/test_...ath('/var/tmp/diffsheriff-audit-red/test_replay_does_not_follow_ou0/target.yaml'), {'calls': 198, 'scenario': 'fixed'})
+
+    def test_replay_does_not_follow_output_symlink(tmp_path, pipeline_fixture):
+        from diffsheriff.reproduce import replay
+    
+        cfg, _, _ = pipeline_fixture
+        summary = run_pipeline(cfg, tmp_path / "runs")
+        bundle = Path(summary.evidence["run_directory"]) / summary.evidence["reproducers"][0]
+        original = tmp_path / "keep.txt"
+        original.write_text("keep")
+        try:
+            (bundle / "replay.json").symlink_to(original)
+        except OSError:
+            pytest.skip("Host does not allow test symlinks")
+&gt;       with pytest.raises(ValueError, match="symlink"):
+E       Failed: DID NOT RAISE &lt;class 'ValueError'&gt;
+
+tests/test_pipeline.py:89: Failed</failure></testcase></testsuite></testsuites>

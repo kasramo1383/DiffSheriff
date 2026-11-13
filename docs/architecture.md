@@ -24,7 +24,7 @@ only in `roadmap.md`.
 | `triage.py` | Detection mechanisms, categories, real signal status, and runtime frames |
 | `correlator.py` | Old/new changed lines, insertion-to-runtime-function evidence, caller evidence, and normalized source signatures |
 | `minimizer.py` | Delta debugging against a strict caller-supplied invariant |
-| `hardening.py` | x86_64 ELF validation and NX/PIE/RELRO/canary comparison |
+| `hardening.py` | x86_64 ELF validation, NX/PIE/RELRO/canary comparison, and per-build symbol evidence |
 | `reproduce.py` | Re-execution of retained cases, including hash verification |
 | `regressions.py` | Baseline-filtered regression import/export with hash and conflict checks |
 | `reporter.py` | Independent statuses, JSON evidence, atomic report replacement, and exit priority |

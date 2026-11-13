@@ -125,7 +125,7 @@ def triage_execution_result(
             error_type=category,
             detection_mechanism="UndefinedBehaviorSanitizer",
             exit_code=exit_code,
-            signal_name=None,
+            signal_name=_signal_from_return_code(exit_code, shell_status),
             stack_trace=frames,
             raw_stdout=stdout,
             raw_stderr=stderr,

@@ -37,7 +37,12 @@ the [roadmap](../docs/roadmap.md) once the checkpoint is accepted.
 ## Package
 
 The latest verified implementation and wheel are in the
-[cache-import checkpoint](checkpoints/cache-import/README.md), which reconciles stale
+[code-audit checkpoint](checkpoints/code-audit/README.md), which fixes five reproduced
+input/build-mode/replay defects and links the team's exact evaluation procedure.
+The [reference-parity checkpoint](checkpoints/reference-parity/README.md) retains
+per-build ELF indicators, richer console evidence, one-command verification, and a
+UBSan termination fix following comparison with DNS-P1.
+The [cache-import checkpoint](checkpoints/cache-import/README.md) reconciles stale
 diagnostic caches against reviewed local expectations and retains CLI transfer evidence.
 The [minimized-results checkpoint](checkpoints/minimized-results/README.md) adds
 classification of stable minimized observations and focused synthetic reports.

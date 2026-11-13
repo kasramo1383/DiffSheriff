@@ -80,6 +80,9 @@ def test_elf_hardening_reads_real_headers(tmp_path):
         "gnu_relro_segment": True,
         "dynamic_flags": [{"tag": "DT_FLAGS_1", "value": 0x08000000}],
         "canary_symbols": [],
+        "symbol_tables": [],
+        "fortify_symbols": [],
+        "sanitizer_symbols": {},
     }
     elf_fixture(path, executable_stack=True, pie=False)
     result = inspect_elf_hardening(path)
@@ -117,3 +120,54 @@ def test_hardening_downgrades_are_all_reported():
         HardeningResult(False, False, "none", False),
     )
     assert degraded and len(warnings) == 4
+
+
+def test_elf_symbol_evidence_is_separate_from_build_labels(tmp_path):
+    path = tmp_path / "binary"
+    elf_fixture(path)
+    data = bytearray(path.read_bytes())
+    section_names = b"\0.shstrtab\0.strtab\0.symtab\0"
+    strings = bytearray(b"\0")
+    symbols = bytearray(24)
+    for name in (
+        "__stack_chk_fail",
+        "__memcpy_chk",
+        "__asan_init",
+        "__ubsan_handle_add_overflow",
+        "ordinary",
+    ):
+        symbols.extend(struct.pack("<IBBHQQ", len(strings), 0x12, 0, 0, 0, 0))
+        strings.extend(name.encode() + b"\0")
+    sections = [bytes(64)]
+    for name, kind, body, link, entry_size in (
+        (1, 3, section_names, 0, 0),
+        (11, 3, strings, 0, 0),
+        (19, 2, symbols, 2, 24),
+    ):
+        sections.append(
+            struct.pack(
+                "<IIQQQQIIQQ",
+                name,
+                kind,
+                0,
+                0,
+                len(data),
+                len(body),
+                link,
+                1 if kind == 2 else 0,
+                1,
+                entry_size,
+            )
+        )
+        data.extend(body)
+    struct.pack_into("<Q", data, 40, len(data))
+    struct.pack_into("<HHH", data, 58, 64, len(sections), 1)
+    path.write_bytes(data + b"".join(sections))
+    result = inspect_elf_hardening(path)
+    assert result.canary
+    assert result.indicators["symbol_tables"] == [".symtab"]
+    assert result.indicators["fortify_symbols"] == ["__memcpy_chk"]
+    assert result.indicators["sanitizer_symbols"] == {
+        "asan": ["__asan_init"],
+        "ubsan": ["__ubsan_handle_add_overflow"],
+    }

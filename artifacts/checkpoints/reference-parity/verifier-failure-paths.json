@@ -1,0 +1,12 @@
+{
+  "missing-python": {
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "Missing prerequisite: diffsheriff-nonexistent-python\n"
+  },
+  "missing-image": {
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "WARNING: No blkio throttle.read_bps_device support\nWARNING: No blkio throttle.write_bps_device support\nWARNING: No blkio throttle.read_iops_device support\nWARNING: No blkio throttle.write_iops_device support\nWARNING: Support for cgroup v1 is deprecated and planned to be removed by no later than May 2029 (https://github.com/moby/moby/issues/51111)\nError response from daemon: No such image: diffsheriff:nonexistent-parity-image\nBuild the runtime image first; see docs/usage.md (diffsheriff:nonexistent-parity-image).\n"
+  }
+}

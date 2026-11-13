@@ -71,15 +71,23 @@ def inspect_elf_hardening(elf_path: Path) -> HardeningResult:
             elf.get_section_by_name(".dynsym"),
             elf.get_section_by_name(".symtab"),
         ]
+        symbols = {
+            sym.name
+            for table in symbol_tables
+            if table is not None
+            for sym in table.iter_symbols()
+        }
         canary_symbols = sorted(
-            {
-                sym.name
-                for table in symbol_tables
-                if table is not None
-                for sym in table.iter_symbols()
-                if sym.name in {"__stack_chk_fail", "__stack_chk_fail_local"}
-            }
+            symbols & {"__stack_chk_fail", "__stack_chk_fail_local"}
         )
+        # Symbol names are indicators, not proof of compile flags or code coverage.
+        sanitizer_symbols = {}
+        for family in ("asan", "ubsan", "msan", "tsan", "lsan"):
+            matches = sorted(
+                name for name in symbols if name.startswith(f"__{family}_")
+            )
+            if matches:
+                sanitizer_symbols[family] = matches
         indicators = {
             "elf_type": elf.header["e_type"],
             "gnu_stack_flags": stack_flags,
@@ -88,6 +96,15 @@ def inspect_elf_hardening(elf_path: Path) -> HardeningResult:
             "gnu_relro_segment": has_relro_segment,
             "dynamic_flags": dynamic_flags,
             "canary_symbols": canary_symbols,
+            "symbol_tables": [
+                table.name for table in symbol_tables if table is not None
+            ],
+            "fortify_symbols": sorted(
+                name
+                for name in symbols
+                if name.startswith("__") and name.endswith("_chk")
+            ),
+            "sanitizer_symbols": sanitizer_symbols,
         }
 
     return HardeningResult(nx, pie, relro, bool(canary_symbols), indicators)

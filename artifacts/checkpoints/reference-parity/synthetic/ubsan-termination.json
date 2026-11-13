@@ -1,0 +1,65 @@
+[
+  {
+    "shell_status": false,
+    "report": {
+      "is_crash": true,
+      "error_type": "division-by-zero",
+      "detection_mechanism": "UndefinedBehaviorSanitizer",
+      "exit_code": -6,
+      "signal_name": "SIGABRT",
+      "stack_trace": [
+        {
+          "index": 0,
+          "address": "",
+          "function": "unknown",
+          "file": "source.c",
+          "line": 8
+        }
+      ],
+      "raw_stdout": "",
+      "raw_stderr": "source.c:8:3: runtime error: division by zero"
+    }
+  },
+  {
+    "shell_status": true,
+    "report": {
+      "is_crash": true,
+      "error_type": "division-by-zero",
+      "detection_mechanism": "UndefinedBehaviorSanitizer",
+      "exit_code": 134,
+      "signal_name": "SIGABRT",
+      "stack_trace": [
+        {
+          "index": 0,
+          "address": "",
+          "function": "unknown",
+          "file": "source.c",
+          "line": 8
+        }
+      ],
+      "raw_stdout": "",
+      "raw_stderr": "source.c:8:3: runtime error: division by zero"
+    }
+  },
+  {
+    "shell_status": false,
+    "report": {
+      "is_crash": true,
+      "error_type": "division-by-zero",
+      "detection_mechanism": "UndefinedBehaviorSanitizer",
+      "exit_code": 134,
+      "signal_name": null,
+      "stack_trace": [
+        {
+          "index": 0,
+          "address": "",
+          "function": "unknown",
+          "file": "source.c",
+          "line": 8
+        }
+      ],
+      "raw_stdout": "",
+      "raw_stderr": "source.c:8:3: runtime error: division by zero"
+    }
+  }
+]

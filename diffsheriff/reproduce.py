@@ -9,6 +9,7 @@ from diffsheriff.config import TargetExecutionSection
 from diffsheriff.correlator import parse_unified_diff
 from diffsheriff.pipeline import (
     contained_file,
+    expected_result,
     functional_failure,
     matches_expected,
     observe,
@@ -17,13 +18,34 @@ from diffsheriff.pipeline import (
 
 
 def replay(bundle, check_regression=False):
-    metadata = json.loads((bundle / "reproducer.json").read_text(encoding="utf-8"))
+    bundle = Path(bundle)
+    if bundle.is_symlink() or (bundle / "replay.json").is_symlink():
+        raise ValueError("Replay bundle and output cannot be symlinks")
+    metadata = json.loads(
+        contained_file(bundle, "reproducer.json").read_text(encoding="utf-8")
+    )
+    if metadata["kind"] not in {"security", "functional"}:
+        raise ValueError("Unknown reproducer kind")
+    if metadata["kind"] == "security" and (
+        not isinstance(metadata["signature"], dict) or not metadata["signature"]
+    ):
+        raise ValueError("Security reproducer needs a nonempty finding signature")
+    if metadata["expected"] is not None or metadata["kind"] == "functional":
+        expected_result(metadata["expected"])
+    if set(metadata["artifacts"]) != {"base", "patch"} or metadata[
+        "finding_side"
+    ] not in {"base", "patch"}:
+        raise ValueError(
+            "Reproducer needs baseline and patch artifacts and a valid finding side"
+        )
     root = bundle.resolve().parents[1]
     payload_path = contained_file(bundle, "minimized.input")
     if compute_sha256(payload_path) != metadata["minimized_sha256"]:
         raise ValueError("Reproducer input hash mismatch")
     settings = TargetExecutionSection(**metadata["settings"])
-    hunks = parse_unified_diff((root / "patch.diff").read_text(encoding="utf-8"))
+    hunks = parse_unified_diff(
+        contained_file(root, "patch.diff").read_text(encoding="utf-8")
+    )
     runs = {}
     for side, item in metadata["artifacts"].items():
         binary = contained_file(root, item["source"] + "/" + item["binary"])

@@ -1,0 +1,13 @@
+{
+  "captured_bytes_hex": "7b22657869745f636f6465223a20302c20227374646f7574223a2022636166c3a9222c2022737464657272223a2022227d",
+  "expected": {
+    "exit_code": 0,
+    "stdout": "caf\u00e9",
+    "stderr": ""
+  },
+  "observed": {
+    "exit_code": 0,
+    "stdout": "caf\u00e9",
+    "stderr": ""
+  }
+}

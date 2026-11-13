@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="3" time="0.102" timestamp="2026-11-13T20:55:15.863874+03:30" hostname="DESKTOP-OVP2LHB"><testcase classname="tests.test_triage" name="test_ubsan_preserves_actual_termination[-6-False-SIGABRT]" time="0.001"><failure message="AssertionError: assert None == 'SIGABRT'&#10; +  where None = CrashReport(is_crash=True, error_type='division-by-zero', detection_mechanism='UndefinedBehaviorSanitizer', exit_code=...nction='unknown', file='source.c', line=8)], raw_stdout='', raw_stderr='source.c:8:3: runtime error: division by zero').signal_name">code = -6, shell = False, expected = 'SIGABRT'
+
+    @pytest.mark.parametrize("code,shell,expected", [(-6, False, "SIGABRT"), (134, True, "SIGABRT"), (134, False, None)])
+    def test_ubsan_preserves_actual_termination(code, shell, expected):
+        report = triage_execution_result(
+            code, "", "source.c:8:3: runtime error: division by zero", shell_status=shell
+        )
+&gt;       assert report.signal_name == expected
+E       AssertionError: assert None == 'SIGABRT'
+E        +  where None = CrashReport(is_crash=True, error_type='division-by-zero', detection_mechanism='UndefinedBehaviorSanitizer', exit_code=...nction='unknown', file='source.c', line=8)], raw_stdout='', raw_stderr='source.c:8:3: runtime error: division by zero').signal_name
+
+tests\test_triage.py:37: AssertionError</failure></testcase><testcase classname="tests.test_triage" name="test_ubsan_preserves_actual_termination[134-True-SIGABRT]" time="0.001"><failure message="AssertionError: assert None == 'SIGABRT'&#10; +  where None = CrashReport(is_crash=True, error_type='division-by-zero', detection_mechanism='UndefinedBehaviorSanitizer', exit_code=...nction='unknown', file='source.c', line=8)], raw_stdout='', raw_stderr='source.c:8:3: runtime error: division by zero').signal_name">code = 134, shell = True, expected = 'SIGABRT'
+
+    @pytest.mark.parametrize("code,shell,expected", [(-6, False, "SIGABRT"), (134, True, "SIGABRT"), (134, False, None)])
+    def test_ubsan_preserves_actual_termination(code, shell, expected):
+        report = triage_execution_result(
+            code, "", "source.c:8:3: runtime error: division by zero", shell_status=shell
+        )
+&gt;       assert report.signal_name == expected
+E       AssertionError: assert None == 'SIGABRT'
+E        +  where None = CrashReport(is_crash=True, error_type='division-by-zero', detection_mechanism='UndefinedBehaviorSanitizer', exit_code=...nction='unknown', file='source.c', line=8)], raw_stdout='', raw_stderr='source.c:8:3: runtime error: division by zero').signal_name
+
+tests\test_triage.py:37: AssertionError</failure></testcase><testcase classname="tests.test_triage" name="test_ubsan_preserves_actual_termination[134-False-None]" time="0.001" /></testsuite></testsuites>

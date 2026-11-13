@@ -69,7 +69,8 @@ def contained_file(root, name):
 
 
 def record_reference_expectation(stdout, digest, expectations, validity):
-    value = json.loads(stdout)
+    # capture_command preserves bytes with Latin-1; the reference document is UTF-8.
+    value = json.loads(stdout.encode("latin1").decode("utf-8"))
     if not isinstance(value, dict):
         raise ConfigError("Independent reference result must be a mapping")
     valid_input = value.pop("valid_input", False)
@@ -400,6 +401,13 @@ def record_reproducer(
     replay_log = []
 
     def oracle(payload):
+        if settings.input_method == "argv":
+            try:
+                value = payload.decode("utf-8")
+            except UnicodeDecodeError:
+                return False, "", ""
+            if "\0" in value:
+                return False, "", ""
         digest = hashlib.sha256(payload).hexdigest()
         if (
             functional
@@ -680,7 +688,13 @@ def run_pipeline(cfg, artifact_root):
             for mode in artifacts[side]:
                 source, binary = artifacts[side][mode]
                 inspected = inspect_elf_hardening(source / binary)
+                evidence["builds"][side][mode]["elf"] = asdict(inspected)
                 if mode == "release":
+                    if inspected.indicators.get("sanitizer_symbols"):
+                        raise ConfigError(
+                            f"{side} release binary contains sanitizer symbols; "
+                            "supply a separate ordinary release build"
+                        )
                     hardening[side] = inspected
         summary.hardening_degraded, warnings = compare_hardening(
             hardening["base"], hardening["patch"]

@@ -68,13 +68,40 @@ def main(config, output_json, artifacts, regressions_from, export_regressions):
         f"functional: {summary.functional_status}; "
         f"analysis: {'complete' if summary.analysis_complete else 'incomplete'}"
     )
+    for side, hardening in summary.evidence.get("hardening", {}).items():
+        click.echo(
+            f"Hardening (release) {side}: NX={hardening['nx']} "
+            f"PIE={hardening['pie']} RELRO={hardening['relro']} "
+            f"canary={hardening['canary']}"
+        )
+    for side, builds in summary.evidence.get("builds", {}).items():
+        for mode, build in builds.items():
+            indicators = build.get("elf", {}).get("indicators", {})
+            if indicators:
+                families = ",".join(indicators["sanitizer_symbols"]) or "none observed"
+                click.echo(
+                    f"  {side}/{mode}: sanitizer symbols={families}; "
+                    f"FORTIFY symbol candidates={len(indicators['fortify_symbols'])}; "
+                    f"symbol tables={','.join(indicators['symbol_tables']) or 'none'}"
+                )
     for finding in summary.findings:
         click.echo(
             f"  {finding.status}: {finding.triggering_input} "
             f"[{finding.evidence.get('mode', '')}] - {finding.error_type}"
         )
+        click.echo(
+            f"    detection: {finding.detection_mechanism}; "
+            f"correlation: {finding.correlation_type}; "
+            f"stable: {finding.reproduced_cleanly}"
+        )
+        if finding.evidence.get("reason"):
+            click.echo(f"    {finding.evidence['reason']}")
+        if finding.minimized_input:
+            click.echo(f"    minimized input: {finding.minimized_input}")
     for note in summary.notes or []:
         click.echo(f"  {note}")
+    if summary.evidence.get("run_directory"):
+        click.echo(f"Evidence directory: {summary.evidence['run_directory']}")
     click.echo(f"Report: {output_json}")
     raise click.exceptions.Exit(summary.exit_code)
 

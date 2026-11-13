@@ -47,6 +47,21 @@ or student defense complete on anyone's behalf.
   preserves that revision and scope. This does not complete approved-target CI acceptance.
 - Stage 2 regression-cache reconciliation is implemented and verified, awaiting
   Kasra's review. See the [cache-import checkpoint](../artifacts/checkpoints/cache-import/README.md).
+- Kasra requested comparison with DNS-P1 and explicitly retained exact Git commits
+  and instructor-approved targets. The [reference comparison](reference_comparison.md)
+  maps requirements and optional features. Compatible additions (per-build ELF symbol
+  evidence, fuller console output, one-command verification, and a UBSan termination
+  fix) are verified in the [reference-parity checkpoint](../artifacts/checkpoints/reference-parity/README.md).
+  Its full suite passed 203 Linux tests; Windows passed 196 with seven platform skips.
+  This supplement awaits review and does not accept Stage 2 or any target on Kasra's behalf.
+- A subsequent code audit repaired five reproduced defects in UTF-8 reduction,
+  reference decoding, release-mode validation, replay identity, and replay output
+  symlinks. The [code-audit checkpoint](../artifacts/checkpoints/code-audit/README.md)
+  records 208 Linux passes and 200 Windows passes with eight platform skips, lint,
+  formatting, package/source identity, and harmless native verification. No known
+  generic implementation gap from that bounded audit is being deferred to the team;
+  actual target behavior remains to be evaluated. See the [evaluation procedure](evaluation.md)
+  for exact preparation, six comparisons, replay, CI, and delivery steps.
 - No course target, vulnerability, four-version scenario set, functional oracle, or
   expected-output corpus is recorded as instructor-approved. The zlib/libpng entries
   in [`target_scenarios.md`](target_scenarios.md) are unapproved proposals. Neither was
@@ -69,7 +84,7 @@ repository currently proves, not what code appears to support in principle.
 | Dynamic tests, boundaries, build separation, error classification | 25 | Synthetic tests and harmless native release/sanitized matrix exist. | Same approved valid, boundary, invalid corpora/settings across baseline and patch. Compare release with release and sanitized with sanitized. Retain category, mechanism, actual termination, signals, stdout/stderr, limits, and replay stability. |
 | Reproducibility, minimization, regression generation | 15 | Generic implementation, synthetic reports, replay tests, and minimized-results checkpoint exist. | For every confirmed target finding, preserve exact input/version/binary/build/environment/command, original and minimized bytes, at least three replay results, and an automatically enrolled regression that checks baseline finding plus independent patched behavior. Resolve unknown expectations before claiming a completed regression test. |
 | Two target scenarios and unseen-patch behavior | 15 | Candidate research only; instructor approval pending; no target scenario refs or matrices. | Two independent approved C/C++ Linux x86_64 targets, at least one real non-toy project/library. Each has baseline, correct, incomplete, and regression versions. Retain a blind/unseen evaluation without target-specific recognition. Instructor defense-day testing remains external. |
-| CI/CD, JSON, exit codes | 10 | Reusable/manual target workflow and main verification workflow exist; local verification is recorded. | Fix cache-import conflict, verify all codes/priorities without overriding results, check hosted tool verification after the Black correction, and retain an approved correct-patch hosted run and artifacts. |
+| CI/CD, JSON, exit codes | 10 | Reusable/manual target workflow and main verification workflow exist; local verification and cache reconciliation are recorded. | Verify all codes/priorities on the final revision without overriding results, check its hosted tool verification, and retain an approved correct-patch hosted run and artifacts. |
 | Binary hardening and protection changes | 5 | ELF parser and synthetic/native evidence exist. | For ordinary target binaries, retain NX, PIE, RELRO level, and canary evidence and compare baseline/patch downgrades. PIE does not prove runtime ASLR; a canary symbol does not prove every function is protected. |
 | Documentation, modularity, standalone execution | 5 | README, architecture, usage, CI notes, package, and artifacts exist. | A clean checkout installs/builds/runs/replays using delivered instructions and declared dependencies. Include target sources/refs/licenses, configs, inputs, reports, pipeline definition, and reproducer bundles. |
 
@@ -336,7 +351,8 @@ after it occurs.
 
 ## Next action
 
-Kasra reviews Stage 2's cache-import checkpoint. If returned, fix the specified defect;
+Kasra reviews Stage 2's cache-import checkpoint, the requested reference-parity
+supplement, and the subsequent code audit. If returned, fix the specified defect;
 if accepted, Stage 3 requires the team/instructor's target and test-scope decision.
 Stage 1 is accepted. Target approval remains external; do not invent approval or
 execute proposed targets.

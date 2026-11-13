@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="8" time="0.547" timestamp="2026-11-13T20:53:12.605888+03:30" hostname="DESKTOP-OVP2LHB"><testcase classname="tests.test_hardening" name="test_elf_hardening_reads_real_headers" time="0.074"><failure message="AssertionError: assert {'elf_type': ...e': True, ...} == {'elf_type': ...e': True, ...}&#10;  &#10;  Omitting 7 identical items, use -vv to show&#10;  Right contains 3 more items:&#10;  {'fortify_symbols': [], 'sanitizer_symbols': {}, 'symbol_tables': []}&#10;  Use -v to get more diff">tmp_path = WindowsPath('C:/Users/Asus/Desktop/security/DiffSheriff/.diffsheriff/parity-red/test_elf_hardening_reads_real_0')
+
+    def test_elf_hardening_reads_real_headers(tmp_path):
+        path = tmp_path / "binary"
+        elf_fixture(path)
+        result = inspect_elf_hardening(path)
+        assert (result.nx, result.pie, result.relro, result.canary) == (
+            True,
+            True,
+            "partial",
+            False,
+        )
+&gt;       assert result.to_dict()["indicators"] == {
+            "elf_type": "ET_DYN",
+            "gnu_stack_flags": [6],
+            "has_interpreter": False,
+            "df_1_pie": True,
+            "gnu_relro_segment": True,
+            "dynamic_flags": [{"tag": "DT_FLAGS_1", "value": 0x08000000}],
+            "canary_symbols": [],
+            "symbol_tables": [],
+            "fortify_symbols": [],
+            "sanitizer_symbols": {},
+        }
+E       AssertionError: assert {'elf_type': ...e': True, ...} == {'elf_type': ...e': True, ...}
+E         
+E         Omitting 7 identical items, use -vv to show
+E         Right contains 3 more items:
+E         {'fortify_symbols': [], 'sanitizer_symbols': {}, 'symbol_tables': []}
+E         Use -v to get more diff
+
+tests\test_hardening.py:75: AssertionError</failure></testcase><testcase classname="tests.test_hardening" name="test_pie_requires_executable_evidence[False-False-False]" time="0.015" /><testcase classname="tests.test_hardening" name="test_pie_requires_executable_evidence[False-True-True]" time="0.012" /><testcase classname="tests.test_hardening" name="test_pie_requires_executable_evidence[True-False-True]" time="0.012" /><testcase classname="tests.test_hardening" name="test_non_x86_64_elf_is_rejected" time="0.012" /><testcase classname="tests.test_hardening" name="test_hardening_downgrades_are_all_reported" time="0.000" /><testcase classname="tests.test_hardening" name="test_elf_symbol_evidence_is_separate_from_build_labels" time="0.013"><failure message="KeyError: 'symbol_tables'">tmp_path = WindowsPath('C:/Users/Asus/Desktop/security/DiffSheriff/.diffsheriff/parity-red/test_elf_symbol_evidence_is_se0')
+
+    def test_elf_symbol_evidence_is_separate_from_build_labels(tmp_path):
+        path = tmp_path / "binary"
+        elf_fixture(path)
+        data = bytearray(path.read_bytes())
+        section_names = b"\0.shstrtab\0.strtab\0.symtab\0"
+        strings = bytearray(b"\0")
+        symbols = bytearray(24)
+        for name in ("__stack_chk_fail", "__memcpy_chk", "__asan_init", "__ubsan_handle_add_overflow", "ordinary"):
+            symbols.extend(struct.pack("&lt;IBBHQQ", len(strings), 0x12, 0, 0, 0, 0))
+            strings.extend(name.encode() + b"\0")
+        sections = [bytes(64)]
+        for name, kind, body, link, entry_size in (
+            (1, 3, section_names, 0, 0),
+            (11, 3, strings, 0, 0),
+            (19, 2, symbols, 2, 24),
+        ):
+            sections.append(struct.pack("&lt;IIQQQQIIQQ", name, kind, 0, 0, len(data), len(body), link, 1 if kind == 2 else 0, 1, entry_size))
+            data.extend(body)
+        struct.pack_into("&lt;Q", data, 40, len(data))
+        struct.pack_into("&lt;HHH", data, 58, 64, len(sections), 1)
+        path.write_bytes(data + b"".join(sections))
+        result = inspect_elf_hardening(path)
+        assert result.canary
+&gt;       assert result.indicators["symbol_tables"] == [".symtab"]
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'symbol_tables'
+
+tests\test_hardening.py:148: KeyError</failure></testcase><testcase classname="tests.test_pipeline" name="test_cli_exports_and_restores_generated_regressions" time="0.101"><failure message="AssertionError: assert 'Hardening (release) base:' in 'Validating sample: aaaaaaaaaaaa -&gt; bbbbbbbbbbbb\nPASS (exit 0); 36 suite executions\nSecurity: PASS; functional: PASS...\Users\\Asus\\Desktop\\security\\DiffSheriff\\.diffsheriff\\parity-red\\test_cli_exports_and_restores_0\\report.json\n'&#10; +  where 'Validating sample: aaaaaaaaaaaa -&gt; bbbbbbbbbbbb\nPASS (exit 0); 36 suite executions\nSecurity: PASS; functional: PASS...\Users\\Asus\\Desktop\\security\\DiffSheriff\\.diffsheriff\\parity-red\\test_cli_exports_and_restores_0\\report.json\n' = &lt;Result okay&gt;.output">tmp_path = WindowsPath('C:/Users/Asus/Desktop/security/DiffSheriff/.diffsheriff/parity-red/test_cli_exports_and_restores_0')
+pipeline_fixture = (DiffSheriffConfig(target_name='sample', language='c', repository_path=WindowsPath('C:/Users/Asus/Desktop/security/Dif...DiffSheriff/.diffsheriff/parity-red/test_cli_exports_and_restores_0/target.yaml'), {'scenario': 'fixed', 'calls': 192})
+
+    def test_cli_exports_and_restores_generated_regressions(tmp_path, pipeline_fixture):
+        cfg, config_path, _ = pipeline_fixture
+        retained = tmp_path / "retained"
+        args = [
+            "--config",
+            str(config_path),
+            "--output-json",
+            str(tmp_path / "report.json"),
+            "--artifacts",
+            str(tmp_path / "runs"),
+            "--export-regressions",
+            str(retained),
+        ]
+        first = CliRunner().invoke(main, args)
+        assert first.exit_code == 0, first.output
+&gt;       assert "Hardening (release) base:" in first.output
+E       AssertionError: assert 'Hardening (release) base:' in 'Validating sample: aaaaaaaaaaaa -&gt; bbbbbbbbbbbb\nPASS (exit 0); 36 suite executions\nSecurity: PASS; functional: PASS...\Users\\Asus\\Desktop\\security\\DiffSheriff\\.diffsheriff\\parity-red\\test_cli_exports_and_restores_0\\report.json\n'
+E        +  where 'Validating sample: aaaaaaaaaaaa -&gt; bbbbbbbbbbbb\nPASS (exit 0); 36 suite executions\nSecurity: PASS; functional: PASS...\Users\\Asus\\Desktop\\security\\DiffSheriff\\.diffsheriff\\parity-red\\test_cli_exports_and_restores_0\\report.json\n' = &lt;Result okay&gt;.output
+
+tests\test_pipeline.py:922: AssertionError</failure></testcase></testsuite></testsuites>
