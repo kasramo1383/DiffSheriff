@@ -1,84 +1,164 @@
 # Live implementation roadmap
 
-This is the sole record of implementation state, remaining work, and verification
-limits. Requirements remain in `course_assignment.pdf` and `specification.md`;
-target facts belong in `target_scenarios.md`, and contributor ownership in README.
+This is the single current record of implementation state, known gaps, and the next
+work step. The instructor's PDF (`course_assignment.pdf`) is authoritative; its English
+digest is `specification.md`. Target facts and approval evidence belong only in
+`target_scenarios.md`. Contributor roles remain in the README.
 
-## Scope of this implementation
+## Current assessment
 
-The requested work covers the defensive validator and its engineering support.
-Exploit development, bypass inputs, intentionally vulnerable target variants, and
-other aggressive functionality are excluded. Tests use synthetic diagnostic logs
-and a harmless native echo program. They do not establish that a real vulnerability
-was reproduced or that a target has instructor approval.
+The repository contains a substantial defensive validator prototype. It is not a
+completed course project and must not be described as one. No approved course target,
+real vulnerability run, four-version target matrix, independent approved oracle, or
+course acceptance report is present.
 
-## Implemented and locally checked
+The pull at `07914aa` added the pipeline, container runner, minimization/replay,
+regression generation, documentation, and tests. Local checks reproduced 90 passed,
+1 skipped (Docker unavailable), with Black, Flake8, and wheel construction passing.
+GitHub Actions run `42911443863` also succeeded, including its native-container job.
+That job is a harmless echo-fixture smoke test; it does not validate vulnerability
+classification. The claimed `.diffsheriff/native-*` local evidence was not present in
+the pulled tree. Treat that claim as unverified until artifacts are supplied.
 
-- [x] Version 2 configuration: exact Git commit IDs, build commands, contained binary
-  and suite paths, designated baseline signature, independent expected outcomes,
-  environment, image, time, memory, CPU, process, and output limits.
-- [x] Direct CLI-to-report orchestration in `pipeline.py`, with independent security,
-  functional, and completeness statuses and priority `30 > 10 > 20 > 40 > 0`.
-- [x] Source export without modifying the user's checkout; source archives/hashes,
-  separate pristine base/patch release/sanitized trees, build logs and binary hashes.
-- [x] Docker command construction: no network, no capabilities, no privilege gain,
-  read-only execution mounts, limited resources, cleanup on failure, pinned local
-  image identity, and a supervisor preserving actual signal return codes.
-- [x] Identical suite discovery, independent expected-result checks, and three
-  observations per input/version/mode; unsupported/unstable evidence fails closed.
-- [x] Five finding statuses; corresponding modes never share comparison evidence.
-- [x] ASan/UBSan categories, ordinary exits, signals, canary messages, timeouts,
-  OOM/output limits, stdout/stderr, and source-location signatures.
-- [x] Multi-file diffs, additions, deletions, renames, old/new coordinates, actual
-  edited-line correlation, and caller frames. Unsupported attribution is inconclusive.
-- [x] x86_64 ELF validation, release hardening comparisons, and minimum-policy checks.
-- [x] Signature-preserving delta debugging, including empty inputs; independently
-  approved expectations constrain reductions. An optional reference command permits
-  expectations for additional reduced inputs without trusting target output.
-- [x] Original/minimized inputs, replay logs, source versions, binaries, hashes,
-  settings, commands, and functional-regression evidence retained in each run bundle.
-- [x] Replay CLI with input/binary hash checks; generated regression manifests are
-  automatically read on subsequent runs with the same baseline.
-- [x] All five CLI exit paths checked using simulated process diagnostics; failure,
-  missing correlation, missing baseline, hardening, timeout, unstable replay, archive
-  traversal, minimization, and replay tampering tests.
-- [x] Standalone instructions, schema migration guidance, runtime image, and CI jobs.
-- [x] Clean-source Linux snapshot, runtime-image build, real native build/run/ELF
-  inspection, all three input interfaces, and a separate actual CLI invocation.
+The following defects were reproduced by direct code-level probes:
 
-Verification: **91 tests passed on Linux, including the real Docker smoke test**;
-**90 passed on Windows, with the Docker test skipped there**. Black, Flake8, and
-wheel packaging pass. A separate native CLI run completed 36 suite executions and
-correctly returned `40` with functional PASS, because the harmless fixture has no
-baseline security flaw. Local evidence is retained in `.diffsheriff/native-tests.xml`,
-`.diffsheriff/native-validation-report.json`, and `.diffsheriff/native-evidence-final/`.
-No real security target was executed. The GitHub-hosted workflow itself was not run.
+1. A correct insertion-only guard patch can remain inconclusive: the fixed verdict
+   requires baseline stack correlation to an old changed line, which such a patch
+   does not have. See `pipeline.py` `compare_case()` and `correlator.py`.
+2. Security minimization without an independent reference rejects every unseen
+   candidate before executing it. It therefore cannot perform ordinary byte-level
+   reduction under the default configuration. See `pipeline.py` `record_reproducer()`.
+3. A baseline-passing boundary case that violates its independent expected result on
+   the patch is not classified as a functional regression because only suite `valid`
+   can set the regression flag. See `pipeline.py` `compare_case()`.
 
-## Next actionable work
+These are implementation gaps, not reasons to add architecture. Keep the package flat
+and the workflow easy for all four contributors to explain.
 
-The generic defensive implementation and local verification are complete within
-the requested scope. No exploit or aggressive target work is assigned to the agent.
-The remaining course deliverables require supplied target assets or human participation:
+## Agent handoff and review contract
 
-- [ ] Record two instructor-approved targets, including one real non-toy project.
-- [ ] Supply exact target provenance, approved independent ground truth, and the four
-  source scenarios and existing permitted corpora. See `target_scenarios.md`.
-- [ ] Evaluate those supplied scenarios and independently prepared unseen patches.
-- [ ] Conduct the contributors' comprehension and live defense review.
+Use this roadmap as the task source when handing work to an agent. Do one numbered step
+at a time. Each step must be a small, reviewable change with a focused test, a concise
+report of files and behavior changed, and exact verification results. Then stop and let
+Kasra review the diff and test outcome before beginning the next step. Do not bundle
+later steps, rewrite unrelated modules, push, merge, or declare the step accepted.
+Another agent or teammate must be able to resume from this document and the checked-in
+code without relying on chat history. Update the current step and its evidence here
+only after the reviewer accepts that step.
 
-## Durable constraints and limitations
+If a step's requirements are ambiguous, inspect the PDF and relevant implementation,
+state the narrow uncertainty, and ask before making a behavior-changing assumption.
+Use small local/synthetic fixtures for code tests. Security tests must stay within
+explicitly authorized local targets and safe lab inputs. Do not create weaponized
+payloads, target real third-party systems, or expand the task into exploit tooling. If
+a safety system blocks a narrowly defensive test, stop that step and report the exact
+blocked action and a safe test substitute; do not disguise or route around the block.
 
-- Keep the package flat; no plugin framework, database, web service, or forwarding layers.
-- No target-name, filename, branch-name, or patch-hash verdict selection.
-- Target/configuration and runtime-image selection are trusted operator inputs.
-- Only local source snapshots are used; symlinks and unvendored submodules are
-  rejected instead of silently building incomplete or uncontained source.
-- Sanitizer identities require a recognized error and source location. Ambiguous
-  line mappings or absent stacks cannot establish patch causation.
-- Without a reference command, minimization is restricted to independently specified
-  corpus payloads; this bound is recorded in each reproducer.
-- Preserve the entire run directory when moving a reproducer. Runtime image and
-  DiffSheriff installation are external dependencies; the recorded image ID must be
-  available. The run is not a standalone VM image.
-- Do not check off instructor approval, real-target acceptance, or human defense
-  work based on an agent-generated fixture or documentation.
+## Staged implementation
+
+### Step 1 — Add failing tests for the three confirmed defects
+
+Add focused tests only. Cover: (a) insertion-only guard fix with baseline failure,
+patch success, and defensible comparative evidence; (b) minimization of a synthetic
+sanitizer failure when no independent functional oracle is configured; and (c) a
+baseline-passing boundary input whose patched result violates the independent expected
+behavior. Tests should fail for the current defects and pass independently when their
+respective behavior is corrected. Do not change production code in this step.
+
+Acceptance: each test demonstrates the gap, existing tests remain unchanged, and the
+agent reports the three failing test names. Reviewer runs/verifies this checkpoint.
+
+### Step 2 — Correct failure-input minimization
+
+Adjust the minimization oracle so security findings preserve the same classified error
+and relevant source location without requiring a functional expected-output oracle.
+Keep the independent oracle requirement for determining expected behavior of new
+functional inputs. A candidate reduction must be executed in the same constrained
+environment, repeated enough to establish stability, and must not turn timeout, resource
+limit, or generic nonzero exit into a confirmed security finding. Retain original and
+minimized inputs and record the invariant and attempted reductions.
+
+Acceptance: Step 1(b), regression/replay cases, and focused minimizer tests pass; no
+security assertion is weakened; the report explains byte-for-byte what is retained.
+
+### Step 3 — Correct functional regression classification
+
+Define suite semantics from the assignment rather than treating `valid` as the only
+functional suite. Valid boundary cases with independent expected behavior must be
+eligible for regression classification. Invalid/malicious inputs must not be mislabeled
+as functional regressions unless independently designated as valid behavior. Make the
+smallest schema or comparison change that expresses this distinction; avoid a broad
+configuration redesign.
+
+Acceptance: Step 1(c), valid regression, ordinary invalid-input, and exit-priority tests
+pass. Confirm exit `20` for an isolated functional regression and preserve `30 > 10 >
+20 > 40 > 0` when conditions coexist.
+
+### Step 4 — Make fixed-finding evidence work for insertion-only patches
+
+Revise correlation/fix assessment so a baseline finding can be linked to a patch that
+adds a guard without modifying the vulnerable source line. Use comparative executions,
+stack/path evidence, and the actual diff; report inconclusive whenever evidence does not
+support attribution. Do not infer causality from file proximity, patch names, known
+commits, or the fact that a test stopped crashing. Keep new findings distinct from
+patch-caused findings.
+
+Acceptance: Step 1(a), existing diff/correlation tests, and negative tests with missing
+or ambiguous attribution pass. A correct insertion-only patch can reach `PASS` only
+when every mandatory check and independent functional expectation also passes.
+
+### Step 5 — End-to-end synthetic acceptance matrix
+
+Add or refine a compact, deterministic local test matrix for fixed, incomplete, new,
+functional-regression, inconclusive, unstable, and tool-failure outcomes. Exercise the
+real CLI/report path where feasible; clearly label mocked boundaries. Verify generated
+reproducer and regression behavior on a subsequent run. Keep the harmless native Docker
+smoke test as infrastructure coverage, not security evidence.
+
+Acceptance: focused tests and full unit suite pass; formatting, lint, and packaging pass;
+the report lists which boundaries were mocked and which were executed natively. Docker
+verification is reported as unavailable/skipped when it cannot be run.
+
+### Step 6 — Onboard approved targets when assets are available
+
+This step depends on human-supplied target facts and instructor approval. Do not invent
+targets, refs, approval, ground truth, or vulnerability claims. For each approved
+target, record provenance, license, exact four source scenarios, independent valid /
+boundary / invalid expectations, permitted safe test inputs, build instructions, and
+approval evidence in `target_scenarios.md` or its linked target assets.
+
+Evaluate vulnerable baseline, correct patch, incomplete patch with the distinct
+approved alternative input required by the assignment, and regression patch. Run both
+release and sanitized modes, retain three or more replays and artifacts, and verify the
+expected exit codes. At least one target must be a real non-toy project. Report missing
+assets or approval as a blocker for this step; do not substitute the harmless fixture.
+
+Acceptance: two target matrices, including one real non-toy project, are reproducible
+from delivered source/assets and have instructor approval and independent expected
+behavior evidence. Until then, course acceptance remains incomplete.
+
+### Step 7 — Defense and delivery review
+
+After target acceptance, verify standalone instructions from a clean environment,
+inspect reports/artifacts for completeness, and have each contributor explain their
+owned logic and make a small reviewed change. Record only completed acceptance state,
+not a transcript or activity log.
+
+## Current checkpoint
+
+- Accepted steps: none from this roadmap; the implementation has not yet passed the
+  explicit stepwise review requested by Kasra.
+- Next action: Step 1, tests only.
+- Human dependencies: instructor-approved targets, source scenarios, independent
+  ground truth, and approval evidence for Step 6.
+
+## Durable engineering constraints
+
+- Keep the package flat. No plugin framework, database, web service, or unnecessary
+  forwarding layers.
+- No verdict selection based on target name, file name, branch, commit, or patch hash.
+- Keep target execution local, isolated, resource-limited, and offline.
+- A confirmed patch finding and a claim that the patch caused it are separate judgments.
+- Preserve full run bundles and report external image/tool dependencies accurately.
+- Never mark target approval, real-target acceptance, or human defense complete based
+  on synthetic fixtures or documentation alone.

@@ -4,9 +4,10 @@ DiffSheriff is a defensive patch-validation and functional-regression tool for a
 
 The CLI compares exact source commits in isolated containers and retains its evidence.
 It fails closed when the designated baseline flaw, independent expected behavior, or
-mandatory checks cannot be established. Exploit development and aggressive target
-scenarios are excluded from this implementation. Verification limits and remaining
-acceptance work are recorded in [the live roadmap](docs/roadmap.md).
+mandatory checks cannot be established. It does not provide exploit tooling; the course's
+incomplete-patch alternative-input case is limited to approved local targets and safe
+test inputs. Verification limits and staged acceptance work are recorded in
+[the live roadmap](docs/roadmap.md).
 
 ## Authority and derived documentation
 

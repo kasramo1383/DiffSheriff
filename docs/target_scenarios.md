@@ -8,9 +8,11 @@ schema example. `tests/fixtures/harmless/main.c` is an engineering smoke fixture
 not a course target: it safely echoes bytes and contains no vulnerability or exploit.
 Synthetic sanitizer logs in unit/integration tests verify report logic only.
 
-Exploit development, bypass inputs, and intentionally vulnerable target variants
-are excluded by the user's scope. The approval table below must remain pending until
-the team supplies real target facts and instructor confirmation.
+DiffSheriff must not grow into exploit tooling or be run against unapproved systems.
+The assignment's incomplete-patch case still requires a distinct alternative test input
+for an approved local target. Keep that input within the authorized lab corpus and
+document its provenance and expected behavior. The approval table below must remain
+pending until the team supplies real target facts and instructor confirmation.
 
 This document becomes the authoritative project record for target facts once the team and instructor establish them. Do not duplicate mutable target facts in the README or roadmap; link here instead.
 
