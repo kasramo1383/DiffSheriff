@@ -7,23 +7,20 @@ digest is `specification.md`. Target facts and approval evidence belong only in
 
 ## Current assessment
 
-The repository contains a substantial defensive validator prototype. It is not a
-completed course project and must not be described as one. No approved course target,
-real vulnerability run, four-version target matrix, independent approved oracle, or
-course acceptance report is present.
+The defensive validator is implemented, with the gaps below still open. Course
+acceptance depends on the approved targets, scenario matrices, and evidence in
+Step 6.
 
-The pull at `07914aa` added the pipeline, container runner, minimization/replay,
-regression generation, documentation, and tests. Local checks reproduced 90 passed,
-1 skipped (Docker unavailable), with Black, Flake8, and wheel construction passing.
-GitHub Actions run `42911443863` also succeeded, including its native-container job.
-That job is a harmless echo-fixture smoke test; it does not validate vulnerability
-classification. Previously Git-ignored local evidence is now retained in
-[`../artifacts/native/`](../artifacts/native/): a JUnit record of 91 passing Linux
-tests, the corresponding native validation report, and a separate earlier CLI run's
-source archives, binaries, inputs, and report. These are distinct runs, as documented
-in `artifacts/README.md`; they establish harmless-fixture coverage, not course-target
-acceptance. The known implementation gaps and unaccepted staged checkpoints below
-remain unchanged.
+The Windows audit of `07914aa` reproduced 90 passing tests with one Docker test
+skipped. Black, Flake8, and wheel construction also passed. The GitHub Actions run
+for that commit passed its unit jobs and native smoke test.
+[GitHub Actions run 42911443863](https://github.com/kasramo1383/DiffSheriff/actions/runs/42911443863)
+
+The retained Linux test results and separate standalone CLI run are indexed in the
+[artifact inventory](../artifacts/README.md). Both native runs exercised the harmless
+echo fixture. The test results cover the existing suite, and the CLI bundle provides
+the inputs, builds, and report for that run. Steps 1 and 5 describe the remaining
+test coverage, and Step 6 covers course acceptance.
 
 The following defects were reproduced by direct code-level probes:
 
@@ -37,19 +34,15 @@ The following defects were reproduced by direct code-level probes:
    the patch is not classified as a functional regression because only suite `valid`
    can set the regression flag. See `pipeline.py` `compare_case()`.
 
-These are implementation gaps, not reasons to add architecture. Keep the package flat
-and the workflow easy for all four contributors to explain.
-
 ## Agent handoff and review contract
 
 Use this roadmap as the task source when handing work to an agent. Do one numbered step
 at a time. Each step must be a small, reviewable change with a focused test, a concise
-report of files and behavior changed, and exact verification results. Then stop and let
-Kasra review the diff and test outcome before beginning the next step. Do not bundle
-later steps, rewrite unrelated modules, push, merge, or declare the step accepted.
-Another agent or teammate must be able to resume from this document and the checked-in
-code without relying on chat history. Update the current step and its evidence here
-only after the reviewer accepts that step.
+report of files and behavior changed, and exact verification results. Give Kasra the
+commands to reproduce the checks, including expected failures and any skips. Stop
+for Kasra's review before beginning the next step. Follow the repository's Git
+instructions in [AGENTS.md](../AGENTS.md). Update the checkpoint and link its
+evidence here after Kasra accepts the step.
 
 If a step's requirements are ambiguous, inspect the PDF and relevant implementation,
 state the narrow uncertainty, and ask before making a behavior-changing assumption.
@@ -70,18 +63,24 @@ baseline-passing boundary input whose patched result violates the independent ex
 behavior. Tests should fail for the current defects and pass independently when their
 respective behavior is corrected. Do not change production code in this step.
 
-Acceptance: each test demonstrates the gap, existing tests remain unchanged, and the
-agent reports the three failing test names. Reviewer runs/verifies this checkpoint.
+Extend the existing pipeline and correlator tests where they fit. The Linux JUnit
+record predates these cases. For review, give the test node IDs, the exact command,
+and the assertion each case fails on. Confirm each failure comes from the behavior
+under test and keep the existing assertions intact.
 
 ### Step 2 — Correct failure-input minimization
 
 Adjust the minimization oracle so security findings preserve the same classified error
-and relevant source location without requiring a functional expected-output oracle.
-Keep the independent oracle requirement for determining expected behavior of new
-functional inputs. A candidate reduction must be executed in the same constrained
-environment, repeated enough to establish stability, and must not turn timeout, resource
-limit, or generic nonzero exit into a confirmed security finding. Retain original and
-minimized inputs and record the invariant and attempted reductions.
+and relevant source location independently of expected functional output. Execute
+candidate reductions in the same constrained environment and verify that the reduced
+case reproduces across at least three runs. Reject timeouts and resource limits as
+minimization matches. A nonzero exit alone cannot establish the invariant.
+
+Retain both inputs and record the invariant and reduction attempts. A reduced input
+without an independent expected result can support diagnostic replay. Keep the
+original input for functional regression checks until an independent expectation is
+available for the reduced input. Replay and generated regression reports must
+reflect which checks the evidence supports.
 
 Acceptance: Step 1(b), regression/replay cases, and focused minimizer tests pass; no
 security assertion is weakened; the report explains byte-for-byte what is retained.
@@ -114,15 +113,17 @@ when every mandatory check and independent functional expectation also passes.
 
 ### Step 5 — End-to-end synthetic acceptance matrix
 
-Add or refine a compact, deterministic local test matrix for fixed, incomplete, new,
-functional-regression, inconclusive, unstable, and tool-failure outcomes. Exercise the
-real CLI/report path where feasible; clearly label mocked boundaries. Verify generated
-reproducer and regression behavior on a subsequent run. Keep the harmless native Docker
-smoke test as infrastructure coverage, not security evidence.
+Run the focused tests from Steps 1–4 alongside the existing parameterized CLI tests.
+Add CLI cases only where those fixes lack coverage at the command-line entry point.
+Keep coverage for fixed, incomplete, new, functional regression, inconclusive,
+unstable, and tool failure outcomes. Verify that replay works and that a subsequent
+run loads a generated regression. Run the existing native Docker smoke test where
+Docker is available and report it as infrastructure coverage.
 
-Acceptance: focused tests and full unit suite pass; formatting, lint, and packaging pass;
-the report lists which boundaries were mocked and which were executed natively. Docker
-verification is reported as unavailable/skipped when it cannot be run.
+For acceptance, run the focused cases, full suite, formatting, lint, and package
+build. Record the tested revision, commands and outcomes, including what was mocked,
+what ran natively, and any skips. Follow the [artifact policy](../artifacts/README.md)
+for evidence the team needs to retain.
 
 ### Step 6 — Onboard approved targets when assets are available
 
@@ -135,8 +136,9 @@ approval evidence in `target_scenarios.md` or its linked target assets.
 Evaluate vulnerable baseline, correct patch, incomplete patch with the distinct
 approved alternative input required by the assignment, and regression patch. Run both
 release and sanitized modes, retain three or more replays and artifacts, and verify the
-expected exit codes. At least one target must be a real non-toy project. Report missing
-assets or approval as a blocker for this step; do not substitute the harmless fixture.
+expected exit codes in the [scenario contract](target_scenarios.md#scenario-contract-for-each-target).
+At least one target must be a real non-toy project. Record any missing assets or
+approval in the target scenario record.
 
 Acceptance: two target matrices, including one real non-toy project, are reproducible
 from delivered source/assets and have instructor approval and independent expected
@@ -151,11 +153,9 @@ not a transcript or activity log.
 
 ## Current checkpoint
 
-- Accepted steps: none from this roadmap; the implementation has not yet passed the
-  explicit stepwise review requested by Kasra.
-- Next action: Step 1, tests only.
-- Human dependencies: instructor-approved targets, source scenarios, independent
-  ground truth, and approval evidence for Step 6.
+- Step 1 is next and covers tests only. Kasra has yet to accept any of the staged changes.
+- Step 6 depends on instructor-approved targets and the assets in the
+  [target scenario record](target_scenarios.md).
 
 ## Durable engineering constraints
 

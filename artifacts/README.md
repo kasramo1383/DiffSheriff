@@ -20,15 +20,22 @@ remain meaningful across Windows and Linux checkouts.
 The reports preserve the original execution paths and image IDs as provenance.
 Those temporary paths need not exist on another machine, and Docker runtime images
 are external dependencies. Source archives and binaries for the earlier CLI run
-are retained under `native/cli-run/`; this directory is not a real vulnerability
-reproducer or proof of course-target acceptance.
+are retained under `native/cli-run/`. The four binaries and four archives match
+the SHA-256 values in that run's report. The three retained inputs also match the
+report's input hashes.
+
+## Retaining evidence for a checkpoint
+
+Place durable evidence under `artifacts/` and keep temporary run directories under
+`.diffsheriff/`. Include the tested DiffSheriff revision, exact command, and result
+with each retained test report. For a run bundle, keep the report with its own
+inputs, source and build artifacts, and any reproducers it references. Record the
+runtime image needed to replay it. Check that the files are visible to Git and that
+recorded hashes match before handing off the checkpoint. Link the evidence from
+the [roadmap](../docs/roadmap.md) once the checkpoint is accepted.
 
 ## Package
 
 `package/diffsheriff-0.1.0-py3-none-any.whl` is the built Python distribution of the
-implementation at commit `07914aa`. The following pulled commit changes documentation
-only. The wheel includes the implementation gaps recorded in `docs/roadmap.md`.
-
-The native fixture safely echoes input bytes. It contains no vulnerability, exploit,
-or bypass. Synthetic diagnostic tests check validator logic; approved real targets
-and their acceptance evidence remain outstanding.
+implementation at commit `07914aa`. Its verification scope and open gaps are recorded
+in the [roadmap](../docs/roadmap.md).
