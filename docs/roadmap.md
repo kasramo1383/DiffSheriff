@@ -27,14 +27,17 @@ The following defects remain open:
 1. A correct insertion-only guard patch can remain inconclusive: the fixed verdict
    requires baseline stack correlation to an old changed line, which such a patch
    does not have. See `pipeline.py` `compare_case()` and `correlator.py`.
-2. A baseline-passing boundary case that violates its independent expected result on
-   the patch is not classified as a functional regression because only suite `valid`
-   can set the regression flag. See `pipeline.py` `compare_case()`.
 
 Security minimization now executes unknown reductions against the diagnostic
 invariant without requiring expected functional output. Replay distinguishes those
 checks, and generated functional checks keep the original input when necessary.
 Verification is retained in [the minimization checkpoint](../artifacts/checkpoints/minimization/README.md).
+
+Functional regression classification now uses the independent expectation's
+`valid_input` designation. Approved valid boundary cases count in functional totals,
+can produce exit 20, and retain that designation in generated regressions. Existing
+manifests keep their suite defaults. Verification is retained in
+[the boundary checkpoint](../artifacts/checkpoints/boundary/README.md).
 
 ## Agent handoff and review contract
 
@@ -156,9 +159,9 @@ not a transcript or activity log.
 ## Current checkpoint
 
 - The user authorized implementing, verifying, and committing each gap before moving
-  to the next. Step 1(b) and Step 2 are implemented and locally verified; this does
+  to the next. Steps 1(b/c), 2, and 3 are implemented and locally verified; this does
   not record human acceptance or course-target approval.
-- Next: Step 1(c) and Step 3, boundary functional regression classification.
+- Next: Step 1(a) and Step 4, insertion-only patch attribution.
 - Step 6 depends on instructor-approved targets and the assets in the
   [target scenario record](target_scenarios.md).
 

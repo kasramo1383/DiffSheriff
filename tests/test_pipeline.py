@@ -183,6 +183,111 @@ def test_missing_expected_case_is_configuration_error(tmp_path, pipeline_fixture
     assert summary.total_tests_run == 0
 
 
+@pytest.mark.parametrize("baseline_passes", [True, False])
+def test_compare_case_accepts_independently_valid_boundary(
+    pipeline_fixture, baseline_passes
+):
+    import diffsheriff.pipeline as pipeline
+
+    cfg, _, _ = pipeline_fixture
+    base = pipeline.observe(
+        Path("base/sanitized"), "program", b"boundary", cfg.execution, "base", []
+    )
+    patch = {**base, "execution": {**base["execution"], "stdout": "wrong\n"}}
+    if not baseline_passes:
+        base = patch
+    case = {
+        "suite": "boundary",
+        "valid_input": True,
+        "expected": {"exit_code": 0, "stdout": "ok\n", "stderr": ""},
+    }
+    result = pipeline.compare_case(
+        case,
+        "sanitized",
+        {"base": [base] * 3, "patch": [patch] * 3},
+        cfg.baseline_signature,
+    )
+    assert result["regression"] == baseline_passes
+    if not baseline_passes:
+        assert any("Baseline does not satisfy" in note for note in result["notes"])
+
+
+@pytest.mark.parametrize("valid_input,code", [(True, 20), (False, 40), (None, 40)])
+@pytest.mark.parametrize("security_remains", [False, True])
+def test_boundary_regression_uses_independent_validity(
+    tmp_path, pipeline_fixture, monkeypatch, valid_input, code, security_remains
+):
+    import diffsheriff.pipeline as pipeline
+    from diffsheriff.reproduce import replay
+
+    _, config_path, state = pipeline_fixture
+    if security_remains:
+        state["scenario"] = "remaining"
+        code = 10
+    expected_path = tmp_path / "expected.json"
+    expected = json.loads(expected_path.read_text())
+    if valid_input is not None:
+        expected["boundary/input"]["valid_input"] = valid_input
+    expected_path.write_text(json.dumps(expected))
+    execute = pipeline.execute_container
+
+    def wrong_boundary(source, binary, payload, settings):
+        if source.parent.name == "patch" and payload == b"boundary":
+            return ExecutionResult(0, "wrong\n", "", False)
+        return execute(source, binary, payload, settings)
+
+    monkeypatch.setattr(pipeline, "execute_container", wrong_boundary)
+    report_path = tmp_path / "report.json"
+    result = CliRunner().invoke(
+        main,
+        [
+            "--config",
+            str(config_path),
+            "--output-json",
+            str(report_path),
+            "--artifacts",
+            str(tmp_path / "runs"),
+        ],
+    )
+    assert result.exit_code == code, result.output
+    report = json.loads(report_path.read_text())
+    assert report["functional_status"] == ("FAIL" if valid_input else "PASS")
+    assert report["functional_failed"] == (2 if valid_input else 0)
+    findings = [f for f in report["findings"] if f["status"] == "Functional Regression"]
+    assert len(findings) == (2 if valid_input else 0)
+    if valid_input:
+        bundles = [
+            Path(report["evidence"]["run_directory"]) / p
+            for p in report["evidence"]["reproducers"]
+        ]
+        functional = [
+            b
+            for b in bundles
+            if json.loads((b / "reproducer.json").read_text())["kind"] == "functional"
+        ]
+        assert len(functional) == 2
+        assert all(replay(b) for b in functional)
+        cfg = DiffSheriffConfig.from_yaml(config_path)
+        cases, _ = pipeline.discover_cases(cfg)
+        assert any(
+            c["id"].startswith("regression/") and c["valid_input"] for c in cases
+        )
+        assert run_pipeline(cfg, tmp_path / "second-run").exit_code == code
+
+
+@pytest.mark.parametrize("value", ["true", 1, None, [], {}])
+def test_input_validity_must_be_boolean(tmp_path, pipeline_fixture, value):
+    cfg, _, _ = pipeline_fixture
+    path = tmp_path / "expected.json"
+    expected = json.loads(path.read_text())
+    expected["boundary/input"]["valid_input"] = value
+    path.write_text(json.dumps(expected))
+    summary = run_pipeline(cfg, tmp_path / "runs")
+    assert summary.exit_code == 30
+    assert summary.total_tests_run == 0
+    assert any("valid_input must be a boolean" in note for note in summary.notes)
+
+
 def test_generated_regressions_are_loaded(tmp_path, pipeline_fixture):
     from diffsheriff.pipeline import discover_cases
 

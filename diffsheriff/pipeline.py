@@ -88,6 +88,12 @@ def discover_cases(cfg):
             key = suite + "/" + path.relative_to(directory).as_posix()
             if key not in expected:
                 raise ConfigError(f"No independent expectation for {key}")
+            if not isinstance(expected[key], dict):
+                raise ConfigError(f"Expectation for {key} must be a mapping")
+            expectation = dict(expected[key])
+            valid_input = expectation.pop("valid_input", suite == "valid")
+            if type(valid_input) is not bool:
+                raise ConfigError("valid_input must be a boolean")
             payload = path.read_bytes()
             cases.append(
                 {
@@ -95,7 +101,8 @@ def discover_cases(cfg):
                     "suite": suite,
                     "payload": payload,
                     "sha256": hashlib.sha256(payload).hexdigest(),
-                    "expected": expected_result(expected[key]),
+                    "expected": expected_result(expectation),
+                    "valid_input": valid_input,
                 }
             )
     if set(expected) != {case["id"] for case in cases}:
@@ -119,6 +126,9 @@ def discover_cases(cfg):
                 raise ConfigError("Generated regression input hash does not match")
             if item["base_ref"] != cfg.base_ref:
                 continue
+            valid_input = item.get("valid_input", item.get("kind") == "functional")
+            if type(valid_input) is not bool:
+                raise ConfigError("Generated regression valid_input must be a boolean")
             cases.append(
                 {
                     "id": "regression/" + manifest_path.stem,
@@ -128,6 +138,7 @@ def discover_cases(cfg):
                     "payload": payload,
                     "sha256": digest,
                     "expected": expected_result(item["expected"]),
+                    "valid_input": valid_input,
                     "baseline_signature": item["signature"],
                     "baseline_mode": item["mode"],
                 }
@@ -201,7 +212,7 @@ def compare_case(case, mode, runs, baseline_signature):
     baseline_seen = stable and base_sig == baseline_signature
     findings = []
     notes = []
-    regression = stable and case["suite"] == "valid" and base_ok and not patch_ok
+    regression = stable and case["valid_input"] and base_ok and not patch_ok
     vulnerability = stable and bool(patch_sig)
     if not stable:
         notes.append("Replay observations are unstable")
@@ -251,7 +262,7 @@ def compare_case(case, mode, runs, baseline_signature):
             notes.append(
                 f"{side} abnormal termination has no confirmed source signature"
             )
-    if case["suite"] == "valid" and not base_ok:
+    if case["valid_input"] and not base_ok:
         notes.append(
             "Baseline does not satisfy the independent valid-input expectation"
         )
@@ -426,6 +437,7 @@ def record_reproducer(
         "minimized_sha256": digest,
         "expected": expected,
         "original_expected": case["expected"],
+        "valid_input": case["valid_input"],
         "regression_input": "original.input" if expected is None else "minimized.input",
         "settings": asdict(settings),
         "runs": runs,
@@ -499,6 +511,7 @@ def record_reproducer(
                     "finding_side": side,
                     "mode": mode,
                     "kind": "functional" if functional else "security",
+                    "valid_input": case["valid_input"],
                     "expected": case["expected"] if expected is None else expected,
                 },
                 indent=2,
@@ -652,7 +665,7 @@ def run_pipeline(cfg, artifact_root):
                 vulnerability |= decision["vulnerability"]
                 regression |= decision["regression"]
                 incomplete |= bool(decision["notes"])
-                if case["suite"] == "valid":
+                if case["valid_input"]:
                     summary.functional_passed += int(
                         decision["base_ok"] and decision["patch_ok"]
                     )

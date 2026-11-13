@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="8" skipped="0" tests="9" time="0.422" timestamp="2026-11-13T11:48:52.755185+03:30" hostname="DESKTOP-OVP2LHB"><testcase classname="tests.test_pipeline" name="test_compare_case_accepts_independently_valid_boundary" time="0.012"><failure message="assert False">pipeline_fixture = (DiffSheriffConfig(target_name='sample', language='c', repository_path=WindowsPath('C:/Users/Asus/Desktop/security/Dif...ffsheriff/tests-boundary-red-complete/test_compare_case_accepts_inde0/target.yaml'), {'scenario': 'fixed', 'calls': 1})
+
+    def test_compare_case_accepts_independently_valid_boundary(pipeline_fixture):
+        import diffsheriff.pipeline as pipeline
+    
+        cfg, _, _ = pipeline_fixture
+        base = pipeline.observe(Path("base/sanitized"), "program", b"boundary",
+                                cfg.execution, "base", [])
+        patch = {**base, "execution": {**base["execution"], "stdout": "wrong\n"}}
+        case = {"suite": "boundary", "valid_input": True,
+                "expected": {"exit_code": 0, "stdout": "ok\n", "stderr": ""}}
+        result = pipeline.compare_case(case, "sanitized",
+                                       {"base": [base] * 3, "patch": [patch] * 3},
+                                       cfg.baseline_signature)
+&gt;       assert result["regression"]
+E       assert False
+
+tests\test_pipeline.py:198: AssertionError</failure></testcase><testcase classname="tests.test_pipeline" name="test_boundary_regression_uses_independent_validity[True-20]" time="0.020"><failure message="AssertionError: Validating sample: aaaaaaaaaaaa -&gt; bbbbbbbbbbbb&#10;  BUILD_OR_CONFIG_ERROR (exit 30); 0 suite executions&#10;  Security: INCONCLUSIVE; functional: INCONCLUSIVE; analysis: incomplete&#10;    ConfigError: Each expectation needs exactly exit_code, stdout, and stderr&#10;  Report: C:\Users\Asus\Desktop\security\DiffSheriff\.diffsheriff\tests-boundary-red-complete\test_boundary_regression_uses_0\report.json&#10;  &#10;assert 30 == 20&#10; +  where 30 = &lt;Result SystemExit(30)&gt;.exit_code">tmp_path = WindowsPath('C:/Users/Asus/Desktop/security/DiffSheriff/.diffsheriff/tests-boundary-red-complete/test_boundary_regression_uses_0')
+pipeline_fixture = (DiffSheriffConfig(target_name='sample', language='c', repository_path=WindowsPath('C:/Users/Asus/Desktop/security/Dif...ffsheriff/tests-boundary-red-complete/test_boundary_regression_uses_0/target.yaml'), {'scenario': 'fixed', 'calls': 0})
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000022F7FE51480&gt;
+valid_input = True, code = 20
+
+    @pytest.mark.parametrize("valid_input,code", [(True, 20), (False, 40), (None, 40)])
+    def test_boundary_regression_uses_independent_validity(
+        tmp_path, pipeline_fixture, monkeypatch, valid_input, code
+    ):
+        import diffsheriff.pipeline as pipeline
+        from diffsheriff.reproduce import replay
+    
+        _, config_path, _ = pipeline_fixture
+        expected_path = tmp_path / "expected.json"
+        expected = json.loads(expected_path.read_text())
+        if valid_input is not None:
+            expected["boundary/input"]["valid_input"] = valid_input
+        expected_path.write_text(json.dumps(expected))
+        execute = pipeline.execute_container
+    
+        def wrong_boundary(source, binary, payload, settings):
+            if source.parent.name == "patch" and payload == b"boundary":
+                return ExecutionResult(0, "wrong\n", "", False)
+            return execute(source, binary, payload, settings)
+    
+        monkeypatch.setattr(pipeline, "execute_container", wrong_boundary)
+        report_path = tmp_path / "report.json"
+        result = CliRunner().invoke(
+            main, ["--config", str(config_path), "--output-json", str(report_path),
+                   "--artifacts", str(tmp_path / "runs")]
+        )
+&gt;       assert result.exit_code == code, result.output
+E       AssertionError: Validating sample: aaaaaaaaaaaa -&gt; bbbbbbbbbbbb
+E         BUILD_OR_CONFIG_ERROR (exit 30); 0 suite executions
+E         Security: INCONCLUSIVE; functional: INCONCLUSIVE; analysis: incomplete
+E           ConfigError: Each expectation needs exactly exit_code, stdout, and stderr
+E         Report: C:\Users\Asus\Desktop\security\DiffSheriff\.diffsheriff\tests-boundary-red-complete\test_boundary_regression_uses_0\report.json
+E         
+E       assert 30 == 20
+E        +  where 30 = &lt;Result SystemExit(30)&gt;.exit_code
+
+tests\test_pipeline.py:227: AssertionError</failure></testcase><testcase classname="tests.test_pipeline" name="test_boundary_regression_uses_independent_validity[False-40]" time="0.018"><failure message="AssertionError: Validating sample: aaaaaaaaaaaa -&gt; bbbbbbbbbbbb&#10;  BUILD_OR_CONFIG_ERROR (exit 30); 0 suite executions&#10;  Security: INCONCLUSIVE; functional: INCONCLUSIVE; analysis: incomplete&#10;    ConfigError: Each expectation needs exactly exit_code, stdout, and stderr&#10;  Report: C:\Users\Asus\Desktop\security\DiffSheriff\.diffsheriff\tests-boundary-red-complete\test_boundary_regression_uses_1\report.json&#10;  &#10;assert 30 == 40&#10; +  where 30 = &lt;Result SystemExit(30)&gt;.exit_code">tmp_path = WindowsPath('C:/Users/Asus/Desktop/security/DiffSheriff/.diffsheriff/tests-boundary-red-complete/test_boundary_regression_uses_1')
+pipeline_fixture = (DiffSheriffConfig(target_name='sample', language='c', repository_path=WindowsPath('C:/Users/Asus/Desktop/security/Dif...ffsheriff/tests-boundary-red-complete/test_boundary_regression_uses_1/target.yaml'), {'scenario': 'fixed', 'calls': 0})
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000022F7FC81130&gt;
+valid_input = False, code = 40
+
+    @pytest.mark.parametrize("valid_input,code", [(True, 20), (False, 40), (None, 40)])
+    def test_boundary_regression_uses_independent_validity(
+        tmp_path, pipeline_fixture, monkeypatch, valid_input, code
+    ):
+        import diffsheriff.pipeline as pipeline
+        from diffsheriff.reproduce import replay
+    
+        _, config_path, _ = pipeline_fixture
+        expected_path = tmp_path / "expected.json"
+        expected = json.loads(expected_path.read_text())
+        if valid_input is not None:
+            expected["boundary/input"]["valid_input"] = valid_input
+        expected_path.write_text(json.dumps(expected))
+        execute = pipeline.execute_container
+    
+        def wrong_boundary(source, binary, payload, settings):
+            if source.parent.name == "patch" and payload == b"boundary":
+                return ExecutionResult(0, "wrong\n", "", False)
+            return execute(source, binary, payload, settings)
+    
+        monkeypatch.setattr(pipeline, "execute_container", wrong_boundary)
+        report_path = tmp_path / "report.json"
+        result = CliRunner().invoke(
+            main, ["--config", str(config_path), "--output-json", str(report_path),
+                   "--artifacts", str(tmp_path / "runs")]
+        )
+&gt;       assert result.exit_code == code, result.output
+E       AssertionError: Validating sample: aaaaaaaaaaaa -&gt; bbbbbbbbbbbb
+E         BUILD_OR_CONFIG_ERROR (exit 30); 0 suite executions
+E         Security: INCONCLUSIVE; functional: INCONCLUSIVE; analysis: incomplete
+E           ConfigError: Each expectation needs exactly exit_code, stdout, and stderr
+E         Report: C:\Users\Asus\Desktop\security\DiffSheriff\.diffsheriff\tests-boundary-red-complete\test_boundary_regression_uses_1\report.json
+E         
+E       assert 30 == 40
+E        +  where 30 = &lt;Result SystemExit(30)&gt;.exit_code
+
+tests\test_pipeline.py:227: AssertionError</failure></testcase><testcase classname="tests.test_pipeline" name="test_boundary_regression_uses_independent_validity[None-40]" time="0.054" /><testcase classname="tests.test_pipeline" name="test_input_validity_must_be_boolean[true]" time="0.013"><failure message="assert False&#10; +  where False = any(&lt;generator object test_input_validity_must_be_boolean.&lt;locals&gt;.&lt;genexpr&gt; at 0x0000022F7FCE45F0&gt;)">tmp_path = WindowsPath('C:/Users/Asus/Desktop/security/DiffSheriff/.diffsheriff/tests-boundary-red-complete/test_input_validity_must_be_bo0')
+pipeline_fixture = (DiffSheriffConfig(target_name='sample', language='c', repository_path=WindowsPath('C:/Users/Asus/Desktop/security/Dif...ffsheriff/tests-boundary-red-complete/test_input_validity_must_be_bo0/target.yaml'), {'scenario': 'fixed', 'calls': 0})
+value = 'true'
+
+    @pytest.mark.parametrize("value", ["true", 1, None, [], {}])
+    def test_input_validity_must_be_boolean(tmp_path, pipeline_fixture, value):
+        cfg, _, _ = pipeline_fixture
+        path = tmp_path / "expected.json"
+        expected = json.loads(path.read_text())
+        expected["boundary/input"]["valid_input"] = value
+        path.write_text(json.dumps(expected))
+        summary = run_pipeline(cfg, tmp_path / "runs")
+        assert summary.exit_code == 30
+        assert summary.total_tests_run == 0
+&gt;       assert any("valid_input must be a boolean" in note for note in summary.notes)
+E       assert False
+E        +  where False = any(&lt;generator object test_input_validity_must_be_boolean.&lt;locals&gt;.&lt;genexpr&gt; at 0x0000022F7FCE45F0&gt;)
+
+tests\test_pipeline.py:256: AssertionError</failure></testcase><testcase classname="tests.test_pipeline" name="test_input_validity_must_be_boolean[1]" time="0.014"><failure message="assert False&#10; +  where False = any(&lt;generator object test_input_validity_must_be_boolean.&lt;locals&gt;.&lt;genexpr&gt; at 0x0000022F7FD28EE0&gt;)">tmp_path = WindowsPath('C:/Users/Asus/Desktop/security/DiffSheriff/.diffsheriff/tests-boundary-red-complete/test_input_validity_must_be_bo1')
+pipeline_fixture = (DiffSheriffConfig(target_name='sample', language='c', repository_path=WindowsPath('C:/Users/Asus/Desktop/security/Dif...ffsheriff/tests-boundary-red-complete/test_input_validity_must_be_bo1/target.yaml'), {'scenario': 'fixed', 'calls': 0})
+value = 1
+
+    @pytest.mark.parametrize("value", ["true", 1, None, [], {}])
+    def test_input_validity_must_be_boolean(tmp_path, pipeline_fixture, value):
+        cfg, _, _ = pipeline_fixture
+        path = tmp_path / "expected.json"
+        expected = json.loads(path.read_text())
+        expected["boundary/input"]["valid_input"] = value
+        path.write_text(json.dumps(expected))
+        summary = run_pipeline(cfg, tmp_path / "runs")
+        assert summary.exit_code == 30
+        assert summary.total_tests_run == 0
+&gt;       assert any("valid_input must be a boolean" in note for note in summary.notes)
+E       assert False
+E        +  where False = any(&lt;generator object test_input_validity_must_be_boolean.&lt;locals&gt;.&lt;genexpr&gt; at 0x0000022F7FD28EE0&gt;)
+
+tests\test_pipeline.py:256: AssertionError</failure></testcase><testcase classname="tests.test_pipeline" name="test_input_validity_must_be_boolean[None]" time="0.016"><failure message="assert False&#10; +  where False = any(&lt;generator object test_input_validity_must_be_boolean.&lt;locals&gt;.&lt;genexpr&gt; at 0x0000022F7FCE5F20&gt;)">tmp_path = WindowsPath('C:/Users/Asus/Desktop/security/DiffSheriff/.diffsheriff/tests-boundary-red-complete/test_input_validity_must_be_bo2')
+pipeline_fixture = (DiffSheriffConfig(target_name='sample', language='c', repository_path=WindowsPath('C:/Users/Asus/Desktop/security/Dif...ffsheriff/tests-boundary-red-complete/test_input_validity_must_be_bo2/target.yaml'), {'scenario': 'fixed', 'calls': 0})
+value = None
+
+    @pytest.mark.parametrize("value", ["true", 1, None, [], {}])
+    def test_input_validity_must_be_boolean(tmp_path, pipeline_fixture, value):
+        cfg, _, _ = pipeline_fixture
+        path = tmp_path / "expected.json"
+        expected = json.loads(path.read_text())
+        expected["boundary/input"]["valid_input"] = value
+        path.write_text(json.dumps(expected))
+        summary = run_pipeline(cfg, tmp_path / "runs")
+        assert summary.exit_code == 30
+        assert summary.total_tests_run == 0
+&gt;       assert any("valid_input must be a boolean" in note for note in summary.notes)
+E       assert False
+E        +  where False = any(&lt;generator object test_input_validity_must_be_boolean.&lt;locals&gt;.&lt;genexpr&gt; at 0x0000022F7FCE5F20&gt;)
+
+tests\test_pipeline.py:256: AssertionError</failure></testcase><testcase classname="tests.test_pipeline" name="test_input_validity_must_be_boolean[value3]" time="0.015"><failure message="assert False&#10; +  where False = any(&lt;generator object test_input_validity_must_be_boolean.&lt;locals&gt;.&lt;genexpr&gt; at 0x0000022F7FD2AF60&gt;)">tmp_path = WindowsPath('C:/Users/Asus/Desktop/security/DiffSheriff/.diffsheriff/tests-boundary-red-complete/test_input_validity_must_be_bo3')
+pipeline_fixture = (DiffSheriffConfig(target_name='sample', language='c', repository_path=WindowsPath('C:/Users/Asus/Desktop/security/Dif...ffsheriff/tests-boundary-red-complete/test_input_validity_must_be_bo3/target.yaml'), {'scenario': 'fixed', 'calls': 0})
+value = []
+
+    @pytest.mark.parametrize("value", ["true", 1, None, [], {}])
+    def test_input_validity_must_be_boolean(tmp_path, pipeline_fixture, value):
+        cfg, _, _ = pipeline_fixture
+        path = tmp_path / "expected.json"
+        expected = json.loads(path.read_text())
+        expected["boundary/input"]["valid_input"] = value
+        path.write_text(json.dumps(expected))
+        summary = run_pipeline(cfg, tmp_path / "runs")
+        assert summary.exit_code == 30
+        assert summary.total_tests_run == 0
+&gt;       assert any("valid_input must be a boolean" in note for note in summary.notes)
+E       assert False
+E        +  where False = any(&lt;generator object test_input_validity_must_be_boolean.&lt;locals&gt;.&lt;genexpr&gt; at 0x0000022F7FD2AF60&gt;)
+
+tests\test_pipeline.py:256: AssertionError</failure></testcase><testcase classname="tests.test_pipeline" name="test_input_validity_must_be_boolean[value4]" time="0.015"><failure message="assert False&#10; +  where False = any(&lt;generator object test_input_validity_must_be_boolean.&lt;locals&gt;.&lt;genexpr&gt; at 0x0000022F7FCE6B50&gt;)">tmp_path = WindowsPath('C:/Users/Asus/Desktop/security/DiffSheriff/.diffsheriff/tests-boundary-red-complete/test_input_validity_must_be_bo4')
+pipeline_fixture = (DiffSheriffConfig(target_name='sample', language='c', repository_path=WindowsPath('C:/Users/Asus/Desktop/security/Dif...ffsheriff/tests-boundary-red-complete/test_input_validity_must_be_bo4/target.yaml'), {'scenario': 'fixed', 'calls': 0})
+value = {}
+
+    @pytest.mark.parametrize("value", ["true", 1, None, [], {}])
+    def test_input_validity_must_be_boolean(tmp_path, pipeline_fixture, value):
+        cfg, _, _ = pipeline_fixture
+        path = tmp_path / "expected.json"
+        expected = json.loads(path.read_text())
+        expected["boundary/input"]["valid_input"] = value
+        path.write_text(json.dumps(expected))
+        summary = run_pipeline(cfg, tmp_path / "runs")
+        assert summary.exit_code == 30
+        assert summary.total_tests_run == 0
+&gt;       assert any("valid_input must be a boolean" in note for note in summary.notes)
+E       assert False
+E        +  where False = any(&lt;generator object test_input_validity_must_be_boolean.&lt;locals&gt;.&lt;genexpr&gt; at 0x0000022F7FCE6B50&gt;)
+
+tests\test_pipeline.py:256: AssertionError</failure></testcase></testsuite></testsuites>

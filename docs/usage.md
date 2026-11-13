@@ -60,12 +60,14 @@ Schema version `2.0` replaces the original scaffold schema; old files fail with 
 
 ## Independent expectations
 
-The `expectations` JSON maps each `suite/relative-filename` to all three fields below:
+The `expectations` JSON maps each `suite/relative-filename` to the expected exit code,
+stdout, and stderr. An optional `valid_input` boolean records whether the independent
+specification designates that input as valid:
 
 ```json
 {
   "valid/hello.input": {"exit_code": 0, "stdout": "hello\n", "stderr": ""},
-  "boundary/empty.input": {"exit_code": 0, "stdout": "", "stderr": ""},
+  "boundary/empty.input": {"exit_code": 0, "stdout": "", "stderr": "", "valid_input": true},
   "malicious/invalid.input": {"exit_code": 2, "stdout": "", "stderr": "invalid\n"}
 }
 ```
@@ -74,6 +76,14 @@ Keys must match the discovered corpus exactly. Outputs use a lossless Latin-1 by
 mapping, so byte `ff` is JSON `"\u00ff"`. JSON Unicode text must represent the exact
 expected output bytes. `provenance` records the independent specification/test source;
 it is not evidence of instructor approval by itself.
+
+`valid_input` defaults to true in the `valid` suite and false in other suites.
+Mark independently valid boundary cases true so baseline-passing, patch-failing
+behavior is counted as a functional regression (exit 20, subject to exit priority).
+Invalid or unspecified boundary cases still check expected behavior and can prevent
+PASS, but a mismatch alone is not labeled a valid-input regression. The flag must
+be a JSON boolean; strings, numbers, and null are rejected. Generated regressions
+preserve this designation. Existing manifests without the flag retain their defaults.
 
 Security-input reduction preserves the classified error and source location across
 three executions, even without an independent functional reference. Timeouts,
