@@ -1,0 +1,22 @@
+{
+  "input": "e2ef4f2c21301f0d350eec70dcabd1404de97961fffe92bd2245c49ad051079e.input",
+  "sha256": "18ac3e7343f016890c510e93f935261169d9e3f565436429830faf0934f4f8e4",
+  "base_ref": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "signature": null,
+  "finding_signature": {
+    "error_type": "heap-use-after-free",
+    "file": "source.c",
+    "function": "parse",
+    "line": 8
+  },
+  "finding_side": "patch",
+  "mode": "sanitized",
+  "kind": "security",
+  "check": "full",
+  "valid_input": true,
+  "expected": {
+    "exit_code": 0,
+    "stdout": "ok\n",
+    "stderr": ""
+  }
+}

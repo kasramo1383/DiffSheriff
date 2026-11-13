@@ -9,11 +9,12 @@ handoff instructions are in [`agent_handoff_prompt.md`](agent_handoff_prompt.md)
 ## Current assessment
 
 The three earlier audited defects and four workflow/pipeline gaps have implementations
-with focused checks. A subsequent review found two additional implementation gaps
-below. They are the next code work; the workflow checkpoint does not yet include fixes
-for them. Source, verification results, native evidence, and package are recorded in
-the [workflow checkpoint](../artifacts/checkpoints/workflow/README.md). That checkpoint
-does not record team or instructor acceptance.
+with focused checks. Of the two subsequent audit findings below, Stage 1 now has an
+implementation and verification evidence ready for review in the
+[minimized-results checkpoint](../artifacts/checkpoints/minimized-results/README.md).
+Stage 2 remains open. The earlier
+[workflow checkpoint](../artifacts/checkpoints/workflow/README.md) records its own
+source and verification scope. Neither checkpoint records team or instructor acceptance.
 
 The native fixture is infrastructure evidence only. It does not demonstrate a real
 vulnerability or course-target acceptance. See the [target record](target_scenarios.md)
@@ -76,7 +77,15 @@ cleanup.
 
 ### Stage 1 — Classify minimized diagnostic results
 
-**Issue.** `record_reproducer()` in `diffsheriff/pipeline.py` replays the minimized
+**Status: implemented and verified, awaiting Kasra's review.** See the
+[checkpoint](../artifacts/checkpoints/minimized-results/README.md) for the source
+identity, focused/full checks, inspected synthetic reports, native run, and package.
+Stable minimized observations now use ordinary comparison and exit-priority logic,
+with parent-scoped deduplication and no recursive minimization. Reduced-input
+validity comes from an independent corpus or an explicit boolean from the independent
+reference; it is not inherited from different original bytes. Stage 2 has not started.
+
+**Original issue.** `record_reproducer()` in `diffsheriff/pipeline.py` replays the minimized
 input against both baseline and patch and retains both observations. Its caller only
 uses the minimizer's stability and whether an independent expectation is available.
 It does not feed those minimized observations back through the normal comparison and
@@ -186,8 +195,9 @@ participation.
 
 ## Current checkpoint
 
-- Next implementation work is Stage 1 above, followed by Stage 2. Review each stage's
-  focused evidence before accepting it.
+- Stage 1 is implemented and verified, awaiting review of the minimized-results
+  checkpoint. After that review, next implementation work is Stage 2. Do not repeat
+  Stage 1 or mark it accepted on the team's behalf.
 - After those audit findings are fixed, the next external dependency is instructor
   confirmation for candidate targets, source pairs, input scope, and independent
   expected behavior in `target_scenarios.md`.

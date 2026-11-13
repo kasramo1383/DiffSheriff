@@ -459,6 +459,214 @@ def test_only_designated_baseline_can_pass(tmp_path, pipeline_fixture):
     assert run_pipeline(cfg, tmp_path / "runs").exit_code == 40
 
 
+@pytest.mark.parametrize("patch_kind", ["heap-buffer-overflow", "heap-use-after-free"])
+@pytest.mark.parametrize("late_error", [False, True])
+def test_minimized_patch_diagnostic_changes_first_verdict(
+    tmp_path, pipeline_fixture, monkeypatch, patch_kind, late_error
+):
+    import diffsheriff.pipeline as pipeline
+
+    cfg, _, _ = pipeline_fixture
+    execute, minimize = pipeline.execute_container, pipeline.ddmin
+    minimizations = []
+    if late_error:
+        (tmp_path / "tests/invalid/later").write_bytes(b"diagnostic")
+        expectations = json.loads((tmp_path / "expected.json").read_text())
+        expectations["malicious/later"] = expectations["malicious/input"]
+        (tmp_path / "expected.json").write_text(json.dumps(expectations))
+        record = pipeline.record_reproducer
+
+        def fail_second(*args):
+            if minimizations:
+                raise OSError("later reproducer failure")
+            return record(*args)
+
+        monkeypatch.setattr(pipeline, "record_reproducer", fail_second)
+
+    def reduced(source, binary, payload, settings):
+        if source.name == "sanitized" and payload != b"diagnostic" and b"g" in payload:
+            diagnostic = execute(
+                Path("base/sanitized"), binary, b"diagnostic", settings
+            )
+            if source.parent.name == "patch":
+                return replace(
+                    diagnostic,
+                    stderr=diagnostic.stderr.replace(
+                        "heap-buffer-overflow", patch_kind
+                    ),
+                )
+            return diagnostic
+        return execute(source, binary, payload, settings)
+
+    def counted(*args):
+        minimizations.append(args[0])
+        return minimize(*args)
+
+    monkeypatch.setattr(pipeline, "execute_container", reduced)
+    monkeypatch.setattr(pipeline, "ddmin", counted)
+    summary = run_pipeline(cfg, tmp_path / "runs")
+    assert summary.exit_code == (30 if late_error else 10)
+    assert summary.security_status == "FAIL"
+    assert not summary.analysis_complete
+    assert (
+        len(minimizations) == 1
+    ), "Reduced observations must not be minimized recursively"
+    status = "Incomplete Fix" if patch_kind == "heap-buffer-overflow" else "New Issue"
+    finding = next(f for f in summary.findings if f.status == status)
+    case = summary.evidence["cases"][finding.evidence["case_index"]]
+    assert case["minimized_from"] == "malicious/input"
+    assert case["mode"] == "sanitized" and case["expected"] is None
+    assert (
+        Path(summary.evidence["run_directory"]) / finding.minimized_input
+    ).read_bytes() == b"g"
+    assert len(case["runs"]["patch"]) == 3
+    report = json.loads(
+        (Path(summary.evidence["run_directory"]) / "report.json").read_text()
+    )
+    assert report["exit_code"] == (30 if late_error else 10)
+
+
+@pytest.mark.parametrize("valid_input", [True, False, None])
+def test_minimized_known_valid_case_adds_functional_regression(
+    tmp_path, pipeline_fixture, monkeypatch, valid_input
+):
+    import diffsheriff.pipeline as pipeline
+
+    cfg, _, _ = pipeline_fixture
+    cfg.test_suites.independent_reference_command = ["reference"]
+    execute, minimize = pipeline.execute_container, pipeline.ddmin
+    minimizations = []
+
+    def reduced(source, binary, payload, settings):
+        if source.name == "sanitized" and payload not in (b"ordinary", b"boundary"):
+            side = source.parent.name
+            if (side == "base" and b"g" in payload) or (
+                side == "patch" and b"d" in payload
+            ):
+                result = execute(
+                    Path("base/sanitized"), binary, b"diagnostic", settings
+                )
+                if side == "patch":
+                    result = replace(
+                        result,
+                        stderr=result.stderr.replace(
+                            "heap-buffer-overflow", "heap-use-after-free"
+                        ),
+                    )
+                return result
+        return execute(source, binary, payload, settings)
+
+    def counted(*args):
+        minimizations.append(args[0])
+        return minimize(*args)
+
+    # Expected output alone does not establish that a reduced input is valid.
+    def reference(*args, payload, **kwargs):
+        expected = {"exit_code": 0, "stdout": "ok\n", "stderr": ""}
+        if valid_input is not None:
+            expected["valid_input"] = bool(valid_input and payload == b"d")
+        return ExecutionResult(0, json.dumps(expected), "", False)
+
+    monkeypatch.setattr(
+        pipeline,
+        "run_container",
+        reference,
+    )
+    monkeypatch.setattr(pipeline, "execute_container", reduced)
+    monkeypatch.setattr(pipeline, "ddmin", counted)
+    summary = run_pipeline(cfg, tmp_path / "runs")
+    assert (
+        summary.exit_code == 10
+    ), "Security retains priority over functional regression"
+    assert summary.functional_status == ("FAIL" if valid_input else "PASS")
+    assert len(minimizations) == 2
+    findings = [f for f in summary.findings if f.status == "Functional Regression"]
+    assert len(findings) == (1 if valid_input else 0)
+    if not valid_input:
+        return
+    case = summary.evidence["cases"][findings[0].evidence["case_index"]]
+    assert case["valid_input"] and case["expected"]["stdout"] == "ok\n"
+    assert case["runs"]["base"][0]["signature"] is None
+    assert case["minimized_from"] == "malicious/input"
+    assert (
+        Path(summary.evidence["run_directory"]) / findings[0].minimized_input
+    ).read_bytes() == b"d"
+
+
+def test_minimized_unchanged_result_has_no_duplicate_records(
+    tmp_path, pipeline_fixture, monkeypatch
+):
+    import diffsheriff.pipeline as pipeline
+
+    cfg, _, state = pipeline_fixture
+    execute = pipeline.execute_container
+
+    def relocated(*args):
+        result = execute(*args)
+        return replace(
+            result, stderr=result.stderr.replace("0x1235", hex(0x1000 + state["calls"]))
+        )
+
+    monkeypatch.setattr(pipeline, "execute_container", relocated)
+    summary = run_pipeline(cfg, tmp_path / "runs")
+    assert summary.exit_code == 0
+    assert len(summary.findings) == 1 and summary.findings[0].status == "Fixed"
+    assert len(summary.evidence["cases"]) == 6
+    assert len(summary.evidence["reproducers"]) == 1
+
+
+def test_minimized_baseline_identity_reclassification_deduplicates(
+    tmp_path, pipeline_fixture, monkeypatch
+):
+    import diffsheriff.pipeline as pipeline
+
+    cfg, _, _ = pipeline_fixture
+    execute = pipeline.execute_container
+
+    def reduced(source, binary, payload, settings):
+        if source.name == "sanitized" and b"g" in payload:
+            result = execute(Path("base/sanitized"), binary, b"diagnostic", settings)
+            if payload == b"diagnostic" and source.parent.name == "base":
+                result = replace(
+                    result,
+                    stderr=result.stderr.replace(
+                        "heap-buffer-overflow", "heap-use-after-free"
+                    ),
+                )
+            return result
+        return execute(source, binary, payload, settings)
+
+    monkeypatch.setattr(pipeline, "execute_container", reduced)
+    summary = run_pipeline(cfg, tmp_path / "runs")
+    assert summary.exit_code == 10
+    assert summary.evidence["baseline_identity_modes"] == ["sanitized"]
+    findings = [
+        f for f in summary.findings if f.status in {"Incomplete Fix", "New Issue"}
+    ]
+    assert len(findings) == 1 and findings[0].status == "Incomplete Fix"
+    assert any(
+        case.get("minimized_from")
+        and case["runs"]["base"][0]["signature"] == cfg.baseline_signature
+        for case in summary.evidence["cases"]
+    )
+
+
+@pytest.mark.parametrize("value", [None, "true", 1])
+def test_reference_rejects_non_boolean_validity(value):
+    from diffsheriff.config import ConfigError
+    from diffsheriff.pipeline import record_reference_expectation
+
+    with pytest.raises(ConfigError, match="valid_input must be a boolean"):
+        record_reference_expectation(
+            json.dumps(
+                {"exit_code": 0, "stdout": "", "stderr": "", "valid_input": value}
+            ),
+            "digest",
+            {},
+            {},
+        )
+
+
 @pytest.mark.parametrize("with_reference", [False, True])
 def test_security_minimization_and_regression_expectations(
     tmp_path, pipeline_fixture, monkeypatch, with_reference

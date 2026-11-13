@@ -1,0 +1,55 @@
+{
+  "functional": {
+    "exit_code": 10,
+    "functional_status": "FAIL",
+    "security_status": "FAIL",
+    "findings": [
+      "Fixed",
+      "Functional Regression",
+      "New Issue"
+    ],
+    "scope": "Synthetic observations and fake builds; not executable target evidence."
+  },
+  "remaining": {
+    "exit_code": 10,
+    "functional_status": "PASS",
+    "security_status": "FAIL",
+    "findings": [
+      "Fixed",
+      "Incomplete Fix",
+      "Inconclusive"
+    ],
+    "scope": "Synthetic observations and fake builds; not executable target evidence."
+  },
+  "new": {
+    "exit_code": 10,
+    "functional_status": "PASS",
+    "security_status": "FAIL",
+    "findings": [
+      "Fixed",
+      "Inconclusive",
+      "New Issue"
+    ],
+    "scope": "Synthetic observations and fake builds; not executable target evidence."
+  },
+  "late-error": {
+    "exit_code": 30,
+    "functional_status": "INCONCLUSIVE",
+    "security_status": "FAIL",
+    "findings": [
+      "Fixed",
+      "Incomplete Fix",
+      "Inconclusive"
+    ],
+    "scope": "Synthetic observations and fake builds; not executable target evidence."
+  },
+  "unchanged": {
+    "exit_code": 0,
+    "functional_status": "PASS",
+    "security_status": "PASS",
+    "findings": [
+      "Fixed"
+    ],
+    "scope": "Synthetic observations and fake builds; not executable target evidence."
+  }
+}

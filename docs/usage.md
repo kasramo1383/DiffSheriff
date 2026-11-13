@@ -99,6 +99,15 @@ directory at `/src`, read-only, and never receives target observations. Its logi
 must come from the approved independent specification. Failure or malformed output
 is code 30. The resulting expectation is retained in the generated regression.
 
+The reference may also supply a boolean `valid_input` for those exact candidate
+bytes. Without it, newly reduced bytes have unknown validity and are not credited
+as valid-input functional checks. A known corpus designation is reused for identical
+bytes; the parent input's validity is never inherited by different reduced bytes.
+Stable minimized replays enter the same finding and exit-priority rules as ordinary
+cases. New results identify their minimized input and parent case in the report;
+results already represented by that parent are deduplicated. This comparison reuses
+recorded observations and never recursively minimizes the reduced case.
+
 ## Validate and inspect
 
 ```sh

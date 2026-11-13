@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="4" time="0.709" timestamp="2026-11-13T14:27:20.295671+03:30" hostname="DESKTOP-OVP2LHB"><testcase classname="tests.test_pipeline" name="test_minimized_patch_diagnostic_changes_first_verdict[heap-buffer-overflow]" time="0.075"><failure message="AssertionError: assert 40 == 10&#10; +  where 40 = ValidationSummary(target_name='sample', exit_code=40, verdict='INCONCLUSIVE', total_tests_run=36, functional_passed=2,...nx': True, 'pie': True, 'relro': 'full', 'canary': True, 'indicators': {}}}, 'baseline_identity_modes': ['sanitized']}).exit_code">tmp_path = WindowsPath('C:/Users/Asus/Desktop/security/DiffSheriff/.diffsheriff/min-results-red/test_minimized_patch_diagnosti0')
+pipeline_fixture = (DiffSheriffConfig(target_name='sample', language='c', repository_path=WindowsPath('C:/Users/Asus/Desktop/security/Dif...Sheriff/.diffsheriff/min-results-red/test_minimized_patch_diagnosti0/target.yaml'), {'scenario': 'fixed', 'calls': 60})
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001BC9D4C5810&gt;
+patch_kind = 'heap-buffer-overflow'
+
+    @pytest.mark.parametrize("patch_kind", ["heap-buffer-overflow", "heap-use-after-free"])
+    def test_minimized_patch_diagnostic_changes_first_verdict(
+        tmp_path, pipeline_fixture, monkeypatch, patch_kind
+    ):
+        import diffsheriff.pipeline as pipeline
+    
+        cfg, _, _ = pipeline_fixture
+        execute, minimize = pipeline.execute_container, pipeline.ddmin
+        minimizations = []
+    
+        def reduced(source, binary, payload, settings):
+            if source.name == "sanitized" and payload != b"diagnostic" and b"g" in payload:
+                diagnostic = execute(Path("base/sanitized"), binary, b"diagnostic", settings)
+                if source.parent.name == "patch":
+                    return replace(diagnostic, stderr=diagnostic.stderr.replace("heap-buffer-overflow", patch_kind))
+                return diagnostic
+            return execute(source, binary, payload, settings)
+    
+        def counted(*args):
+            minimizations.append(args[0])
+            return minimize(*args)
+    
+        monkeypatch.setattr(pipeline, "execute_container", reduced)
+        monkeypatch.setattr(pipeline, "ddmin", counted)
+        summary = run_pipeline(cfg, tmp_path / "runs")
+&gt;       assert summary.exit_code == 10
+E       AssertionError: assert 40 == 10
+E        +  where 40 = ValidationSummary(target_name='sample', exit_code=40, verdict='INCONCLUSIVE', total_tests_run=36, functional_passed=2,...nx': True, 'pie': True, 'relro': 'full', 'canary': True, 'indicators': {}}}, 'baseline_identity_modes': ['sanitized']}).exit_code
+
+tests\test_pipeline.py:487: AssertionError</failure></testcase><testcase classname="tests.test_pipeline" name="test_minimized_patch_diagnostic_changes_first_verdict[heap-use-after-free]" time="0.066"><failure message="AssertionError: assert 40 == 10&#10; +  where 40 = ValidationSummary(target_name='sample', exit_code=40, verdict='INCONCLUSIVE', total_tests_run=36, functional_passed=2,...nx': True, 'pie': True, 'relro': 'full', 'canary': True, 'indicators': {}}}, 'baseline_identity_modes': ['sanitized']}).exit_code">tmp_path = WindowsPath('C:/Users/Asus/Desktop/security/DiffSheriff/.diffsheriff/min-results-red/test_minimized_patch_diagnosti1')
+pipeline_fixture = (DiffSheriffConfig(target_name='sample', language='c', repository_path=WindowsPath('C:/Users/Asus/Desktop/security/Dif...Sheriff/.diffsheriff/min-results-red/test_minimized_patch_diagnosti1/target.yaml'), {'scenario': 'fixed', 'calls': 60})
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001BC9D4C5350&gt;
+patch_kind = 'heap-use-after-free'
+
+    @pytest.mark.parametrize("patch_kind", ["heap-buffer-overflow", "heap-use-after-free"])
+    def test_minimized_patch_diagnostic_changes_first_verdict(
+        tmp_path, pipeline_fixture, monkeypatch, patch_kind
+    ):
+        import diffsheriff.pipeline as pipeline
+    
+        cfg, _, _ = pipeline_fixture
+        execute, minimize = pipeline.execute_container, pipeline.ddmin
+        minimizations = []
+    
+        def reduced(source, binary, payload, settings):
+            if source.name == "sanitized" and payload != b"diagnostic" and b"g" in payload:
+                diagnostic = execute(Path("base/sanitized"), binary, b"diagnostic", settings)
+                if source.parent.name == "patch":
+                    return replace(diagnostic, stderr=diagnostic.stderr.replace("heap-buffer-overflow", patch_kind))
+                return diagnostic
+            return execute(source, binary, payload, settings)
+    
+        def counted(*args):
+            minimizations.append(args[0])
+            return minimize(*args)
+    
+        monkeypatch.setattr(pipeline, "execute_container", reduced)
+        monkeypatch.setattr(pipeline, "ddmin", counted)
+        summary = run_pipeline(cfg, tmp_path / "runs")
+&gt;       assert summary.exit_code == 10
+E       AssertionError: assert 40 == 10
+E        +  where 40 = ValidationSummary(target_name='sample', exit_code=40, verdict='INCONCLUSIVE', total_tests_run=36, functional_passed=2,...nx': True, 'pie': True, 'relro': 'full', 'canary': True, 'indicators': {}}}, 'baseline_identity_modes': ['sanitized']}).exit_code
+
+tests\test_pipeline.py:487: AssertionError</failure></testcase><testcase classname="tests.test_pipeline" name="test_minimized_known_valid_case_adds_functional_regression" time="0.056"><failure message="AssertionError: Security retains priority over functional regression&#10;assert 30 == 10&#10; +  where 30 = ValidationSummary(target_name='sample', exit_code=30, verdict='BUILD_OR_CONFIG_ERROR', total_tests_run=36, functional_...nx': True, 'pie': True, 'relro': 'full', 'canary': True, 'indicators': {}}}, 'baseline_identity_modes': ['sanitized']}).exit_code">tmp_path = WindowsPath('C:/Users/Asus/Desktop/security/DiffSheriff/.diffsheriff/min-results-red/test_minimized_known_valid_cas0')
+pipeline_fixture = (DiffSheriffConfig(target_name='sample', language='c', repository_path=WindowsPath('C:/Users/Asus/Desktop/security/Dif...Sheriff/.diffsheriff/min-results-red/test_minimized_known_valid_cas0/target.yaml'), {'scenario': 'fixed', 'calls': 39})
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001BC9D444830&gt;
+
+    def test_minimized_known_valid_case_adds_functional_regression(
+        tmp_path, pipeline_fixture, monkeypatch
+    ):
+        import diffsheriff.pipeline as pipeline
+    
+        cfg, _, _ = pipeline_fixture
+        cfg.test_suites.independent_reference_command = ["reference"]
+        execute, minimize = pipeline.execute_container, pipeline.ddmin
+        minimizations = []
+    
+        def reduced(source, binary, payload, settings):
+            if source.name == "sanitized" and payload not in (b"ordinary", b"boundary"):
+                side = source.parent.name
+                if (side == "base" and b"g" in payload) or (side == "patch" and b"d" in payload):
+                    result = execute(Path("base/sanitized"), binary, b"diagnostic", settings)
+                    if side == "patch":
+                        result = replace(result, stderr=result.stderr.replace("heap-buffer-overflow", "heap-use-after-free"))
+                    return result
+            return execute(source, binary, payload, settings)
+    
+        def counted(*args):
+            minimizations.append(args[0])
+            return minimize(*args)
+    
+        # This independent test specification declares only the reduced byte d valid.
+        monkeypatch.setattr(pipeline, "run_container", lambda *a, payload, **kw: ExecutionResult(
+            0, json.dumps({"exit_code": 0, "stdout": "ok\n", "stderr": "", "valid_input": payload == b"d"}), "", False
+        ))
+        monkeypatch.setattr(pipeline, "execute_container", reduced)
+        monkeypatch.setattr(pipeline, "ddmin", counted)
+        summary = run_pipeline(cfg, tmp_path / "runs")
+&gt;       assert summary.exit_code == 10, "Security retains priority over functional regression"
+E       AssertionError: Security retains priority over functional regression
+E       assert 30 == 10
+E        +  where 30 = ValidationSummary(target_name='sample', exit_code=30, verdict='BUILD_OR_CONFIG_ERROR', total_tests_run=36, functional_...nx': True, 'pie': True, 'relro': 'full', 'canary': True, 'indicators': {}}}, 'baseline_identity_modes': ['sanitized']}).exit_code
+
+tests\test_pipeline.py:533: AssertionError</failure></testcase><testcase classname="tests.test_pipeline" name="test_minimized_unchanged_result_has_no_duplicate_records" time="0.064" /></testsuite></testsuites>

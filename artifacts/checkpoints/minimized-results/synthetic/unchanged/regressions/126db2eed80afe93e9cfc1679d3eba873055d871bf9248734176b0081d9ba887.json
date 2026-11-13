@@ -1,0 +1,27 @@
+{
+  "input": "126db2eed80afe93e9cfc1679d3eba873055d871bf9248734176b0081d9ba887.input",
+  "sha256": "5a695eea5b00a31f8aef7dbb89c8f798fab371246ac1549afe84b16420707b99",
+  "base_ref": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "signature": {
+    "error_type": "heap-buffer-overflow",
+    "file": "source.c",
+    "function": "parse",
+    "line": 8
+  },
+  "finding_signature": {
+    "error_type": "heap-buffer-overflow",
+    "file": "source.c",
+    "function": "parse",
+    "line": 8
+  },
+  "finding_side": "base",
+  "mode": "sanitized",
+  "kind": "security",
+  "check": "full",
+  "valid_input": false,
+  "expected": {
+    "exit_code": 0,
+    "stdout": "ok\n",
+    "stderr": ""
+  }
+}

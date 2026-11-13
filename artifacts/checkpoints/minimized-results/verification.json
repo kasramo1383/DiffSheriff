@@ -1,0 +1,13 @@
+{
+  "image": "sha256:dca15002993f7f4997c27d10e4abd5b7ebbddfa0ca632b28cf9968820ada1189",
+  "linux_snapshot": "/var/tmp/diffsheriff-minimized-results.j9t4dc",
+  "cli_exit": 40,
+  "suite_executions": 36,
+  "verified_source_archives": 4,
+  "verified_binaries": 4,
+  "verified_case_inputs": 6,
+  "runtime_source_matches_checkout": true,
+  "linux_tests_match_checkout": true,
+  "wheel_sha256": "c963f29a9b83a25eea78483a5c7f69d53061ac9ac87bbf7c7c3921f470455e6b",
+  "wheel_sources_match_checkout": true
+}

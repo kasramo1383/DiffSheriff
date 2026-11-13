@@ -68,6 +68,17 @@ def contained_file(root, name):
     return path
 
 
+def record_reference_expectation(stdout, digest, expectations, validity):
+    value = json.loads(stdout)
+    if not isinstance(value, dict):
+        raise ConfigError("Independent reference result must be a mapping")
+    valid_input = value.pop("valid_input", False)
+    if type(valid_input) is not bool:
+        raise ConfigError("Independent reference valid_input must be a boolean")
+    expectations[digest] = expected_result(value)
+    validity[digest] = valid_input
+
+
 def discover_cases(cfg):
     """Read independent expectations once, before any target build or execution."""
     root = cfg.config_directory
@@ -335,6 +346,20 @@ def functional_failure(runs, expected, mismatch):
     )
 
 
+def finding_key(status, signature, correlation, reason):
+    # Runtime addresses may change without adding source-level evidence.
+    return json.dumps(
+        [
+            status,
+            signature,
+            {k: v for k, v in correlation.items() if k != "matched_frame"},
+            (correlation.get("matched_frame") or {}).get("function"),
+            reason,
+        ],
+        sort_keys=True,
+    )
+
+
 def record_reproducer(
     case,
     mode,
@@ -346,6 +371,7 @@ def record_reproducer(
     cfg,
     run_directory,
     known_expectations,
+    known_validity,
     evidence,
     original_runs,
     functional=False,
@@ -400,7 +426,9 @@ def record_reproducer(
                 raise RuntimeError(
                     "Independent reference command failed during minimization"
                 )
-            known_expectations[digest] = expected_result(json.loads(reference.stdout))
+            record_reference_expectation(
+                reference.stdout, digest, known_expectations, known_validity
+            )
         observations = [
             observe(source, binary, payload, settings, side, hunks) for _ in range(3)
         ]
@@ -471,7 +499,8 @@ def record_reproducer(
         "minimized_sha256": digest,
         "expected": expected,
         "original_expected": case["expected"],
-        "valid_input": case["valid_input"],
+        "valid_input": known_validity.get(digest, False),
+        "original_valid_input": case["valid_input"],
         "regression_input": "minimized.input",
         "diagnostic_only": expected is None,
         "settings": asdict(settings),
@@ -550,7 +579,9 @@ def record_reproducer(
                         "kind": "functional" if functional else "security",
                         "check": "diagnostic" if expectation is None else "full",
                         "valid_input": (
-                            case["valid_input"] if expectation is not None else False
+                            known_validity.get(regression_digest, False)
+                            if expectation is not None
+                            else False
                         ),
                         "expected": expectation,
                     },
@@ -558,7 +589,7 @@ def record_reproducer(
                 ),
                 encoding="utf-8",
             )
-    return (bundle.relative_to(run_directory) / "minimized.input").as_posix(), stable
+    return (bundle.relative_to(run_directory) / "minimized.input").as_posix(), metadata
 
 
 def run_pipeline(cfg, artifact_root):
@@ -672,6 +703,7 @@ def run_pipeline(cfg, artifact_root):
         summary.notes.extend(warnings)
         incomplete |= bool(warnings)
         known_expectations = {}
+        known_validity = {}
         for case in cases:
             if case["expected"] is None:
                 continue
@@ -683,6 +715,9 @@ def run_pipeline(cfg, artifact_root):
                     "Identical payloads have conflicting independent expectations"
                 )
             known_expectations[case["sha256"]] = case["expected"]
+            known_validity[case["sha256"]] = (
+                known_validity.get(case["sha256"], True) and case["valid_input"]
+            )
         observations = []
         observation_error = None
         try:
@@ -708,11 +743,15 @@ def run_pipeline(cfg, artifact_root):
                                 "Independent reference command failed "
                                 "for diagnostic regression"
                             )
-                        known_expectations[case["sha256"]] = expected_result(
-                            json.loads(reference.stdout)
+                        record_reference_expectation(
+                            reference.stdout,
+                            case["sha256"],
+                            known_expectations,
+                            known_validity,
                         )
                     case["expected"] = known_expectations.get(case["sha256"])
                     case["diagnostic_only"] = case["expected"] is None
+                    case["valid_input"] = known_validity.get(case["sha256"], False)
                 for mode in ("release", "sanitized"):
                     if case.get("diagnostic_only") and mode != case["baseline_mode"]:
                         continue
@@ -745,10 +784,30 @@ def run_pipeline(cfg, artifact_root):
             and runs["base"][0]["signature"] == cfg.baseline_signature
         }
         evidence["baseline_identity_modes"] = sorted(known_baseline_modes)
+        represented = {}
         for case, mode, runs, case_index in observations:
             decision = compare_case(
                 case, mode, runs, cfg.baseline_signature, mode in known_baseline_modes
             )
+            group = (case.get("minimized_from", case["id"]), mode)
+            seen = represented.setdefault(group, set())
+            unique = []
+            for status, observation, reason in decision["findings"]:
+                identity = finding_key(
+                    status, observation["signature"], observation["correlation"], reason
+                )
+                if identity not in seen:
+                    unique.append((status, observation, reason))
+                    seen.add(identity)
+            if case.get("minimized_from"):
+                if not unique and not (
+                    decision["baseline_seen"] and mode not in known_baseline_modes
+                ):
+                    continue
+                case_index = len(evidence["cases"])
+                evidence["cases"].append({**case, "mode": mode, "runs": runs})
+            if decision["baseline_seen"]:
+                known_baseline_modes.add(mode)
             baseline_seen |= decision["baseline_seen"]
             vulnerability |= decision["vulnerability"]
             regression |= decision["regression"]
@@ -760,14 +819,14 @@ def run_pipeline(cfg, artifact_root):
                 summary.functional_failed += int(
                     not (decision["base_ok"] and decision["patch_ok"])
                 )
-            for status, observation, reason in decision["findings"]:
+            for status, observation, reason in unique:
                 finding = FindingReport(
                     f"finding-{len(summary.findings) + 1}",
                     status,
                     observation["triage"]["error_type"],
                     observation["triage"]["detection_mechanism"],
                     case["id"],
-                    None,
+                    case["input_file"] if case.get("minimized_from") else None,
                     observation["correlation"]["correlation_type"],
                     decision["stable"],
                     {
@@ -779,7 +838,11 @@ def run_pipeline(cfg, artifact_root):
                     },
                 )
                 summary.findings.append(finding)
-            if decision["stable"]:
+            if (
+                decision["stable"]
+                and not case.get("minimized_from")
+                and observation_error is None
+            ):
                 for side in ("base", "patch"):
                     observation = runs[side][0]
                     functional = (
@@ -788,21 +851,27 @@ def run_pipeline(cfg, artifact_root):
                         and not observation["signature"]
                     )
                     if observation["signature"] or functional:
-                        minimized, stable = record_reproducer(
-                            case,
-                            mode,
-                            side,
-                            observation,
-                            artifacts,
-                            settings,
-                            hunks,
-                            cfg,
-                            directory,
-                            known_expectations,
-                            evidence,
-                            runs,
-                            functional,
-                        )
+                        try:
+                            minimized, metadata = record_reproducer(
+                                case,
+                                mode,
+                                side,
+                                observation,
+                                artifacts,
+                                settings,
+                                hunks,
+                                cfg,
+                                directory,
+                                known_expectations,
+                                known_validity,
+                                evidence,
+                                runs,
+                                functional,
+                            )
+                        except Exception as error:
+                            observation_error = error
+                            break
+                        stable = metadata["stable"]
                         incomplete |= not stable
                         if (
                             compute_sha256(directory / minimized)
@@ -832,6 +901,46 @@ def run_pipeline(cfg, artifact_root):
                                     finding.evidence["reason"] = (
                                         "Later reproducer replays were unstable"
                                     )
+                        if stable:
+                            # Queue existing replays for comparison, never minimization.
+                            reduced_case = {
+                                "id": "minimized/" + Path(minimized).parent.name,
+                                "suite": "minimized",
+                                "minimized_from": case["id"],
+                                "input_file": minimized,
+                                "sha256": metadata["minimized_sha256"],
+                                "expected": metadata["expected"],
+                                "valid_input": metadata["valid_input"],
+                                "diagnostic_only": metadata["diagnostic_only"],
+                            }
+                            observations.append(
+                                (reduced_case, mode, metadata["runs"], None)
+                            )
+        evidence["baseline_identity_modes"] = sorted(known_baseline_modes)
+        represented = set()
+        unique_findings = []
+        for finding in summary.findings:
+            if (
+                finding.status == "New Issue"
+                and finding.evidence["mode"] in known_baseline_modes
+                and finding.evidence["signature"] == cfg.baseline_signature
+            ):
+                finding.status = "Incomplete Fix"
+            record = evidence["cases"][finding.evidence["case_index"]]
+            key = (
+                record.get("minimized_from", record["id"]),
+                record["mode"],
+                finding_key(
+                    finding.status,
+                    finding.evidence["signature"],
+                    finding.evidence["correlation"],
+                    finding.evidence["reason"],
+                ),
+            )
+            if key not in represented:
+                represented.add(key)
+                unique_findings.append(finding)
+        summary.findings = unique_findings
         if observation_error is not None:
             raise observation_error
         vulnerability = any(

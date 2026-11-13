@@ -1,0 +1,1482 @@
+{
+  "case": "malicious/input",
+  "mode": "sanitized",
+  "finding_side": "base",
+  "signature": {
+    "error_type": "heap-buffer-overflow",
+    "file": "source.c",
+    "function": "parse",
+    "line": 8
+  },
+  "kind": "security",
+  "functional_mismatch": [],
+  "original_sha256": "5a695eea5b00a31f8aef7dbb89c8f798fab371246ac1549afe84b16420707b99",
+  "minimized_sha256": "cd0aa9856147b6c5b4ff2b7dfee5da20aa38253099ef1b4a64aced233c9afe29",
+  "expected": {
+    "exit_code": 0,
+    "stdout": "ok\n",
+    "stderr": ""
+  },
+  "original_expected": {
+    "exit_code": 0,
+    "stdout": "ok\n",
+    "stderr": ""
+  },
+  "valid_input": false,
+  "original_valid_input": false,
+  "regression_input": "minimized.input",
+  "diagnostic_only": false,
+  "settings": {
+    "timeout_seconds": 5,
+    "input_method": "stdin",
+    "file_argument_flag": "--file",
+    "fixed_arguments": [],
+    "environment_variables": {
+      "HTTP_PROXY": "",
+      "HTTPS_PROXY": "",
+      "ALL_PROXY": "",
+      "NO_PROXY": "",
+      "http_proxy": "",
+      "https_proxy": "",
+      "all_proxy": "",
+      "no_proxy": ""
+    },
+    "image": "sha256:test-image",
+    "memory_mb": 2048,
+    "cpus": 2.0,
+    "pids_limit": 128,
+    "output_limit_bytes": 1048576
+  },
+  "runs": {
+    "base": [
+      {
+        "execution": {
+          "exit_code": 1,
+          "stdout": "",
+          "stderr": "ERROR: AddressSanitizer: heap-buffer-overflow\n #0 0x1234 in parse /src/source.c:8:1\n #1 0x1235 in caller /src/source.c:7:1\n",
+          "timed_out": false,
+          "output_limited": false,
+          "resource_limited": false,
+          "command": [],
+          "container_state": {}
+        },
+        "triage": {
+          "is_crash": true,
+          "error_type": "heap-buffer-overflow",
+          "detection_mechanism": "AddressSanitizer",
+          "exit_code": 1,
+          "signal_name": null,
+          "stack_trace": [
+            {
+              "index": 0,
+              "address": "0x1234",
+              "function": "parse",
+              "file": "/src/source.c",
+              "line": 8
+            },
+            {
+              "index": 1,
+              "address": "0x1235",
+              "function": "caller",
+              "file": "/src/source.c",
+              "line": 7
+            }
+          ],
+          "raw_stdout": "",
+          "raw_stderr": "ERROR: AddressSanitizer: heap-buffer-overflow\n #0 0x1234 in parse /src/source.c:8:1\n #1 0x1235 in caller /src/source.c:7:1\n"
+        },
+        "signature": {
+          "error_type": "heap-buffer-overflow",
+          "file": "source.c",
+          "function": "parse",
+          "line": 8
+        },
+        "correlation": {
+          "is_correlated": true,
+          "correlation_type": "Indirect (Caller/Callee)",
+          "matched_file": "source.c",
+          "matched_line": 7,
+          "matched_frame": {
+            "index": 1,
+            "address": "0x1235",
+            "function": "caller",
+            "file": "/src/source.c",
+            "line": 7
+          },
+          "hunk": {
+            "file_path": "source.c",
+            "old_start": 7,
+            "old_length": 1,
+            "new_start": 7,
+            "new_length": 1,
+            "function_header": null,
+            "old_file_path": "source.c",
+            "old_lines": [
+              7
+            ],
+            "new_lines": [
+              7
+            ]
+          },
+          "reason": "Runtime frame intersects an edited line; comparative evidence is required for attribution."
+        }
+      },
+      {
+        "execution": {
+          "exit_code": 1,
+          "stdout": "",
+          "stderr": "ERROR: AddressSanitizer: heap-buffer-overflow\n #0 0x1234 in parse /src/source.c:8:1\n #1 0x1235 in caller /src/source.c:7:1\n",
+          "timed_out": false,
+          "output_limited": false,
+          "resource_limited": false,
+          "command": [],
+          "container_state": {}
+        },
+        "triage": {
+          "is_crash": true,
+          "error_type": "heap-buffer-overflow",
+          "detection_mechanism": "AddressSanitizer",
+          "exit_code": 1,
+          "signal_name": null,
+          "stack_trace": [
+            {
+              "index": 0,
+              "address": "0x1234",
+              "function": "parse",
+              "file": "/src/source.c",
+              "line": 8
+            },
+            {
+              "index": 1,
+              "address": "0x1235",
+              "function": "caller",
+              "file": "/src/source.c",
+              "line": 7
+            }
+          ],
+          "raw_stdout": "",
+          "raw_stderr": "ERROR: AddressSanitizer: heap-buffer-overflow\n #0 0x1234 in parse /src/source.c:8:1\n #1 0x1235 in caller /src/source.c:7:1\n"
+        },
+        "signature": {
+          "error_type": "heap-buffer-overflow",
+          "file": "source.c",
+          "function": "parse",
+          "line": 8
+        },
+        "correlation": {
+          "is_correlated": true,
+          "correlation_type": "Indirect (Caller/Callee)",
+          "matched_file": "source.c",
+          "matched_line": 7,
+          "matched_frame": {
+            "index": 1,
+            "address": "0x1235",
+            "function": "caller",
+            "file": "/src/source.c",
+            "line": 7
+          },
+          "hunk": {
+            "file_path": "source.c",
+            "old_start": 7,
+            "old_length": 1,
+            "new_start": 7,
+            "new_length": 1,
+            "function_header": null,
+            "old_file_path": "source.c",
+            "old_lines": [
+              7
+            ],
+            "new_lines": [
+              7
+            ]
+          },
+          "reason": "Runtime frame intersects an edited line; comparative evidence is required for attribution."
+        }
+      },
+      {
+        "execution": {
+          "exit_code": 1,
+          "stdout": "",
+          "stderr": "ERROR: AddressSanitizer: heap-buffer-overflow\n #0 0x1234 in parse /src/source.c:8:1\n #1 0x1235 in caller /src/source.c:7:1\n",
+          "timed_out": false,
+          "output_limited": false,
+          "resource_limited": false,
+          "command": [],
+          "container_state": {}
+        },
+        "triage": {
+          "is_crash": true,
+          "error_type": "heap-buffer-overflow",
+          "detection_mechanism": "AddressSanitizer",
+          "exit_code": 1,
+          "signal_name": null,
+          "stack_trace": [
+            {
+              "index": 0,
+              "address": "0x1234",
+              "function": "parse",
+              "file": "/src/source.c",
+              "line": 8
+            },
+            {
+              "index": 1,
+              "address": "0x1235",
+              "function": "caller",
+              "file": "/src/source.c",
+              "line": 7
+            }
+          ],
+          "raw_stdout": "",
+          "raw_stderr": "ERROR: AddressSanitizer: heap-buffer-overflow\n #0 0x1234 in parse /src/source.c:8:1\n #1 0x1235 in caller /src/source.c:7:1\n"
+        },
+        "signature": {
+          "error_type": "heap-buffer-overflow",
+          "file": "source.c",
+          "function": "parse",
+          "line": 8
+        },
+        "correlation": {
+          "is_correlated": true,
+          "correlation_type": "Indirect (Caller/Callee)",
+          "matched_file": "source.c",
+          "matched_line": 7,
+          "matched_frame": {
+            "index": 1,
+            "address": "0x1235",
+            "function": "caller",
+            "file": "/src/source.c",
+            "line": 7
+          },
+          "hunk": {
+            "file_path": "source.c",
+            "old_start": 7,
+            "old_length": 1,
+            "new_start": 7,
+            "new_length": 1,
+            "function_header": null,
+            "old_file_path": "source.c",
+            "old_lines": [
+              7
+            ],
+            "new_lines": [
+              7
+            ]
+          },
+          "reason": "Runtime frame intersects an edited line; comparative evidence is required for attribution."
+        }
+      }
+    ],
+    "patch": [
+      {
+        "execution": {
+          "exit_code": 0,
+          "stdout": "ok\n",
+          "stderr": "",
+          "timed_out": false,
+          "output_limited": false,
+          "resource_limited": false,
+          "command": [],
+          "container_state": {}
+        },
+        "triage": {
+          "is_crash": false,
+          "error_type": "none",
+          "detection_mechanism": "none",
+          "exit_code": 0,
+          "signal_name": null,
+          "stack_trace": [],
+          "raw_stdout": "ok\n",
+          "raw_stderr": ""
+        },
+        "signature": null,
+        "correlation": {
+          "is_correlated": false,
+          "correlation_type": "Inconclusive",
+          "matched_file": null,
+          "matched_line": null,
+          "matched_frame": null,
+          "hunk": null,
+          "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+        }
+      },
+      {
+        "execution": {
+          "exit_code": 0,
+          "stdout": "ok\n",
+          "stderr": "",
+          "timed_out": false,
+          "output_limited": false,
+          "resource_limited": false,
+          "command": [],
+          "container_state": {}
+        },
+        "triage": {
+          "is_crash": false,
+          "error_type": "none",
+          "detection_mechanism": "none",
+          "exit_code": 0,
+          "signal_name": null,
+          "stack_trace": [],
+          "raw_stdout": "ok\n",
+          "raw_stderr": ""
+        },
+        "signature": null,
+        "correlation": {
+          "is_correlated": false,
+          "correlation_type": "Inconclusive",
+          "matched_file": null,
+          "matched_line": null,
+          "matched_frame": null,
+          "hunk": null,
+          "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+        }
+      },
+      {
+        "execution": {
+          "exit_code": 0,
+          "stdout": "ok\n",
+          "stderr": "",
+          "timed_out": false,
+          "output_limited": false,
+          "resource_limited": false,
+          "command": [],
+          "container_state": {}
+        },
+        "triage": {
+          "is_crash": false,
+          "error_type": "none",
+          "detection_mechanism": "none",
+          "exit_code": 0,
+          "signal_name": null,
+          "stack_trace": [],
+          "raw_stdout": "ok\n",
+          "raw_stderr": ""
+        },
+        "signature": null,
+        "correlation": {
+          "is_correlated": false,
+          "correlation_type": "Inconclusive",
+          "matched_file": null,
+          "matched_line": null,
+          "matched_frame": null,
+          "hunk": null,
+          "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+        }
+      }
+    ]
+  },
+  "minimization_log": [
+    {
+      "input_sha256": "5a695eea5b00a31f8aef7dbb89c8f798fab371246ac1549afe84b16420707b99",
+      "observations": [
+        {
+          "execution": {
+            "exit_code": 1,
+            "stdout": "",
+            "stderr": "ERROR: AddressSanitizer: heap-buffer-overflow\n #0 0x1234 in parse /src/source.c:8:1\n #1 0x1235 in caller /src/source.c:7:1\n",
+            "timed_out": false,
+            "output_limited": false,
+            "resource_limited": false,
+            "command": [],
+            "container_state": {}
+          },
+          "triage": {
+            "is_crash": true,
+            "error_type": "heap-buffer-overflow",
+            "detection_mechanism": "AddressSanitizer",
+            "exit_code": 1,
+            "signal_name": null,
+            "stack_trace": [
+              {
+                "index": 0,
+                "address": "0x1234",
+                "function": "parse",
+                "file": "/src/source.c",
+                "line": 8
+              },
+              {
+                "index": 1,
+                "address": "0x1235",
+                "function": "caller",
+                "file": "/src/source.c",
+                "line": 7
+              }
+            ],
+            "raw_stdout": "",
+            "raw_stderr": "ERROR: AddressSanitizer: heap-buffer-overflow\n #0 0x1234 in parse /src/source.c:8:1\n #1 0x1235 in caller /src/source.c:7:1\n"
+          },
+          "signature": {
+            "error_type": "heap-buffer-overflow",
+            "file": "source.c",
+            "function": "parse",
+            "line": 8
+          },
+          "correlation": {
+            "is_correlated": true,
+            "correlation_type": "Indirect (Caller/Callee)",
+            "matched_file": "source.c",
+            "matched_line": 7,
+            "matched_frame": {
+              "index": 1,
+              "address": "0x1235",
+              "function": "caller",
+              "file": "/src/source.c",
+              "line": 7
+            },
+            "hunk": {
+              "file_path": "source.c",
+              "old_start": 7,
+              "old_length": 1,
+              "new_start": 7,
+              "new_length": 1,
+              "function_header": null,
+              "old_file_path": "source.c",
+              "old_lines": [
+                7
+              ],
+              "new_lines": [
+                7
+              ]
+            },
+            "reason": "Runtime frame intersects an edited line; comparative evidence is required for attribution."
+          }
+        },
+        {
+          "execution": {
+            "exit_code": 1,
+            "stdout": "",
+            "stderr": "ERROR: AddressSanitizer: heap-buffer-overflow\n #0 0x1234 in parse /src/source.c:8:1\n #1 0x1235 in caller /src/source.c:7:1\n",
+            "timed_out": false,
+            "output_limited": false,
+            "resource_limited": false,
+            "command": [],
+            "container_state": {}
+          },
+          "triage": {
+            "is_crash": true,
+            "error_type": "heap-buffer-overflow",
+            "detection_mechanism": "AddressSanitizer",
+            "exit_code": 1,
+            "signal_name": null,
+            "stack_trace": [
+              {
+                "index": 0,
+                "address": "0x1234",
+                "function": "parse",
+                "file": "/src/source.c",
+                "line": 8
+              },
+              {
+                "index": 1,
+                "address": "0x1235",
+                "function": "caller",
+                "file": "/src/source.c",
+                "line": 7
+              }
+            ],
+            "raw_stdout": "",
+            "raw_stderr": "ERROR: AddressSanitizer: heap-buffer-overflow\n #0 0x1234 in parse /src/source.c:8:1\n #1 0x1235 in caller /src/source.c:7:1\n"
+          },
+          "signature": {
+            "error_type": "heap-buffer-overflow",
+            "file": "source.c",
+            "function": "parse",
+            "line": 8
+          },
+          "correlation": {
+            "is_correlated": true,
+            "correlation_type": "Indirect (Caller/Callee)",
+            "matched_file": "source.c",
+            "matched_line": 7,
+            "matched_frame": {
+              "index": 1,
+              "address": "0x1235",
+              "function": "caller",
+              "file": "/src/source.c",
+              "line": 7
+            },
+            "hunk": {
+              "file_path": "source.c",
+              "old_start": 7,
+              "old_length": 1,
+              "new_start": 7,
+              "new_length": 1,
+              "function_header": null,
+              "old_file_path": "source.c",
+              "old_lines": [
+                7
+              ],
+              "new_lines": [
+                7
+              ]
+            },
+            "reason": "Runtime frame intersects an edited line; comparative evidence is required for attribution."
+          }
+        },
+        {
+          "execution": {
+            "exit_code": 1,
+            "stdout": "",
+            "stderr": "ERROR: AddressSanitizer: heap-buffer-overflow\n #0 0x1234 in parse /src/source.c:8:1\n #1 0x1235 in caller /src/source.c:7:1\n",
+            "timed_out": false,
+            "output_limited": false,
+            "resource_limited": false,
+            "command": [],
+            "container_state": {}
+          },
+          "triage": {
+            "is_crash": true,
+            "error_type": "heap-buffer-overflow",
+            "detection_mechanism": "AddressSanitizer",
+            "exit_code": 1,
+            "signal_name": null,
+            "stack_trace": [
+              {
+                "index": 0,
+                "address": "0x1234",
+                "function": "parse",
+                "file": "/src/source.c",
+                "line": 8
+              },
+              {
+                "index": 1,
+                "address": "0x1235",
+                "function": "caller",
+                "file": "/src/source.c",
+                "line": 7
+              }
+            ],
+            "raw_stdout": "",
+            "raw_stderr": "ERROR: AddressSanitizer: heap-buffer-overflow\n #0 0x1234 in parse /src/source.c:8:1\n #1 0x1235 in caller /src/source.c:7:1\n"
+          },
+          "signature": {
+            "error_type": "heap-buffer-overflow",
+            "file": "source.c",
+            "function": "parse",
+            "line": 8
+          },
+          "correlation": {
+            "is_correlated": true,
+            "correlation_type": "Indirect (Caller/Callee)",
+            "matched_file": "source.c",
+            "matched_line": 7,
+            "matched_frame": {
+              "index": 1,
+              "address": "0x1235",
+              "function": "caller",
+              "file": "/src/source.c",
+              "line": 7
+            },
+            "hunk": {
+              "file_path": "source.c",
+              "old_start": 7,
+              "old_length": 1,
+              "new_start": 7,
+              "new_length": 1,
+              "function_header": null,
+              "old_file_path": "source.c",
+              "old_lines": [
+                7
+              ],
+              "new_lines": [
+                7
+              ]
+            },
+            "reason": "Runtime frame intersects an edited line; comparative evidence is required for attribution."
+          }
+        }
+      ]
+    },
+    {
+      "input_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "observations": [
+        {
+          "execution": {
+            "exit_code": 0,
+            "stdout": "ok\n",
+            "stderr": "",
+            "timed_out": false,
+            "output_limited": false,
+            "resource_limited": false,
+            "command": [],
+            "container_state": {}
+          },
+          "triage": {
+            "is_crash": false,
+            "error_type": "none",
+            "detection_mechanism": "none",
+            "exit_code": 0,
+            "signal_name": null,
+            "stack_trace": [],
+            "raw_stdout": "ok\n",
+            "raw_stderr": ""
+          },
+          "signature": null,
+          "correlation": {
+            "is_correlated": false,
+            "correlation_type": "Inconclusive",
+            "matched_file": null,
+            "matched_line": null,
+            "matched_frame": null,
+            "hunk": null,
+            "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+          }
+        },
+        {
+          "execution": {
+            "exit_code": 0,
+            "stdout": "ok\n",
+            "stderr": "",
+            "timed_out": false,
+            "output_limited": false,
+            "resource_limited": false,
+            "command": [],
+            "container_state": {}
+          },
+          "triage": {
+            "is_crash": false,
+            "error_type": "none",
+            "detection_mechanism": "none",
+            "exit_code": 0,
+            "signal_name": null,
+            "stack_trace": [],
+            "raw_stdout": "ok\n",
+            "raw_stderr": ""
+          },
+          "signature": null,
+          "correlation": {
+            "is_correlated": false,
+            "correlation_type": "Inconclusive",
+            "matched_file": null,
+            "matched_line": null,
+            "matched_frame": null,
+            "hunk": null,
+            "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+          }
+        },
+        {
+          "execution": {
+            "exit_code": 0,
+            "stdout": "ok\n",
+            "stderr": "",
+            "timed_out": false,
+            "output_limited": false,
+            "resource_limited": false,
+            "command": [],
+            "container_state": {}
+          },
+          "triage": {
+            "is_crash": false,
+            "error_type": "none",
+            "detection_mechanism": "none",
+            "exit_code": 0,
+            "signal_name": null,
+            "stack_trace": [],
+            "raw_stdout": "ok\n",
+            "raw_stderr": ""
+          },
+          "signature": null,
+          "correlation": {
+            "is_correlated": false,
+            "correlation_type": "Inconclusive",
+            "matched_file": null,
+            "matched_line": null,
+            "matched_frame": null,
+            "hunk": null,
+            "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+          }
+        }
+      ]
+    },
+    {
+      "input_sha256": "1e6431b08f664441989d958d2c960212de839a2ec386baf239bb83f2909ff3de",
+      "observations": [
+        {
+          "execution": {
+            "exit_code": 1,
+            "stdout": "",
+            "stderr": "ERROR: AddressSanitizer: heap-buffer-overflow\n #0 0x1234 in parse /src/source.c:8:1\n #1 0x1235 in caller /src/source.c:7:1\n",
+            "timed_out": false,
+            "output_limited": false,
+            "resource_limited": false,
+            "command": [],
+            "container_state": {}
+          },
+          "triage": {
+            "is_crash": true,
+            "error_type": "heap-buffer-overflow",
+            "detection_mechanism": "AddressSanitizer",
+            "exit_code": 1,
+            "signal_name": null,
+            "stack_trace": [
+              {
+                "index": 0,
+                "address": "0x1234",
+                "function": "parse",
+                "file": "/src/source.c",
+                "line": 8
+              },
+              {
+                "index": 1,
+                "address": "0x1235",
+                "function": "caller",
+                "file": "/src/source.c",
+                "line": 7
+              }
+            ],
+            "raw_stdout": "",
+            "raw_stderr": "ERROR: AddressSanitizer: heap-buffer-overflow\n #0 0x1234 in parse /src/source.c:8:1\n #1 0x1235 in caller /src/source.c:7:1\n"
+          },
+          "signature": {
+            "error_type": "heap-buffer-overflow",
+            "file": "source.c",
+            "function": "parse",
+            "line": 8
+          },
+          "correlation": {
+            "is_correlated": true,
+            "correlation_type": "Indirect (Caller/Callee)",
+            "matched_file": "source.c",
+            "matched_line": 7,
+            "matched_frame": {
+              "index": 1,
+              "address": "0x1235",
+              "function": "caller",
+              "file": "/src/source.c",
+              "line": 7
+            },
+            "hunk": {
+              "file_path": "source.c",
+              "old_start": 7,
+              "old_length": 1,
+              "new_start": 7,
+              "new_length": 1,
+              "function_header": null,
+              "old_file_path": "source.c",
+              "old_lines": [
+                7
+              ],
+              "new_lines": [
+                7
+              ]
+            },
+            "reason": "Runtime frame intersects an edited line; comparative evidence is required for attribution."
+          }
+        },
+        {
+          "execution": {
+            "exit_code": 1,
+            "stdout": "",
+            "stderr": "ERROR: AddressSanitizer: heap-buffer-overflow\n #0 0x1234 in parse /src/source.c:8:1\n #1 0x1235 in caller /src/source.c:7:1\n",
+            "timed_out": false,
+            "output_limited": false,
+            "resource_limited": false,
+            "command": [],
+            "container_state": {}
+          },
+          "triage": {
+            "is_crash": true,
+            "error_type": "heap-buffer-overflow",
+            "detection_mechanism": "AddressSanitizer",
+            "exit_code": 1,
+            "signal_name": null,
+            "stack_trace": [
+              {
+                "index": 0,
+                "address": "0x1234",
+                "function": "parse",
+                "file": "/src/source.c",
+                "line": 8
+              },
+              {
+                "index": 1,
+                "address": "0x1235",
+                "function": "caller",
+                "file": "/src/source.c",
+                "line": 7
+              }
+            ],
+            "raw_stdout": "",
+            "raw_stderr": "ERROR: AddressSanitizer: heap-buffer-overflow\n #0 0x1234 in parse /src/source.c:8:1\n #1 0x1235 in caller /src/source.c:7:1\n"
+          },
+          "signature": {
+            "error_type": "heap-buffer-overflow",
+            "file": "source.c",
+            "function": "parse",
+            "line": 8
+          },
+          "correlation": {
+            "is_correlated": true,
+            "correlation_type": "Indirect (Caller/Callee)",
+            "matched_file": "source.c",
+            "matched_line": 7,
+            "matched_frame": {
+              "index": 1,
+              "address": "0x1235",
+              "function": "caller",
+              "file": "/src/source.c",
+              "line": 7
+            },
+            "hunk": {
+              "file_path": "source.c",
+              "old_start": 7,
+              "old_length": 1,
+              "new_start": 7,
+              "new_length": 1,
+              "function_header": null,
+              "old_file_path": "source.c",
+              "old_lines": [
+                7
+              ],
+              "new_lines": [
+                7
+              ]
+            },
+            "reason": "Runtime frame intersects an edited line; comparative evidence is required for attribution."
+          }
+        },
+        {
+          "execution": {
+            "exit_code": 1,
+            "stdout": "",
+            "stderr": "ERROR: AddressSanitizer: heap-buffer-overflow\n #0 0x1234 in parse /src/source.c:8:1\n #1 0x1235 in caller /src/source.c:7:1\n",
+            "timed_out": false,
+            "output_limited": false,
+            "resource_limited": false,
+            "command": [],
+            "container_state": {}
+          },
+          "triage": {
+            "is_crash": true,
+            "error_type": "heap-buffer-overflow",
+            "detection_mechanism": "AddressSanitizer",
+            "exit_code": 1,
+            "signal_name": null,
+            "stack_trace": [
+              {
+                "index": 0,
+                "address": "0x1234",
+                "function": "parse",
+                "file": "/src/source.c",
+                "line": 8
+              },
+              {
+                "index": 1,
+                "address": "0x1235",
+                "function": "caller",
+                "file": "/src/source.c",
+                "line": 7
+              }
+            ],
+            "raw_stdout": "",
+            "raw_stderr": "ERROR: AddressSanitizer: heap-buffer-overflow\n #0 0x1234 in parse /src/source.c:8:1\n #1 0x1235 in caller /src/source.c:7:1\n"
+          },
+          "signature": {
+            "error_type": "heap-buffer-overflow",
+            "file": "source.c",
+            "function": "parse",
+            "line": 8
+          },
+          "correlation": {
+            "is_correlated": true,
+            "correlation_type": "Indirect (Caller/Callee)",
+            "matched_file": "source.c",
+            "matched_line": 7,
+            "matched_frame": {
+              "index": 1,
+              "address": "0x1235",
+              "function": "caller",
+              "file": "/src/source.c",
+              "line": 7
+            },
+            "hunk": {
+              "file_path": "source.c",
+              "old_start": 7,
+              "old_length": 1,
+              "new_start": 7,
+              "new_length": 1,
+              "function_header": null,
+              "old_file_path": "source.c",
+              "old_lines": [
+                7
+              ],
+              "new_lines": [
+                7
+              ]
+            },
+            "reason": "Runtime frame intersects an edited line; comparative evidence is required for attribution."
+          }
+        }
+      ]
+    },
+    {
+      "input_sha256": "0addcc1de26ee0f660d21b01c1afdff9f59efb989331fed17334cf8a6dcd8d6b",
+      "observations": [
+        {
+          "execution": {
+            "exit_code": 0,
+            "stdout": "ok\n",
+            "stderr": "",
+            "timed_out": false,
+            "output_limited": false,
+            "resource_limited": false,
+            "command": [],
+            "container_state": {}
+          },
+          "triage": {
+            "is_crash": false,
+            "error_type": "none",
+            "detection_mechanism": "none",
+            "exit_code": 0,
+            "signal_name": null,
+            "stack_trace": [],
+            "raw_stdout": "ok\n",
+            "raw_stderr": ""
+          },
+          "signature": null,
+          "correlation": {
+            "is_correlated": false,
+            "correlation_type": "Inconclusive",
+            "matched_file": null,
+            "matched_line": null,
+            "matched_frame": null,
+            "hunk": null,
+            "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+          }
+        },
+        {
+          "execution": {
+            "exit_code": 0,
+            "stdout": "ok\n",
+            "stderr": "",
+            "timed_out": false,
+            "output_limited": false,
+            "resource_limited": false,
+            "command": [],
+            "container_state": {}
+          },
+          "triage": {
+            "is_crash": false,
+            "error_type": "none",
+            "detection_mechanism": "none",
+            "exit_code": 0,
+            "signal_name": null,
+            "stack_trace": [],
+            "raw_stdout": "ok\n",
+            "raw_stderr": ""
+          },
+          "signature": null,
+          "correlation": {
+            "is_correlated": false,
+            "correlation_type": "Inconclusive",
+            "matched_file": null,
+            "matched_line": null,
+            "matched_frame": null,
+            "hunk": null,
+            "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+          }
+        },
+        {
+          "execution": {
+            "exit_code": 0,
+            "stdout": "ok\n",
+            "stderr": "",
+            "timed_out": false,
+            "output_limited": false,
+            "resource_limited": false,
+            "command": [],
+            "container_state": {}
+          },
+          "triage": {
+            "is_crash": false,
+            "error_type": "none",
+            "detection_mechanism": "none",
+            "exit_code": 0,
+            "signal_name": null,
+            "stack_trace": [],
+            "raw_stdout": "ok\n",
+            "raw_stderr": ""
+          },
+          "signature": null,
+          "correlation": {
+            "is_correlated": false,
+            "correlation_type": "Inconclusive",
+            "matched_file": null,
+            "matched_line": null,
+            "matched_frame": null,
+            "hunk": null,
+            "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+          }
+        }
+      ]
+    },
+    {
+      "input_sha256": "88069f4e45ea28c2a810dc1a617d263252e82d8f1dc46b7104853a22d663312f",
+      "observations": [
+        {
+          "execution": {
+            "exit_code": 1,
+            "stdout": "",
+            "stderr": "ERROR: AddressSanitizer: heap-buffer-overflow\n #0 0x1234 in parse /src/source.c:8:1\n #1 0x1235 in caller /src/source.c:7:1\n",
+            "timed_out": false,
+            "output_limited": false,
+            "resource_limited": false,
+            "command": [],
+            "container_state": {}
+          },
+          "triage": {
+            "is_crash": true,
+            "error_type": "heap-buffer-overflow",
+            "detection_mechanism": "AddressSanitizer",
+            "exit_code": 1,
+            "signal_name": null,
+            "stack_trace": [
+              {
+                "index": 0,
+                "address": "0x1234",
+                "function": "parse",
+                "file": "/src/source.c",
+                "line": 8
+              },
+              {
+                "index": 1,
+                "address": "0x1235",
+                "function": "caller",
+                "file": "/src/source.c",
+                "line": 7
+              }
+            ],
+            "raw_stdout": "",
+            "raw_stderr": "ERROR: AddressSanitizer: heap-buffer-overflow\n #0 0x1234 in parse /src/source.c:8:1\n #1 0x1235 in caller /src/source.c:7:1\n"
+          },
+          "signature": {
+            "error_type": "heap-buffer-overflow",
+            "file": "source.c",
+            "function": "parse",
+            "line": 8
+          },
+          "correlation": {
+            "is_correlated": true,
+            "correlation_type": "Indirect (Caller/Callee)",
+            "matched_file": "source.c",
+            "matched_line": 7,
+            "matched_frame": {
+              "index": 1,
+              "address": "0x1235",
+              "function": "caller",
+              "file": "/src/source.c",
+              "line": 7
+            },
+            "hunk": {
+              "file_path": "source.c",
+              "old_start": 7,
+              "old_length": 1,
+              "new_start": 7,
+              "new_length": 1,
+              "function_header": null,
+              "old_file_path": "source.c",
+              "old_lines": [
+                7
+              ],
+              "new_lines": [
+                7
+              ]
+            },
+            "reason": "Runtime frame intersects an edited line; comparative evidence is required for attribution."
+          }
+        },
+        {
+          "execution": {
+            "exit_code": 1,
+            "stdout": "",
+            "stderr": "ERROR: AddressSanitizer: heap-buffer-overflow\n #0 0x1234 in parse /src/source.c:8:1\n #1 0x1235 in caller /src/source.c:7:1\n",
+            "timed_out": false,
+            "output_limited": false,
+            "resource_limited": false,
+            "command": [],
+            "container_state": {}
+          },
+          "triage": {
+            "is_crash": true,
+            "error_type": "heap-buffer-overflow",
+            "detection_mechanism": "AddressSanitizer",
+            "exit_code": 1,
+            "signal_name": null,
+            "stack_trace": [
+              {
+                "index": 0,
+                "address": "0x1234",
+                "function": "parse",
+                "file": "/src/source.c",
+                "line": 8
+              },
+              {
+                "index": 1,
+                "address": "0x1235",
+                "function": "caller",
+                "file": "/src/source.c",
+                "line": 7
+              }
+            ],
+            "raw_stdout": "",
+            "raw_stderr": "ERROR: AddressSanitizer: heap-buffer-overflow\n #0 0x1234 in parse /src/source.c:8:1\n #1 0x1235 in caller /src/source.c:7:1\n"
+          },
+          "signature": {
+            "error_type": "heap-buffer-overflow",
+            "file": "source.c",
+            "function": "parse",
+            "line": 8
+          },
+          "correlation": {
+            "is_correlated": true,
+            "correlation_type": "Indirect (Caller/Callee)",
+            "matched_file": "source.c",
+            "matched_line": 7,
+            "matched_frame": {
+              "index": 1,
+              "address": "0x1235",
+              "function": "caller",
+              "file": "/src/source.c",
+              "line": 7
+            },
+            "hunk": {
+              "file_path": "source.c",
+              "old_start": 7,
+              "old_length": 1,
+              "new_start": 7,
+              "new_length": 1,
+              "function_header": null,
+              "old_file_path": "source.c",
+              "old_lines": [
+                7
+              ],
+              "new_lines": [
+                7
+              ]
+            },
+            "reason": "Runtime frame intersects an edited line; comparative evidence is required for attribution."
+          }
+        },
+        {
+          "execution": {
+            "exit_code": 1,
+            "stdout": "",
+            "stderr": "ERROR: AddressSanitizer: heap-buffer-overflow\n #0 0x1234 in parse /src/source.c:8:1\n #1 0x1235 in caller /src/source.c:7:1\n",
+            "timed_out": false,
+            "output_limited": false,
+            "resource_limited": false,
+            "command": [],
+            "container_state": {}
+          },
+          "triage": {
+            "is_crash": true,
+            "error_type": "heap-buffer-overflow",
+            "detection_mechanism": "AddressSanitizer",
+            "exit_code": 1,
+            "signal_name": null,
+            "stack_trace": [
+              {
+                "index": 0,
+                "address": "0x1234",
+                "function": "parse",
+                "file": "/src/source.c",
+                "line": 8
+              },
+              {
+                "index": 1,
+                "address": "0x1235",
+                "function": "caller",
+                "file": "/src/source.c",
+                "line": 7
+              }
+            ],
+            "raw_stdout": "",
+            "raw_stderr": "ERROR: AddressSanitizer: heap-buffer-overflow\n #0 0x1234 in parse /src/source.c:8:1\n #1 0x1235 in caller /src/source.c:7:1\n"
+          },
+          "signature": {
+            "error_type": "heap-buffer-overflow",
+            "file": "source.c",
+            "function": "parse",
+            "line": 8
+          },
+          "correlation": {
+            "is_correlated": true,
+            "correlation_type": "Indirect (Caller/Callee)",
+            "matched_file": "source.c",
+            "matched_line": 7,
+            "matched_frame": {
+              "index": 1,
+              "address": "0x1235",
+              "function": "caller",
+              "file": "/src/source.c",
+              "line": 7
+            },
+            "hunk": {
+              "file_path": "source.c",
+              "old_start": 7,
+              "old_length": 1,
+              "new_start": 7,
+              "new_length": 1,
+              "function_header": null,
+              "old_file_path": "source.c",
+              "old_lines": [
+                7
+              ],
+              "new_lines": [
+                7
+              ]
+            },
+            "reason": "Runtime frame intersects an edited line; comparative evidence is required for attribution."
+          }
+        }
+      ]
+    },
+    {
+      "input_sha256": "cd0aa9856147b6c5b4ff2b7dfee5da20aa38253099ef1b4a64aced233c9afe29",
+      "observations": [
+        {
+          "execution": {
+            "exit_code": 1,
+            "stdout": "",
+            "stderr": "ERROR: AddressSanitizer: heap-buffer-overflow\n #0 0x1234 in parse /src/source.c:8:1\n #1 0x1235 in caller /src/source.c:7:1\n",
+            "timed_out": false,
+            "output_limited": false,
+            "resource_limited": false,
+            "command": [],
+            "container_state": {}
+          },
+          "triage": {
+            "is_crash": true,
+            "error_type": "heap-buffer-overflow",
+            "detection_mechanism": "AddressSanitizer",
+            "exit_code": 1,
+            "signal_name": null,
+            "stack_trace": [
+              {
+                "index": 0,
+                "address": "0x1234",
+                "function": "parse",
+                "file": "/src/source.c",
+                "line": 8
+              },
+              {
+                "index": 1,
+                "address": "0x1235",
+                "function": "caller",
+                "file": "/src/source.c",
+                "line": 7
+              }
+            ],
+            "raw_stdout": "",
+            "raw_stderr": "ERROR: AddressSanitizer: heap-buffer-overflow\n #0 0x1234 in parse /src/source.c:8:1\n #1 0x1235 in caller /src/source.c:7:1\n"
+          },
+          "signature": {
+            "error_type": "heap-buffer-overflow",
+            "file": "source.c",
+            "function": "parse",
+            "line": 8
+          },
+          "correlation": {
+            "is_correlated": true,
+            "correlation_type": "Indirect (Caller/Callee)",
+            "matched_file": "source.c",
+            "matched_line": 7,
+            "matched_frame": {
+              "index": 1,
+              "address": "0x1235",
+              "function": "caller",
+              "file": "/src/source.c",
+              "line": 7
+            },
+            "hunk": {
+              "file_path": "source.c",
+              "old_start": 7,
+              "old_length": 1,
+              "new_start": 7,
+              "new_length": 1,
+              "function_header": null,
+              "old_file_path": "source.c",
+              "old_lines": [
+                7
+              ],
+              "new_lines": [
+                7
+              ]
+            },
+            "reason": "Runtime frame intersects an edited line; comparative evidence is required for attribution."
+          }
+        },
+        {
+          "execution": {
+            "exit_code": 1,
+            "stdout": "",
+            "stderr": "ERROR: AddressSanitizer: heap-buffer-overflow\n #0 0x1234 in parse /src/source.c:8:1\n #1 0x1235 in caller /src/source.c:7:1\n",
+            "timed_out": false,
+            "output_limited": false,
+            "resource_limited": false,
+            "command": [],
+            "container_state": {}
+          },
+          "triage": {
+            "is_crash": true,
+            "error_type": "heap-buffer-overflow",
+            "detection_mechanism": "AddressSanitizer",
+            "exit_code": 1,
+            "signal_name": null,
+            "stack_trace": [
+              {
+                "index": 0,
+                "address": "0x1234",
+                "function": "parse",
+                "file": "/src/source.c",
+                "line": 8
+              },
+              {
+                "index": 1,
+                "address": "0x1235",
+                "function": "caller",
+                "file": "/src/source.c",
+                "line": 7
+              }
+            ],
+            "raw_stdout": "",
+            "raw_stderr": "ERROR: AddressSanitizer: heap-buffer-overflow\n #0 0x1234 in parse /src/source.c:8:1\n #1 0x1235 in caller /src/source.c:7:1\n"
+          },
+          "signature": {
+            "error_type": "heap-buffer-overflow",
+            "file": "source.c",
+            "function": "parse",
+            "line": 8
+          },
+          "correlation": {
+            "is_correlated": true,
+            "correlation_type": "Indirect (Caller/Callee)",
+            "matched_file": "source.c",
+            "matched_line": 7,
+            "matched_frame": {
+              "index": 1,
+              "address": "0x1235",
+              "function": "caller",
+              "file": "/src/source.c",
+              "line": 7
+            },
+            "hunk": {
+              "file_path": "source.c",
+              "old_start": 7,
+              "old_length": 1,
+              "new_start": 7,
+              "new_length": 1,
+              "function_header": null,
+              "old_file_path": "source.c",
+              "old_lines": [
+                7
+              ],
+              "new_lines": [
+                7
+              ]
+            },
+            "reason": "Runtime frame intersects an edited line; comparative evidence is required for attribution."
+          }
+        },
+        {
+          "execution": {
+            "exit_code": 1,
+            "stdout": "",
+            "stderr": "ERROR: AddressSanitizer: heap-buffer-overflow\n #0 0x1234 in parse /src/source.c:8:1\n #1 0x1235 in caller /src/source.c:7:1\n",
+            "timed_out": false,
+            "output_limited": false,
+            "resource_limited": false,
+            "command": [],
+            "container_state": {}
+          },
+          "triage": {
+            "is_crash": true,
+            "error_type": "heap-buffer-overflow",
+            "detection_mechanism": "AddressSanitizer",
+            "exit_code": 1,
+            "signal_name": null,
+            "stack_trace": [
+              {
+                "index": 0,
+                "address": "0x1234",
+                "function": "parse",
+                "file": "/src/source.c",
+                "line": 8
+              },
+              {
+                "index": 1,
+                "address": "0x1235",
+                "function": "caller",
+                "file": "/src/source.c",
+                "line": 7
+              }
+            ],
+            "raw_stdout": "",
+            "raw_stderr": "ERROR: AddressSanitizer: heap-buffer-overflow\n #0 0x1234 in parse /src/source.c:8:1\n #1 0x1235 in caller /src/source.c:7:1\n"
+          },
+          "signature": {
+            "error_type": "heap-buffer-overflow",
+            "file": "source.c",
+            "function": "parse",
+            "line": 8
+          },
+          "correlation": {
+            "is_correlated": true,
+            "correlation_type": "Indirect (Caller/Callee)",
+            "matched_file": "source.c",
+            "matched_line": 7,
+            "matched_frame": {
+              "index": 1,
+              "address": "0x1235",
+              "function": "caller",
+              "file": "/src/source.c",
+              "line": 7
+            },
+            "hunk": {
+              "file_path": "source.c",
+              "old_start": 7,
+              "old_length": 1,
+              "new_start": 7,
+              "new_length": 1,
+              "function_header": null,
+              "old_file_path": "source.c",
+              "old_lines": [
+                7
+              ],
+              "new_lines": [
+                7
+              ]
+            },
+            "reason": "Runtime frame intersects an edited line; comparative evidence is required for attribution."
+          }
+        }
+      ]
+    }
+  ],
+  "reproduced": true,
+  "stable": true,
+  "minimization_scope": "reference oracle",
+  "baseline_fail_patch_pass": true,
+  "versions": {
+    "base": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "patch": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  },
+  "artifacts": {
+    "base": {
+      "source": "base/sanitized",
+      "binary": "program",
+      "sha256": "d38b823735ed8523edf39c4fb6be1aabf51970455bf7bcee490ce06450a4c60d"
+    },
+    "patch": {
+      "source": "patch/sanitized",
+      "binary": "program",
+      "sha256": "d38b823735ed8523edf39c4fb6be1aabf51970455bf7bcee490ce06450a4c60d"
+    }
+  },
+  "replay_command": [
+    "python",
+    "-m",
+    "diffsheriff.reproduce",
+    "reproducers/1dd262b030039ee6919d"
+  ]
+}
