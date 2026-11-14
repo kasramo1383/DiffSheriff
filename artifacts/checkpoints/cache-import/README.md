@@ -2,9 +2,10 @@
 
 Based on `c0b5eb7d71aa27218fd47c747e871c4b9b71a569` plus this checkpoint's changes.
 `source-sha256.json` identifies the tested sources, tests, fixtures, and package
-configuration, with CRLF normalized to LF. Kasra accepted Stage 1 and authorized
-Stage 2 in conversation on 2026-11-13. Stage 2 is implemented and verified, awaiting
-Kasra's review; it is not recorded as accepted.
+configuration, with CRLF normalized to LF. This checkpoint records implementation
+and generic verification of the cache-import behavior. It is not target-acceptance
+evidence; current project status and remaining work are maintained in
+[`docs/roadmap.md`](../../../docs/roadmap.md).
 
 ## Behavior and trust boundary
 

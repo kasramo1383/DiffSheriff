@@ -49,9 +49,12 @@ RESUME AND WORK LOOP
    work or skip a review gate. If an instructor/team decision, source asset, safe input,
    or approved expected behavior is missing, document the exact dependency. Continue
    work that is independent of it.
-4. State the one bounded stage and its acceptance criteria to Kasra before editing.
-   Implement that coherent stage only. Keep code and workflow simple enough for an
-   undergraduate teammate to explain.
+4. Work through the roadmap in small, coherent, verifiable steps. Verify each changed
+   behavior before building on it, and keep code and workflow simple enough for an
+   undergraduate teammate to explain. Continue with independent generic work rather
+   than stopping for a chat acknowledgment after every step. Pause when a required
+   instructor/team decision, user choice, safety boundary, or material defect blocks
+   the next action.
 5. Add/update focused regression tests for changed behavior. Run focused tests, the
    relevant full suite, formatting/lint, and integration checks required by the stage.
    Docker through WSL is available for Linux container checks. Report the exact source
@@ -67,10 +70,22 @@ RESUME AND WORK LOOP
 8. Inspect `git diff --check` and the full diff. Ensure no unrelated/user change was
    overwritten. Stage requested changes according to AGENTS.md. Do not commit or push
    unless Kasra explicitly requests it. Provide the exact commit command for review.
-9. Stop after this bounded stage and wait for Kasra's review. Report changed files,
-   real commands/results, source/image IDs, evidence paths, skips, and remaining
-   dependencies. Never accept a stage on Kasra's behalf. Leave enough checked-in
-   context for another agent to resume without this chat.
+9. Report changed files, actual commands/results, source/image IDs, evidence paths,
+   skips, and remaining dependencies. Update the live roadmap and owning evidence so
+   another teammate or agent can take over at any time without chat history. Do not
+   claim another person's approval, review, participation, target acceptance, or
+   defense without its actual evidence.
+
+STATUS CORRECTION REQUEST
+
+Before handing off, compare every project-status claim you changed with the current
+source, tests, workflow results, and retained evidence. Correct claims that are
+unsupported, stale, or contradictory. Describe the verified project state and exact
+remaining work; do not derive completion from who acknowledged, requested, or
+authorized a step in chat. Remove personal attribution from completion claims unless
+it records a required, independently evidenced approval. Keep the instructor PDF as
+the sole requirements authority, and never describe proposals, synthetic tests, or
+harmless fixtures as approved-target evidence.
 
 TARGET APPROVAL AND GROUND TRUTH
 
@@ -143,8 +158,10 @@ evidence/correlation/verdict, and individually make/test a small relevant change
 assignment requires individual defense without help from other students or generative
 tools. Never simulate another student's participation or claim their defense occurred.
 
-The exact next stage and acceptance criteria are in docs/roadmap.md. Start there, do
-one bounded stage, update its owning records, then stop for Kasra's review.
+The current state, dependencies, next work, and acceptance criteria are in
+docs/roadmap.md. Start there, proceed through bounded steps with verification between
+them, update the owning records as work completes, and pause at a genuine blocker or
+required external decision. Keep the repository itself ready for immediate handoff.
 ```
 
 The roadmap is the authority for status and order. This prompt describes how an agent

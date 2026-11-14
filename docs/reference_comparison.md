@@ -6,9 +6,9 @@ with DiffSheriff starting at `5d15a83` and the reference-parity changes linked b
 The reference was inspected as source; its scripts, samples, and tests were not run.
 No third-party implementation or target assets were copied into this project.
 
-Kasra explicitly chose to preserve exact Git commits and instructor-approved targets
-while filling compatible generic gaps. The assignment PDF remains authoritative;
-another repository's checklist is a comparison aid, not an approval or specification.
+This comparison is supplementary analysis of optional generic features. It is not an
+assignment requirement, target approval, or project-status authority. The assignment
+PDF remains authoritative; another repository's checklist is a comparison aid only.
 Live completion status belongs only in [the roadmap](roadmap.md). Verification of the
 changes from this review is in the
 [reference-parity checkpoint](../artifacts/checkpoints/reference-parity/README.md).

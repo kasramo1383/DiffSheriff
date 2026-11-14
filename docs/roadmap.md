@@ -22,9 +22,11 @@ successful CI run alone does not complete the assignment.
 
 A stage is complete when its acceptance criteria pass, the tested source revision and
 commands are recorded, durable evidence is checked into `artifacts/` where appropriate,
-and the next stage is explicit. Agents stop for Kasra's review after each bounded
-implementation stage. Do not mark human review, instructor approval, target acceptance,
-or student defense complete on anyone's behalf.
+and the next stage is explicit. Keep implementation in bounded, verifiable steps and
+update this roadmap so another teammate or agent can resume immediately. Pause for a
+missing external decision or a material unresolved issue, not for an undocumented
+acknowledgment. Never claim instructor approval, target acceptance, or a student defense
+without the corresponding evidence.
 
 ## Current state
 
@@ -36,24 +38,31 @@ or student defense complete on anyone's behalf.
 - Minimized-result classification has implementation and evidence in
   [`minimized-results`](../artifacts/checkpoints/minimized-results/README.md). The
   checkpoint reports focused and full test runs plus a harmless native run. This is
-  synthetic/infrastructure evidence, not real-target acceptance. Kasra accepted
-  Stage 1 on 2026-11-13 and explicitly authorized Stage 2.
+  synthetic/infrastructure evidence, not real-target acceptance. Implementation and
+  recorded generic verification are complete; no personal acknowledgment is project
+  evidence.
 - The local Black/CI configuration correction is recorded in
   [`ci-format`](../artifacts/checkpoints/ci-format/README.md). Subsequent hosted
-  verification [run #17](https://github.com/kasramo1383/DiffSheriff/actions/runs/43428911669)
+  verification [run #19](https://github.com/kasramo1383/DiffSheriff/actions/runs/43476273537)
   passed both Python jobs and the native-container job on
-  `c0b5eb7d71aa27218fd47c747e871c4b9b71a569`; target validation was skipped.
-  The [hosted verification record](../artifacts/checkpoints/ci-format/hosted-verification.json)
-  preserves that revision and scope. This does not complete approved-target CI acceptance.
-- Stage 2 regression-cache reconciliation is implemented and verified, awaiting
-  Kasra's review. See the [cache-import checkpoint](../artifacts/checkpoints/cache-import/README.md).
-- Kasra requested comparison with DNS-P1 and explicitly retained exact Git commits
-  and instructor-approved targets. The [reference comparison](reference_comparison.md)
-  maps requirements and optional features. Compatible additions (per-build ELF symbol
+  `34fb2494aa6b8eafedafd37a09f8ae10a8313e04`; target validation was skipped because
+  no target config was supplied. A local Windows Python 3.14.7 run of the current
+  checkout passed `python -m pytest -q tests/ -p no:cacheprovider` (207 passed, one
+  native-Linux test skipped), Black on 28 files, the configured Flake8 check, wheel
+  construction, wheel installation, and CLI/replay help smoke checks. The
+  [hosted verification record](../artifacts/checkpoints/ci-format/hosted-verification.json)
+  preserves both the earlier run and the latest result. These checks do not complete
+  approved-target CI acceptance.
+- Stage 2 regression-cache reconciliation is implemented and verified. See the
+  [cache-import checkpoint](../artifacts/checkpoints/cache-import/README.md). This is
+  generic-tool evidence, not target acceptance.
+- The [reference comparison](reference_comparison.md) is supplementary to the PDF and
+  maps optional features. Compatible additions (per-build ELF symbol
   evidence, fuller console output, one-command verification, and a UBSan termination
   fix) are verified in the [reference-parity checkpoint](../artifacts/checkpoints/reference-parity/README.md).
   Its full suite passed 203 Linux tests; Windows passed 196 with seven platform skips.
-  This supplement awaits review and does not accept Stage 2 or any target on Kasra's behalf.
+  These additions do not change the assignment's source of truth or establish target
+  acceptance.
 - A subsequent code audit repaired five reproduced defects in UTF-8 reduction,
   reference decoding, release-mode validation, replay identity, and replay output
   symlinks. The [code-audit checkpoint](../artifacts/checkpoints/code-audit/README.md)
@@ -96,25 +105,24 @@ for individual credit.
 
 ## Completion path
 
-### Stage 1 - Review minimized-result classification
+### Stage 1 - Minimized-result classification
 
-**Status: accepted by Kasra on 2026-11-13.** The explicit decision was
-"Accept Stage 1; implement Stage 2." Read the complete
+**Status: implementation and recorded verification complete.** Read the complete
 [`minimized-results` checkpoint](../artifacts/checkpoints/minimized-results/README.md)
 and inspect its source identity. It reports that stable minimized observations enter
 ordinary comparison and exit-priority rules, findings are deduplicated against the
 parent case, reduced-input validity is independently established, and minimization is
 not recursive. Synthetic and harmless-native limits are explicit.
 
-**Review gate:** accept this bounded change or return specific defects. It must retain
+The implementation must retain
 independent statuses and exit priority, preserve distinct minimized findings, avoid
 duplicate parent findings, and keep unknown expected behavior inconclusive. Do not
 repeat its full verification without a review finding, changed source hash, or
-incomplete evidence. Do not claim Kasra accepted it until that decision is recorded.
+incomplete evidence.
 
 ### Stage 2 - Reconcile trusted regression-cache imports
 
-**Status: implemented and verified; awaiting Kasra's review.**
+**Status: implementation and recorded verification complete.**
 The [cache-import checkpoint](../artifacts/checkpoints/cache-import/README.md) records
 199 Linux passes (including symlinks and the harmless native container test), 192
 Windows passes with seven platform skips, formatter/linter checks, and the wheel.
@@ -123,34 +131,17 @@ byte-for-byte. New non-null cached expectations require independently matching l
 input bytes, behavior, and validity. Identity conflicts and corrupt metadata fail
 before transfer writes. These are generic-tool checks, not approved-target evidence.
 
-**Work:**
+The verified behavior is:
 
-1. Inspect the manifest schema, generated filenames, import/export CLI, discovery,
-   cache workflow, and current conflict tests. Define identity before treating two
-   manifests as the same case: exact baseline ref, input bytes and verified digest,
-   build mode, finding identity, case kind, and any other field that changes replay
-   meaning.
-2. Prefer a checked-in, independently reviewed expectation to an incoming diagnostic
-   `null` expectation only when all identity fields and payload bytes match. Never
-   trust a non-null expectation solely because it came from cache. Fail closed for
-   mismatched identity, different payload, corrupt hash, traversal, symlink, or
-   conflicting non-null expectations.
-3. If metadata cannot safely distinguish the approved local case from unrelated cache
-   conflicts, add the smallest explicit operator-controlled cache bypass and document
-   it. Do not silently overwrite/discard files, weaken hash/path checks, or guess which
-   expectation is correct.
-4. Add focused tests for stale diagnostic cache plus approved local expectation,
-   byte-identical/idempotent transfer, every identity mismatch, conflicting non-null
-   expectations, corrupt hash, traversal, symlink, and preservation of local bytes.
-   Exercise CLI import/export as well as the helper.
-5. Run focused tests, the complete suite, Black, and Flake8. Inspect manifests and
-   verify local expectations remain unchanged. Record tested commit, commands/results,
-   and limitations in a checkpoint under `artifacts/checkpoints/`; update [`ci.md`](ci.md)
-   and link the evidence here.
+1. A matching incoming diagnostic null expectation does not replace a reviewed local
+   full expectation; the local manifest and payload remain byte-for-byte unchanged.
+2. An incoming full expectation is accepted only with matching independent local
+   evidence, including exact input bytes and expected behavior.
+3. Identity conflicts, conflicting full expectations, corrupt hashes, invalid paths,
+   traversal, and symlinks fail before transfer writes; repeated imports are idempotent.
+4. CLI transfer behavior and the helper are covered by the checkpoint's tests.
 
-**Accept when:** stale diagnostic cache data cannot block a matching approved local
-expectation; cache cannot manufacture or overwrite ground truth; unrelated/corrupt
-conflicts still fail safely; repeated transfers are idempotent. Stop for review.
+See the checkpoint for tested revisions, commands, counts, platform skips, and limits.
 
 ### Stage 3 - Obtain target and test-scope approval
 
@@ -274,12 +265,25 @@ reproducible artifacts. Stop for review after each target's bounded matrix.
 
 ### Stage 7 - Complete CI and cross-environment validation
 
-Use the existing workflows without target-specific bypass or extra process machinery.
+**Generic tool portion: implemented and verified. Target portion: pending approved
+targets and their frozen test records.** Use the existing workflows without
+target-specific bypass or extra process machinery.
 
-1. Run full local suite, format/lint checks, package build, and harmless native
-   container matrix on final tool revision. Use Docker through WSL when required.
-2. Check GitHub verification after the latest Black fix. Resolve failures at their
-   source; retain run URL/result and artifacts.
+1. The current checkout's generic suite, format/lint checks, package build/install,
+   and CLI/replay help checks passed locally. The harmless native container matrix
+   passed in hosted run #19. Exact local checks were:
+
+   ```text
+   python -m pytest -q tests/ -p no:cacheprovider
+   python -m black --check --workers 1 diffsheriff tests
+   python -m flake8 --jobs=1 --select=E,F,W,C90 diffsheriff tests
+   python -m pip wheel . --no-deps --no-build-isolation --wheel-dir <temporary-output>
+   diffsheriff --help
+   python -m diffsheriff.reproduce --help
+   ```
+2. Hosted run #19 on `34fb2494aa6b8eafedafd37a09f8ae10a8313e04` passed both unit
+   jobs and the native-container job. Target validation was skipped because no target
+   config was supplied. Preserve this distinction in all reports.
 3. Configure the reusable/manual target workflow only with approved config/source
    assets. Run correct-patch acceptance on GitHub and retain reports/run artifacts.
    Confirm cache restore/save/export follows Stage 2 behavior.
@@ -289,9 +293,10 @@ Use the existing workflows without target-specific bypass or extra process machi
 5. Inspect JSON for independent security, functional, completeness statuses, exact
    versions/settings, findings, evidence, and selected priority exit code.
 
-**Accept when:** final-revision local checks and hosted tool verification pass, and
-approved correct-patch hosted validation returns 0 with retained evidence. Do not claim
-hosted target validation while approval/configuration is absent.
+**Generic portion acceptance:** the final tool revision passes local checks and hosted
+tool verification. **Target portion acceptance:** approved correct-patch hosted
+validation returns 0 with retained evidence. The generic portion is complete; do not
+claim target validation while approval/configuration is absent.
 
 ### Stage 8 - Clean-room delivery and evidence audit
 
@@ -349,10 +354,24 @@ after it occurs.
   work. Do not commit or push unless Kasra explicitly requests it; prepare requested
   changes for review and give the exact commit command as instructed.
 
-## Next action
+## Current next work
 
-Kasra reviews Stage 2's cache-import checkpoint, the requested reference-parity
-supplement, and the subsequent code audit. If returned, fix the specified defect;
-if accepted, Stage 3 requires the team/instructor's target and test-scope decision.
-Stage 1 is accepted. Target approval remains external; do not invent approval or
-execute proposed targets.
+The generic implementation and its recorded synthetic/harmless-native verification
+are complete through the cache-import, reference-parity, code-audit, and latest hosted
+verification records. The remaining target workflow is gated by two approved target
+scenarios, exact source versions, an approved test scope, and independent expected
+behavior. These facts are not present in [`target_scenarios.md`](target_scenarios.md);
+target-specific execution is therefore not authorized or evidenced here. Once that
+external decision and its records exist, continue through the target scenario, CI, and
+delivery gates above.
+
+## Status correction request
+
+When updating this roadmap or handing off the project, correct any unsupported,
+outdated, or contradictory status claim. Derive status from the current source revision,
+tests, workflows, and retained evidence. State what is implemented, what was actually
+verified, and what remains dependent on an external decision. Do not infer project state
+from who acknowledged, requested, or authorized a step in chat; remove such attribution
+from completion claims unless it is itself an applicable, recorded approval. Keep the
+instructor PDF authoritative and never turn a proposal or generic test into target
+approval or acceptance.

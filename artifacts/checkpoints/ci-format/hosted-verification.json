@@ -1,19 +1,38 @@
 {
-  "verified_date": "2026-11-13",
-  "source": "https://api.github.com/repos/kasramo1383/DiffSheriff/actions/runs/43428911669/jobs",
-  "run_url": "https://github.com/kasramo1383/DiffSheriff/actions/runs/43428911669",
-  "run_number": 17,
-  "head_sha": "c0b5eb7d71aa27218fd47c747e871c4b9b71a569",
-  "status": "completed",
-  "conclusion": "success",
-  "jobs": {
-    "unit (3.10)": "success",
-    "unit (3.12)": "success",
-    "native-container": "success",
-    "target-patch": "skipped"
+  "latest_run": {
+    "verified_date": "2026-11-13",
+    "source": "https://api.github.com/repos/kasramo1383/DiffSheriff/actions/runs/43476273537/jobs",
+    "run_url": "https://github.com/kasramo1383/DiffSheriff/actions/runs/43476273537",
+    "run_number": 19,
+    "head_sha": "34fb2494aa6b8eafedafd37a09f8ae10a8313e04",
+    "event": "push",
+    "status": "completed",
+    "conclusion": "success",
+    "jobs": {
+      "unit (3.10)": "success",
+      "unit (3.12)": "success",
+      "native-container": "success",
+      "target-patch": "skipped"
+    },
+    "scope": "Hosted generic tool verification and harmless native fixture only; target validation was skipped because no target configuration was supplied. This is not approved-target acceptance."
   },
-  "scope": "Hosted tool verification and harmless native fixture only; no approved-target acceptance or instructor approval.",
-  "stage_1_review": {
+  "previous_run": {
+    "verified_date": "2026-11-13",
+    "source": "https://api.github.com/repos/kasramo1383/DiffSheriff/actions/runs/43428911669/jobs",
+    "run_url": "https://github.com/kasramo1383/DiffSheriff/actions/runs/43428911669",
+    "run_number": 17,
+    "head_sha": "c0b5eb7d71aa27218fd47c747e871c4b9b71a569",
+    "status": "completed",
+    "conclusion": "success",
+    "jobs": {
+      "unit (3.10)": "success",
+      "unit (3.12)": "success",
+      "native-container": "success",
+      "target-patch": "skipped"
+    },
+    "scope": "Hosted generic tool verification and harmless native fixture only; no approved-target acceptance or instructor approval."
+  },
+  "stage_1_checkpoint_review": {
     "checkpoint": "artifacts/checkpoints/minimized-results",
     "all_retained_artifact_hashes_match": true,
     "production_source_hashes_match": true,
@@ -21,7 +40,7 @@
       "pyproject.toml",
       "tests/test_hardening.py"
     ],
-    "difference_reason": "Recorded Black configuration and trailing-comma correction in commit 3536df6.",
-    "kasra_acceptance": "Accepted in conversation on 2026-11-13: Accept Stage 1; implement Stage 2"
-  }
+    "difference_reason": "Recorded Black configuration and trailing-comma correction in commit 3536df6."
+  },
+  "current_status_note": "Run 19 verifies the generic unit and harmless native jobs at its exact source revision. Its target job skipped; no target approval or target acceptance is implied."
 }

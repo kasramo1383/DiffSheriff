@@ -2,8 +2,10 @@
 
 Based on `8d6455cda831378f8c6ffb261edb36849fe9d385` plus this checkpoint's changes.
 `source-sha256.json` identifies the tested production sources, tests, and package
-configuration, with CRLF normalized to LF. Stage 1 is ready for review, not recorded
-as accepted. Stage 2 regression-cache reconciliation has not been implemented here.
+configuration, with CRLF normalized to LF. This checkpoint records implementation
+and generic verification of minimized replay classification; it does not establish
+course-target acceptance. Stage 2 regression-cache reconciliation is recorded
+separately in the [cache-import checkpoint](../cache-import/README.md).
 
 ## Behavior
 

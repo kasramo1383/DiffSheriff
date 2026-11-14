@@ -1,9 +1,10 @@
 # Reference comparison and compatible feature completion
 
 Based on `5d15a83` plus the sources identified in `source-sha256.json` (CRLF normalized
-to LF). Kasra requested comparison with DNS-P1 and explicitly chose to retain exact
-Git commits and instructor-approved targets while filling compatible gaps. This
-checkpoint does not record acceptance of the preceding Stage 2 or of any target.
+to LF). This checkpoint records generic implementation and verification associated
+with a supplementary reference comparison. It does not establish target approval or
+acceptance; current project status and remaining work are maintained in
+[`docs/roadmap.md`](../../../docs/roadmap.md).
 
 The [feature comparison](../../../docs/reference_comparison.md) maps the reference
 at `41173bab54a3b1aa0318564799a299e6d35573ea` to DiffSheriff's contracts, tests, and
