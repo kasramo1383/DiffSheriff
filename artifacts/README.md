@@ -5,6 +5,10 @@ relevant project output; dependency caches and temporary work directories are no
 Git preserves artifact bytes without line-ending conversion so recorded hashes
 remain meaningful across Windows and Linux checkouts.
 
+The [evidence-integrity checkpoint](checkpoints/evidence-integrity/README.md) records
+the repair of three stale checkpoint README hashes and adds a test that validates all
+retained checkpoint manifests against exact delivered bytes.
+
 ## Native verification
 
 - `native/native-tests.xml`: retained Linux test results, 91 tests and zero failures,

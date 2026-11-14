@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="5" time="0.211" timestamp="2026-11-14T13:49:01.117375+03:30" hostname="DESKTOP-OVP2LHB"><testcase classname="tests.test_artifacts" name="test_checkpoint_artifact_hashes[cache-import]" time="0.022"><failure message="AssertionError: Stale artifact checksum: C:\Users\Asus\Desktop\security\DiffSheriff\artifacts\checkpoints\cache-import\README.md&#10;assert '87fbdb09cc8f...44aa54d28d95f' == 'be200104bf95...e9d51c1f75f06'&#10;  &#10;  - be200104bf95ad1c4ea6bed9e96cdc3c65ed61641b28fe0db64e9d51c1f75f06&#10;  + 87fbdb09cc8f62ed6c2c20a0a2df9769c29d6c0a1d9bd2e90fb44aa54d28d95f">manifest = WindowsPath('C:/Users/Asus/Desktop/security/DiffSheriff/artifacts/checkpoints/cache-import/artifact-sha256.json')
+
+    @pytest.mark.parametrize(
+        "manifest", sorted(CHECKPOINTS.glob("*/artifact-sha256.json")), ids=lambda p: p.parent.name
+    )
+    def test_checkpoint_artifact_hashes(manifest):
+        entries = json.loads(manifest.read_text(encoding="utf-8"))
+        assert entries, f"Empty artifact manifest: {manifest}"
+        for name, expected in entries.items():
+            artifact = manifest.parent / name
+            assert artifact.resolve().is_relative_to(manifest.parent.resolve()), name
+            assert artifact.is_file(), f"Missing retained artifact: {artifact}"
+            actual = hashlib.sha256(artifact.read_bytes()).hexdigest()
+&gt;           assert actual == expected, f"Stale artifact checksum: {artifact}"
+E           AssertionError: Stale artifact checksum: C:\Users\Asus\Desktop\security\DiffSheriff\artifacts\checkpoints\cache-import\README.md
+E           assert '87fbdb09cc8f...44aa54d28d95f' == 'be200104bf95...e9d51c1f75f06'
+E             
+E             - be200104bf95ad1c4ea6bed9e96cdc3c65ed61641b28fe0db64e9d51c1f75f06
+E             + 87fbdb09cc8f62ed6c2c20a0a2df9769c29d6c0a1d9bd2e90fb44aa54d28d95f
+
+tests\test_artifacts.py:24: AssertionError</failure></testcase><testcase classname="tests.test_artifacts" name="test_checkpoint_artifact_hashes[code-audit]" time="0.037" /><testcase classname="tests.test_artifacts" name="test_checkpoint_artifact_hashes[minimized-results]" time="0.024"><failure message="AssertionError: Stale artifact checksum: C:\Users\Asus\Desktop\security\DiffSheriff\artifacts\checkpoints\minimized-results\README.md&#10;assert 'fbe85b5c3652...33873877fe0a9' == 'bfd6df44722e...9687b9d199e64'&#10;  &#10;  - bfd6df44722efa443f679c0cc8fb398639b41c347602bf2d8079687b9d199e64&#10;  + fbe85b5c365203ff643b217bf6a77249cfea2be782ccd7c16d233873877fe0a9">manifest = WindowsPath('C:/Users/Asus/Desktop/security/DiffSheriff/artifacts/checkpoints/minimized-results/artifact-sha256.json')
+
+    @pytest.mark.parametrize(
+        "manifest", sorted(CHECKPOINTS.glob("*/artifact-sha256.json")), ids=lambda p: p.parent.name
+    )
+    def test_checkpoint_artifact_hashes(manifest):
+        entries = json.loads(manifest.read_text(encoding="utf-8"))
+        assert entries, f"Empty artifact manifest: {manifest}"
+        for name, expected in entries.items():
+            artifact = manifest.parent / name
+            assert artifact.resolve().is_relative_to(manifest.parent.resolve()), name
+            assert artifact.is_file(), f"Missing retained artifact: {artifact}"
+            actual = hashlib.sha256(artifact.read_bytes()).hexdigest()
+&gt;           assert actual == expected, f"Stale artifact checksum: {artifact}"
+E           AssertionError: Stale artifact checksum: C:\Users\Asus\Desktop\security\DiffSheriff\artifacts\checkpoints\minimized-results\README.md
+E           assert 'fbe85b5c3652...33873877fe0a9' == 'bfd6df44722e...9687b9d199e64'
+E             
+E             - bfd6df44722efa443f679c0cc8fb398639b41c347602bf2d8079687b9d199e64
+E             + fbe85b5c365203ff643b217bf6a77249cfea2be782ccd7c16d233873877fe0a9
+
+tests\test_artifacts.py:24: AssertionError</failure></testcase><testcase classname="tests.test_artifacts" name="test_checkpoint_artifact_hashes[reference-parity]" time="0.022"><failure message="AssertionError: Stale artifact checksum: C:\Users\Asus\Desktop\security\DiffSheriff\artifacts\checkpoints\reference-parity\README.md&#10;assert 'da3019929cd1...bfb9e536570d6' == 'e9db787c278f...7ef7c2d91299e'&#10;  &#10;  - e9db787c278f93744a2a014bcf20f5441bdad7a4691289e2b2d7ef7c2d91299e&#10;  + da3019929cd13b3e2b91e9c6d9397fe922fd9b143183e48970bbfb9e536570d6">manifest = WindowsPath('C:/Users/Asus/Desktop/security/DiffSheriff/artifacts/checkpoints/reference-parity/artifact-sha256.json')
+
+    @pytest.mark.parametrize(
+        "manifest", sorted(CHECKPOINTS.glob("*/artifact-sha256.json")), ids=lambda p: p.parent.name
+    )
+    def test_checkpoint_artifact_hashes(manifest):
+        entries = json.loads(manifest.read_text(encoding="utf-8"))
+        assert entries, f"Empty artifact manifest: {manifest}"
+        for name, expected in entries.items():
+            artifact = manifest.parent / name
+            assert artifact.resolve().is_relative_to(manifest.parent.resolve()), name
+            assert artifact.is_file(), f"Missing retained artifact: {artifact}"
+            actual = hashlib.sha256(artifact.read_bytes()).hexdigest()
+&gt;           assert actual == expected, f"Stale artifact checksum: {artifact}"
+E           AssertionError: Stale artifact checksum: C:\Users\Asus\Desktop\security\DiffSheriff\artifacts\checkpoints\reference-parity\README.md
+E           assert 'da3019929cd1...bfb9e536570d6' == 'e9db787c278f...7ef7c2d91299e'
+E             
+E             - e9db787c278f93744a2a014bcf20f5441bdad7a4691289e2b2d7ef7c2d91299e
+E             + da3019929cd13b3e2b91e9c6d9397fe922fd9b143183e48970bbfb9e536570d6
+
+tests\test_artifacts.py:24: AssertionError</failure></testcase><testcase classname="tests.test_artifacts" name="test_checkpoint_artifact_hashes[workflow]" time="0.023" /></testsuite></testsuites>

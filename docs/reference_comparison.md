@@ -102,3 +102,19 @@ termination or missing symbol does not prove a security fix. The reference's gen
 regression uses a no-crash expectation, whereas DiffSheriff requires independent
 expected behavior for full regression acceptance. Coverage claims were therefore
 mapped to actual contracts and evidence, rather than copied as completed requirements.
+
+## Second guide review: dynAn / TEMP
+
+The team also supplied [ta-tahmasebi/TEMP at
+`e3dc7fc74e99d3f31e9d1ba206c6fd64dc57c139`](https://github.com/ta-tahmasebi/TEMP/tree/e3dc7fc74e99d3f31e9d1ba206c6fd64dc57c139).
+Its own requirements matrix records one purpose-built target, no real-world target,
+no demonstrated unseen-patch evaluation, and no instructor approval. Those are the
+same external target-authoring and approval gaps recorded in DiffSheriff's roadmap;
+copying its `confparse` fixture would not satisfy the two-target requirement.
+
+The guide's core required behavior—dual builds, isolated execution, independent
+expectations, diff correlation, replay/minimization, generated regressions, hardening,
+structured reports, and exit priority—is already implemented and verified here. Its
+web UI, environment doctor, optional LLM advisor, and optional fuzzing are outside the
+assignment requirements and do not supply missing target evidence. No source, target,
+test, or optional framework code was copied from this guide.

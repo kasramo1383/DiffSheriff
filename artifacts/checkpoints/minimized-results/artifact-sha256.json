@@ -30,7 +30,7 @@
   "native/tests/invalid/input": "a8100ae6aa1940d0b663bb31cd466142ebbdbd5187131b92d93818987832eb89",
   "native/tests/valid/input": "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824",
   "package/diffsheriff-0.1.0-py3-none-any.whl": "c963f29a9b83a25eea78483a5c7f69d53061ac9ac87bbf7c7c3921f470455e6b",
-  "README.md": "bfd6df44722efa443f679c0cc8fb398639b41c347602bf2d8079687b9d199e64",
+  "README.md": "fbe85b5c365203ff643b217bf6a77249cfea2be782ccd7c16d233873877fe0a9",
   "red.xml": "87b83f8c41a91eae854aa343b170a6e37662a36fedf87415e74d00d13b4edd2a",
   "source-sha256.json": "187b1ac203943073ec10ef752bacfcb6d4bd545e88d5b44f180934d1dcc15e8d",
   "synthetic/functional/expected.json": "95f43964f8f205e5e98a923e5cd74aaf68fffd38e172ef6db5818b6428e4b3c7",
