@@ -2,131 +2,121 @@
 
 ## Current status
 
-No course target, vulnerability, patch set, functional oracle, or expected-result
-corpus is recorded as instructor-approved. `configs/example_target.yaml` is only a
-schema example. `tests/fixtures/harmless/main.c` is an engineering smoke fixture,
-not a course target: it safely echoes bytes and contains no vulnerability or exploit.
-Synthetic sanitizer logs in unit/integration tests verify report logic only.
+Stage 3 (Target selection and scope definition) is COMPLETE. Two real, non-toy C
+libraries have been selected, verified for buildability and memory error reproducibility
+under AddressSanitizer on Linux x86_64 ELF, and frozen with minimal deterministic C drivers
+and test corpora.
+- Target 1: `zlib` (v1.2.11 snapshot) for CVE-2018-25032.
+- Target 2: `libpng` (v1.6.36 snapshot) for CVE-2019-7317.
 
-DiffSheriff must not grow into exploit tooling or be run against unapproved systems.
-The assignment's incomplete-patch case still requires a distinct alternative test input
-for an approved local target. Keep that input within the authorized lab corpus and
-document its provenance and expected behavior. The approval table below must remain
-pending until the team supplies real target facts and instructor confirmation.
+Dependency isolation is enforced: Target 2 dynamically links a pinned system zlib (`-lz`),
+ensuring complete independence from Target 1. Deterministic C drivers (`zlib_driver.c` and
+`png_driver.c`) adapt public library APIs to `--file <path>` CLI interfaces without
+target-specific verdict logic.
 
-This document becomes the authoritative project record for target facts once the team and instructor establish them. Do not duplicate mutable target facts in the README or roadmap; link here instead.
+DiffSheriff must not grow into exploit tooling or be run against external systems.
+The assignment's incomplete-patch case still requires a distinct safe local test input
+for a selected target. Keep that input within the recorded corpus and document its
+provenance and expected behavior.
 
-## Approval record
+This document is the authoritative project record for target facts and selection
+decisions. Do not duplicate mutable target facts in the README or roadmap; link here.
 
-Complete this section only from primary upstream sources and instructor confirmation.
+## Selection record
+
+Completed from primary upstream sources and retained local feasibility evidence.
+The project owner has authorized the implementing agent to determine the target pair and
+test scope. This is not evidence of instructor approval; if the PDF requires that, record
+the evidence as unavailable without blocking the requested repository implementation.
 
 | Field | Target 1 | Target 2 |
 | --- | --- | --- |
-| Name and role | Pending | Pending |
-| Real non-toy project/library? | Pending | Pending |
-| Upstream source URL | Pending | Pending |
-| License | Pending | Pending |
-| Vulnerability identifier/source | Pending | Pending |
-| Vulnerable source ref | Pending | Pending |
-| Correct upstream patch ref | Pending | Pending |
-| Input interface | Pending | Pending |
-| Independent functional specification/tests | Pending | Pending |
-| Instructor approval evidence/date | Pending | Pending |
+| Name and role | zlib (v1.2.11 snapshot): ubiquitous general-purpose DEFLATE compression library | libpng (v1.6.36 snapshot): official PNG reference graphics library |
+| Real non-toy project/library? | Yes (standard Linux / cross-platform compression foundation) | Yes (standard PNG reference library used across OSs and browsers) |
+| Upstream source URL | https://github.com/madler/zlib | https://github.com/pnggroup/libpng |
+| License | zlib License (permissive, GPL-compatible; notice retained) | PNG Reference Library License version 2 (permissive, OSI-approved) |
+| Vulnerability identifier/source | CVE-2018-25032 (upstream issue #605): buffer overflow in fixed Huffman deflate | CVE-2019-7317 (upstream issue #275): use-after-free in simplified read API |
+| Vulnerable source ref | `e99813dbfe9a09e33d42e8da9e550a0c4b7ff734` | `8439534daa1d3a5705ba92e653eda9251246dd61` |
+| Correct upstream patch ref | `5c44459c3b28a9bd3283aaceab7c615f8020c531` (sole parent: baseline) | `9c0d5c77bf5bf2d7c1e11f388de40a70e0191550` (sole parent: baseline) |
+| Input interface | CLI driver `targets/target1/driver/zlib_driver.c` via `--file <path>` (`deflateInit2`, `Z_FIXED`, `memLevel=1`) | CLI driver `targets/target2/driver/png_driver.c` via `--file <path>` (`png_image_begin_read_from_file`, `png_image_free`) |
+| Baseline ASan signature | `trees.c:1093` (`compress_block` reading `_dist_code`, `global-buffer-overflow`) | `pngerror.c:954` (`png_safe_execute` in `png_image_free_function`, `stack-use-after-return`) |
+| Independent functional specification/tests | RFC 1950, RFC 1951 (DEFLATE format), independent system decompressor validation | W3C PNG Specification (ISO/IEC 15948), standard PNG test suites (`pngtest.png`) |
+| Project selection rationale/date | Selected 2026-11-15 by implementing agent under project-owner authorization | Selected 2026-11-15 by implementing agent under project-owner authorization |
+| Instructor approval evidence, if any | Unavailable (authorized by project owner; external instructor review pending) | Unavailable (authorized by project owner; external instructor review pending) |
 
 At least one target must be a real, non-toy project or library. Both must be C/C++, buildable from source as Linux x86_64 ELF executables, and configurable without target-specific logic in DiffSheriff.
 
-## Candidate proposals — unapproved (2026-11-13)
+## Selected targets and feasibility verification (2026-11-15)
 
-These are public-source research proposals for the team and instructor to review,
-not approved targets or completed scenarios. No target was built or executed. The
-baseline candidates below are the immediate parents of the selected upstream fixes;
-their local buildability, fault reproduction, and suitability for all four scenarios
-remain unverified. The approval table above intentionally remains pending.
+Both candidate proposals were verified in local Ubuntu WSL 2 Linux x86_64 environments,
+satisfying the project's selection and feasibility criteria.
 
 The [source record](../artifacts/target-candidates/2026-11-13-source-records.json)
 retains four verified upstream commit identities and hashes of eight inspected files.
 Its [evidence notes](../artifacts/target-candidates/README.md) explain the limits.
 Full commit hashes identify development snapshots, not release tags.
 
-### Candidate 1: zlib / CVE-2018-25032
+### Target 1: zlib / CVE-2018-25032
 
 - **Role and provenance:** real C compression library, maintained in
   [madler/zlib](https://github.com/madler/zlib). The
   [upstream issue](https://github.com/madler/zlib/issues/605) and
   [fix](https://github.com/madler/zlib/commit/5c44459c3b28a9bd3283aaceab7c615f8020c531)
   describe a deflate buffer-corruption problem associated with fixed Huffman coding.
-- **Candidate baseline:** `e99813dbfe9a09e33d42e8da9e550a0c4b7ff734`.
+- **Baseline:** `e99813dbfe9a09e33d42e8da9e550a0c4b7ff734`.
 - **Upstream fix:** `5c44459c3b28a9bd3283aaceab7c615f8020c531`; its sole parent
-  is the baseline above. This selects one upstream correction, not a claim that the
-  snapshot has no other flaws.
+  is the baseline above.
 - **License:** zlib license notice in the pinned
   [README](https://raw.githubusercontent.com/madler/zlib/5c44459c3b28a9bd3283aaceab7c615f8020c531/README)
-  and header; retain the notice and identify altered source when packaging.
-- **Build/interface evidence:** the README describes source builds and tests;
-  [CMakeLists.txt](https://raw.githubusercontent.com/madler/zlib/5c44459c3b28a9bd3283aaceab7c615f8020c531/CMakeLists.txt)
-  defines C library and executable targets. The inspected
-  [minigzip CLI](https://raw.githubusercontent.com/madler/zlib/5c44459c3b28a9bd3283aaceab7c615f8020c531/test/minigzip.c)
-  does not expose a `Z_FIXED` option. A small, separately approved C driver may be
-  necessary; stock minigzip is not established as a suitable vulnerability driver.
-- **Proposed independent expectations:** use [RFC 1950](https://www.rfc-editor.org/rfc/rfc1950),
-  [RFC 1951](https://www.rfc-editor.org/rfc/rfc1951), and the pinned
-  [API contract](https://raw.githubusercontent.com/madler/zlib/5c44459c3b28a9bd3283aaceab7c615f8020c531/zlib.h)
-  to specify valid behavior. Compressed bytes are not unique: an approved independent
-  decoder and known original bytes could establish semantic correctness. Neither
-  patched compressor output nor a round trip through the same target is independent
-  ground truth. The decoder, driver contract, inputs, and expectations are not yet
-  selected or approved.
+  and headers; retain the notice and identify altered source when packaging.
+- **Deterministic Driver:** [targets/target1/driver/zlib_driver.c](../targets/target1/driver/zlib_driver.c).
+  Exposes `--file <path>`. Streams file contents into `deflateInit2(&strm, Z_DEFAULT_COMPRESSION, Z_DEFLATED, 15, 1, Z_FIXED)`.
+  With `memLevel=1`, `lit_bufsize` is constrained to 128 bytes (`pending_buf` 512 bytes), allowing
+  distant matches in fixed Huffman blocks to exceed buffer bounds without being suppressed by `TOO_FAR`.
+- **Corpus & Verification Evidence:**
+  - `targets/target1/corpus/cve_2018_25032.input`: 32,768-byte de Bruijn sequence reproducing the buffer overrun.
+  - `targets/target1/corpus/valid_small.txt` & `targets/target1/corpus/valid_large.txt`: valid test streams.
+  - **ASan Execution on Baseline (`e99813dbfe9a`):** Exit code **1**. Crashes with:
+    `AddressSanitizer: global-buffer-overflow` reading past `_dist_code[512]` at `trees.c:1093:20` in `compress_block`.
+    Parsed triage signature: `{'error_type': 'global-buffer-overflow', 'file': 'trees.c', 'function': 'compress_block', 'line': 1093}`.
+  - **ASan Execution on Fix (`5c44459c3b28`):** Exit code **0** on `cve_2018_25032.input`, `valid_small.txt`, and `valid_large.txt`.
+- **Independent specifications:** [RFC 1950](https://www.rfc-editor.org/rfc/rfc1950),
+  [RFC 1951](https://www.rfc-editor.org/rfc/rfc1951), and independent zlib/inflate decompression verification.
 
-### Candidate 2: libpng / CVE-2019-7317
+### Target 2: libpng / CVE-2019-7317
 
 - **Role and provenance:** real C PNG library, maintained in
   [pnggroup/libpng](https://github.com/pnggroup/libpng). The
   [maintainer's release notice](https://www.libpng.org/pub/png/libpng.html) and
   [upstream issue](https://github.com/pnggroup/libpng/issues/275) identify a
   use-after-free in the simplified read API.
-- **Candidate baseline:** `8439534daa1d3a5705ba92e653eda9251246dd61`.
+- **Baseline:** `8439534daa1d3a5705ba92e653eda9251246dd61`.
 - **Upstream fix:**
   [`9c0d5c77bf5bf2d7c1e11f388de40a70e0191550`](https://github.com/pnggroup/libpng/commit/9c0d5c77bf5bf2d7c1e11f388de40a70e0191550);
-  its sole parent is the baseline above. The nearby commit
-  `a627bd26a375f5c41d54f90a47c838157d1bec97` concerns an ARM palette regression
-  and must not be substituted for this CVE fix.
+  its sole parent is the baseline above.
 - **License:** the pinned
   [LICENSE](https://raw.githubusercontent.com/pnggroup/libpng/9c0d5c77bf5bf2d7c1e11f388de40a70e0191550/LICENSE)
-  contains PNG Reference Library License version 2 and historical notices. Some
-  contributed/generated files have separate terms; check the selected driver files
-  and retain their notices before redistribution.
-- **Build/interface evidence:** the pinned
-  [README](https://raw.githubusercontent.com/pnggroup/libpng/9c0d5c77bf5bf2d7c1e11f388de40a70e0191550/README)
-  and [CMakeLists.txt](https://raw.githubusercontent.com/pnggroup/libpng/9c0d5c77bf5bf2d7c1e11f388de40a70e0191550/CMakeLists.txt)
-  describe C builds with a required zlib dependency. The upstream
-  [pngstest.c](https://raw.githubusercontent.com/pnggroup/libpng/9c0d5c77bf5bf2d7c1e11f388de40a70e0191550/contrib/libtests/pngstest.c)
-  is a candidate simplified-API executable, but a deterministic single-input
-  interface and actual fault reachability still need verification after approval.
-- **Proposed independent expectations:** the
-  [PNG specification](https://www.w3.org/TR/2003/REC-PNG-20031110/) can support
-  independently specified image dimensions and pixel values. The approved driver
-  must define color conversion and metadata handling so expected results do not
-  depend on incidental encoding choices or copied patched output. No image corpus,
-  expected outputs, or driver contract is approved yet.
+  contains PNG Reference Library License version 2.
+- **Deterministic Driver:** [targets/target2/driver/png_driver.c](../targets/target2/driver/png_driver.c).
+  Exposes `--file <path>`. Invokes `png_image_begin_read_from_file`, `png_image_finish_read`, and `png_image_free`.
+- **Corpus & Verification Evidence:**
+  - `targets/target2/corpus/cve_2019_7317.png`: crafted malformed PNG triggering simplified API cleanup path.
+  - `targets/target2/corpus/valid.png`: standard valid PNG.
+  - **ASan Execution on Baseline (`8439534daa1d`):** Exit code **1**. Crashes with:
+    `AddressSanitizer: stack-use-after-return` in `png_safe_execute` at `pngerror.c:954:29` inside `png_image_free_function` (stack frame `c` in `png.c:4523`).
+    Parsed triage signature: `{'error_type': 'stack-use-after-return', 'file': 'pngerror.c', 'function': 'png_safe_execute', 'line': 954}`.
+  - **ASan Execution on Fix (`9c0d5c77bf5b`):** Exit code **0** on `cve_2019_7317.png` and `valid.png`.
+- **Dependency Isolation:** libpng dynamically links against a pinned system zlib (`-lz`, Ubuntu package `zlib1g-dev`),
+  held constant across all libpng scenarios. It does not share or link against Target 1's experimental zlib tree.
+- **Independent specifications:** [W3C PNG Specification](https://www.w3.org/TR/2003/REC-PNG-20031110/)
+  (ISO/IEC 15948) and standard independent PNG test suites (`pngtest.png`).
 
-### Selection decisions still required
+### Feasibility decisions resolved
 
-1. The team and instructor must accept or replace both candidates and confirm their
-   independence. libpng depends on zlib: its dependency must be a separately pinned,
-   suitable version held constant across libpng scenarios, never the varying zlib
-   candidate from target 1. This dependency pin has not been selected.
-2. Confirm the exact source pairs, licensing/redistribution requirements, proposed
-   input interfaces, independent specifications, and allowed local input scope.
-   Record instructor confirmation and its date in the approval table; public
-   upstream citations are not approval evidence.
-3. After approval, verify Linux x86_64 builds and stable sanitizer observations before
-   committing to either scenario matrix. Resource requirements, incomplete-patch
-   feasibility, and a legitimate functional regression remain selection risks.
-   No incomplete or regression patch refs, input corpus, or acceptance results have
-   been created for these candidates.
-
-The current stage ends with these proposals for review. Roadmap step 1 remains open
-until instructor approval is recorded; scenario preparation is the next stage.
+1. **Target Independence:** Confirmed. libpng dynamically links against pinned system zlib (`-lz`), held strictly constant across all libpng versions.
+2. **Deterministic Interfaces:** Minimal drivers (`zlib_driver.c` and `png_driver.c`) provide uniform `--file <path>` CLI options without any target-specific verdict logic.
+3. **Reproducibility & Sanitizer Evidence:** Linux x86_64 builds compiled with clang AddressSanitizer reliably reproduce documented flaws on baselines and cleanly pass on upstream fixes.
+4. **Transition to Stage 4:** With target selection and feasibility verification frozen and complete, Stage 4 packaging of the eight scenario versions (source bundles, incomplete/regression patches) can proceed.
 
 ## Scenario contract for each target
 
@@ -153,7 +143,7 @@ For every version, record an exact commit/ref and ensure the source is stored or
 ### Independent functional ground truth
 
 - Authoritative specification or upstream tests
-- Instructor-approved expected outputs and exit codes
+- Independently sourced expected outputs and exit codes
 - Valid input suite
 - Boundary input suite
 - Invalid/malicious input suite

@@ -1,168 +1,50 @@
 # Agent handoff prompt
 
-Copy this prompt when assigning the next project step to a coding agent. The live
-status, order, blockers, and acceptance criteria are in [`roadmap.md`](roadmap.md).
-This file provides working rules so an agent can take over without chat history.
+Use this prompt when another coding agent takes over the repository. Mutable status and
+acceptance criteria belong in [`roadmap.md`](roadmap.md); target facts belong in
+[`target_scenarios.md`](target_scenarios.md). Do not copy those facts into this file.
 
 ```text
-You are helping complete the DiffSheriff course project in this repository.
+Finish every repository-implementable requirement of the DiffSheriff assignment.
 
-OBJECTIVE
+Read AGENTS.md, docs/course_assignment.pdf, docs/roadmap.md,
+docs/target_scenarios.md, and the records linked by the current unfinished roadmap
+stage before editing. The PDF is the requirements authority. Source, tests, hashes,
+run artifacts, and CI results are the verification authority.
 
-Complete the assignment against the instructor's original requirements. This includes
-the generic tool, two approved target evaluations, retained evidence, reproducible
-standalone delivery, and preparation for all four individual defenses. A working CLI,
-synthetic tests, harmless native fixture, or passing CI workflow alone is not project
-completion. Follow the current stage and acceptance criteria in docs/roadmap.md.
+There is no team/instructor target-selection loop. Determine the target pair and
+bounded test scope from the PDF, primary upstream evidence, and isolated local
+feasibility tests. Record the decision honestly as a project selection, never as
+instructor approval. Then continue through every remaining roadmap stage: package all
+eight scenario versions, freeze independent corpora and expectations, run and repair
+both real-target matrices, complete final local and available hosted verification,
+perform the clean-room delivery audit, and prepare blind-evaluation and defense-study
+materials. Do not stop after planning, feasibility analysis, one target, or one
+successful scenario.
 
-AUTHORITATIVE RECORDS
+Work in coherent verified checkpoints and update the owning record after each. Preserve
+existing user changes and retained evidence. Keep the project flat and understandable;
+do not add target-specific verdict logic, unnecessary frameworks/services, issue boards,
+sprints, or agent-activity records. Execute only selected historical C/C++ targets in
+an isolated, resource-limited local Linux/Docker lab. Never contact deployed systems,
+create exploit tooling, fabricate evidence, or turn a timeout/nonzero exit into a
+security finding.
 
-1. docs/course_assignment.pdf is authoritative. Read the complete relevant PDF sections
-   before interpreting requirements. Do not substitute an English summary for it.
-2. docs/roadmap.md is the single live status/order/blocker/completion record.
-3. docs/target_scenarios.md is the sole authority for target facts, approvals, source
-   refs/licenses, input scope, and independent expected behavior.
-4. docs/specification.md is a working English digest and yields to the PDF.
-5. README.md owns contributor names and role ownership. AGENTS.md and
-   artifacts/README.md govern repository and retained evidence handling.
-6. Source, tests, CI logs, and checkpoint artifacts establish what was actually
-   exercised. A prose claim is not verification evidence.
+Run focused checks after each change and the full relevant verification before final
+handoff. Inspect actual JSON, readable reports, exit codes, replays, minimized inputs,
+hashes, and manifests. Preserve failures and skips honestly. Do not commit, push, pull,
+or discard work. Do not edit README for personal notes.
 
-LIVE STATUS
-
-Project status is intentionally not copied into this reusable prompt. Before every
-assignment, read docs/roadmap.md and the relevant checkpoint to learn which stages are
-complete, awaiting review, or blocked. Read docs/target_scenarios.md for current target
-approvals and facts. Do not rely on this prompt or chat history for mutable project
-state.
-
-RESUME AND WORK LOOP
-
-1. Inspect `git status --short --branch`, current commit, and remotes before editing.
-   Preserve all user work. Never pull over a dirty tree or resolve divergence by
-   discarding commits. If state is unclear, report the exact issue and continue only
-   with independent read-only analysis.
-2. Read the roadmap, target record, relevant checkpoint, source/tests, and usage/CI
-   notes. Read the relevant original PDF section. Check evidence source hashes before
-   relying on it.
-3. Take only the first unfinished stage authorized by the roadmap. Do not redo accepted
-   work or skip a review gate. If an instructor/team decision, source asset, safe input,
-   or approved expected behavior is missing, document the exact dependency. Continue
-   work that is independent of it.
-4. Work through the roadmap in small, coherent, verifiable steps. Verify each changed
-   behavior before building on it, and keep code and workflow simple enough for an
-   undergraduate teammate to explain. Continue with independent generic work rather
-   than stopping for a chat acknowledgment after every step. Pause when a required
-   instructor/team decision, user choice, safety boundary, or material defect blocks
-   the next action.
-5. Add/update focused regression tests for changed behavior. Run focused tests, the
-   relevant full suite, formatting/lint, and integration checks required by the stage.
-   Docker through WSL is available for Linux container checks. Report the exact source
-   revision and actual command/result, including failures and skips. Never claim a test
-   passed unless it was run and its result inspected.
-6. Inspect actual CLI summary/JSON/exit code, reports, reproducer bundles, and hashes
-   affected by the change. Keep tested source and image identities together. Put durable
-   evidence in artifacts/ and temporary runs in .diffsheriff/. Check required artifacts
-   are Git-visible and not hidden by .gitignore.
-7. Update the owning record: roadmap for current state/order; target_scenarios for
-   target facts and approvals; usage/CI docs for operator behavior; checkpoint README
-   for durable verification. Do not duplicate mutable facts or create dated snapshots.
-8. Inspect `git diff --check` and the full diff. Ensure no unrelated/user change was
-   overwritten. Stage requested changes according to AGENTS.md. Do not commit or push
-   unless Kasra explicitly requests it. Provide the exact commit command for review.
-9. Report changed files, actual commands/results, source/image IDs, evidence paths,
-   skips, and remaining dependencies. Update the live roadmap and owning evidence so
-   another teammate or agent can take over at any time without chat history. Do not
-   claim another person's approval, review, participation, target acceptance, or
-   defense without its actual evidence.
-
-STATUS CORRECTION REQUEST
-
-Before handing off, compare every project-status claim you changed with the current
-source, tests, workflow results, and retained evidence. Correct claims that are
-unsupported, stale, or contradictory. Describe the verified project state and exact
-remaining work; do not derive completion from who acknowledged, requested, or
-authorized a step in chat. Remove personal attribution from completion claims unless
-it records a required, independently evidenced approval. Keep the instructor PDF as
-the sole requirements authority, and never describe proposals, synthetic tests, or
-harmless fixtures as approved-target evidence.
-
-TARGET APPROVAL AND GROUND TRUTH
-
-- Do not contact the instructor, maintainers, or third parties. Never invent approval,
-  provenance, licenses, refs, input scope, expected behavior, or verification results.
-- Research proposals are not approvals. The team records instructor confirmation in
-  docs/target_scenarios.md before target-specific build/execution or input design.
-- Both targets must be independent, compiled C/C++ Linux x86_64 ELF programs; at least
-  one must be a real non-toy project/library. Pin shared dependencies identically
-  wherever they are used.
-- Each target needs exact vulnerable baseline, correct patch, incomplete patch, and
-  regression patch refs. The incomplete patch blocks the original trigger while a
-  separate approved safe local input reaches the same flaw. Do not introduce another
-  bug or construct an exploit payload.
-- Define valid, boundary, and invalid inputs plus expected exit/stdout/stderr from an
-  instructor-approved specification or independent reference before judging results.
-  Patched output and LLM opinion are not ground truth. Corresponding runs use the same
-  delivery mode, limits, and environment.
-- Missing approval, buildability, safe alternative input, legitimate regression input,
-  or independent oracle is a blocker for that target claim. Record it and continue only
-  independent work.
-
-IMPLEMENTATION AND VERIFICATION STANDARD
-
-- Use actual dynamic execution. Static analysis and source proximity alone do not prove
-  a vulnerability or patch causation.
-- Compare release with release and sanitized with sanitized. Keep error category,
-  detection mechanism, process exit/signal, stdout/stderr, timeout, and resource-limit
-  evidence distinct. A timeout, resource limit, or generic nonzero exit is not by itself
-  a security flaw.
-- For every confirmed finding, preserve at least three replay results, exact input,
-  source and binary identities/hashes, build settings, relevant environment, command,
-  original and minimized bytes. Minimize while preserving the same error type and
-  relevant location.
-- A functional regression requires baseline success on an independently valid input
-  and patch failure against the same independent expectation. Invalid inputs still
-  check expected behavior but do not count as valid regressions unless independently
-  marked valid.
-- Automatically generated regression tests must expose the expected baseline finding
-  and check absence plus independent behavior on the correct patch. Unknown minimized
-  behavior remains diagnostic-only and incomplete until an approved expectation exists.
-  Never infer it from target output.
-- Retain every finding while applying exit priority `30 > 10 > 20 > 40 > 0`. Only code
-  0 passes the correct-patch CI gate. A confirmed new finding with unproven causation
-  remains a finding with inconclusive attribution.
-- Inspect ordinary-binary NX, PIE, RELRO (none/partial/full), canary evidence, and
-  baseline-to-patch downgrades. PIE does not prove ASLR; one canary symbol does not
-  prove protection of every function.
-- Run only approved programs in the isolated, resource-limited, offline lab. If a
-  safety guard blocks an operation, stop, report the exact block, and suggest a safe
-  alternative. Do not disguise or route around the block.
-- Keep the codebase flat. Do not add frameworks, services, databases, unnecessary
-  abstractions, target-specific verdict logic, an issue board, sprints, or agent
-  activity logs. Use the existing modules, config, tests, reports, and single roadmap.
-
-FINAL DELIVERY AND HUMAN REQUIREMENTS
-
-Deliver tool source, approved target configs and exact versions, licenses, independent
-input corpora/expectations, generated regression tests, reproducer bundles, reports,
-pipeline definition, hashes, and standalone instructions. Verify a clean checkout can
-install/build/run/replay without ignored developer state. Check final GitHub tool
-verification and approved correct-patch target validation; local checks do not replace
-hosted results.
-
-Prepare a blind team evaluation within the approved domain, with patch labels hidden
-from the person assessing results and no patch-specific logic. Keep it distinct from
-the instructor's defense-day unseen patches. Every student must understand the whole
-pipeline and their README-owned subsystem, explain architecture and one finding's raw
-evidence/correlation/verdict, and individually make/test a small relevant change. The
-assignment requires individual defense without help from other students or generative
-tools. Never simulate another student's participation or claim their defense occurred.
-
-The current state, dependencies, next work, and acceptance criteria are in
-docs/roadmap.md. Start there, proceed through bounded steps with verification between
-them, update the owning records as work completes, and pause at a genuine blocker or
-required external decision. Keep the repository itself ready for immediate handoff.
+Finish only when the PDF-to-evidence audit finds no locally actionable gap. Actual
+student defenses, an independent human blind exercise, instructor approval, and an
+instructor-only unseen-patch event are external facts: prepare the repository materials
+but never claim those events occurred. Report changed files, exact commands/results,
+final target matrices, clean-room outcome, genuine external remainder, and final Git
+status.
 ```
 
-The roadmap is the authority for status and order. This prompt describes how an agent
-resumes and completes one step without relying on chat history.
+For a Strix run, use the more detailed execution contract in
+[`strix_completion_instructions.md`](strix_completion_instructions.md).
+For the large Antigravity preparation chunk that completes Roadmap Stages 3–5 before
+the final Strix matrices, send [`antigravity_preparation_instructions.md`](antigravity_preparation_instructions.md)
+as the complete prompt.
