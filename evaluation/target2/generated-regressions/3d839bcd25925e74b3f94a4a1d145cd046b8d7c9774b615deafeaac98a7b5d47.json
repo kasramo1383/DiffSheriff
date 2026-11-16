@@ -1,0 +1,17 @@
+{
+  "input": "3d839bcd25925e74b3f94a4a1d145cd046b8d7c9774b615deafeaac98a7b5d47.input",
+  "sha256": "30514c02a2b45df173c41d69db840d9a0bd736835027914a2cdc255602a57559",
+  "base_ref": "c9ceee6f648dd8f7e6bfa336bc00a4dd6174046f",
+  "signature": null,
+  "finding_signature": null,
+  "finding_side": "patch",
+  "mode": "release",
+  "kind": "functional",
+  "check": "full",
+  "valid_input": false,
+  "expected": {
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+}

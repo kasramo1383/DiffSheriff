@@ -137,6 +137,55 @@ def correlate_stack_to_diff(frames, hunks, side="patch"):
                     "comparative evidence is required for attribution.",
                 )
     if side == "base":
+        edit_candidates = []
+        for hunk in hunks:
+            if not hunk.old_length or not hunk.old_lines:
+                continue
+            declaration = FUNCTION_HEADER_REGEX.fullmatch(hunk.function_header or "")
+            if not declaration or set(declaration["type"].split()) & {
+                "return",
+                "typedef",
+                "throw",
+                "goto",
+            }:
+                continue
+            frame = next(
+                (
+                    f
+                    for f in frames
+                    if (
+                        f.function == declaration["name"]
+                        and _paths_match(f.file, hunk.old_file_path)
+                    )
+                ),
+                None,
+            )
+            if frame:
+                edit_candidates.append((frame, hunk))
+        if edit_candidates:
+            by_frame = {}
+            for frame, hunk in edit_candidates:
+                if frame.index not in by_frame:
+                    by_frame[frame.index] = (frame, [])
+                by_frame[frame.index][1].append(hunk)
+            best_index = min(by_frame)
+            best_frame, hunks_for_frame = by_frame[best_index]
+            best_hunk = min(
+                hunks_for_frame,
+                key=lambda h: min(abs(ln - best_frame.line) for ln in h.old_lines),
+            )
+            return CorrelationVerdict(
+                True,
+                "Edit in observed function",
+                best_hunk.old_file_path,
+                best_frame.line,
+                best_frame,
+                best_hunk,
+                "Hunk modifies a function observed on the baseline stack around "
+                "its recorded execution location. This is function-level evidence, "
+                "not proof that an edited branch executed; repeated comparative "
+                "results and independent expectations are required.",
+            )
         candidates = []
         for hunk in hunks:
             if (

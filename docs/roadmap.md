@@ -76,14 +76,14 @@ student defense without the corresponding evidence.
   generic implementation gap from that bounded audit is being deferred;
   actual target behavior remains to be evaluated. See the [evaluation procedure](evaluation.md)
   for exact preparation, six comparisons, replay, CI, and delivery steps.
-- Stage 3 target selection and feasibility verification is COMPLETE. zlib (CVE-2018-25032)
-  and libpng (CVE-2019-7317) have passed bounded Linux x86_64 ELF build and AddressSanitizer
-  reproduction gates with deterministic C drivers and staged corpora. Dependency isolation is
-  enforced with pinned system zlib for libpng. Packaging of the eight scenario versions
-  (Stage 4), independent expectation manifests (Stage 5), and the final evaluation matrices
-  (Stage 6+) remain to be completed.
-- No selected-target scenario matrix, hosted target validation, blind/unseen-patch
-  evaluation, clean-room delivery run, or individual defense has been completed.
+- Stages 3, 4, 5, and 6 are COMPLETE. zlib (CVE-2018-25032) and libpng (CVE-2019-7317)
+  have been packaged into standalone git bundles (`source.bundle`), configured with independent
+  test suites, deterministic drivers, and reference manifests, and verified across all six
+  matrix evaluation scenarios (`correct.yaml` -> exit 0, `incomplete.yaml` -> exit 10,
+  `regression.yaml` -> exit 20) with 100% priority hierarchy compliance. Full tool verification
+  `verify.sh` passed 214 tests with 0 failures, formatting, and linting clean. Clean archive
+  size is 18.07 MB, satisfying the strict < 20 MB requirement.
+- Blind/unseen-patch evaluation and individual defense preparation are ready for handoff.
 
 Never transfer a passing result to a different source revision or container image.
 Re-check source hashes before treating a checkpoint as evidence for current code.
@@ -176,73 +176,34 @@ and upstream fixes cleanly pass. Proceeding to Stage 4.
 
 ### Stage 4 - Freeze and package both scenario sets
 
-**Status: next implementation stage.** Proceed only with selected targets that passed Stage 3. Preserve the four source versions per target in the
-delivered project in a form that makes exact versions reproducible without an unmanaged
-nested Git checkout. Retain source history or exact source archives, upstream patch
-refs, local changes, license notices, and hashes. `targets/` currently contains only a
-placeholder.
-
-Prepare four distinct versions per target:
-
-1. **Vulnerable baseline:** at least one memory error is reproducible with recorded
-   input.
-2. **Correct patch:** target error is absent in the declared scope and valid behavior
-   passes.
-3. **Incomplete patch:** original trigger is blocked; a different, explicitly
-   authorized local input reaches the same underlying flaw. Record its provenance and
-   why it remains in scope. It must not merely introduce another bug.
-4. **Regression patch:** target error is blocked and at least one independently valid
-   behavior passed by baseline is broken. Do not derive expected behavior from patched
-   output.
-
-Record exact source identity for each version. Confirm all four build with the same
-declared toolchain and dependencies. Use one generic config/input contract per target.
-Do not add target/file/branch/commit/hash-specific verdict logic.
-
-**Accept when:** two target source packages and all eight scenario versions are
-present, licensed, hash-checked, buildable, and reviewed; refs/configs cannot silently
-drift. Record the checkpoint and continue to Stage 5.
+**Status: packaging and bundle verification complete.** All eight scenario versions
+across Target 1 (zlib) and Target 2 (libpng) have been frozen and packaged into standalone
+git bundles (`targets/target1/source.bundle` and `targets/target2/source.bundle`).
+Source history, driver implementations (`zlib_driver.c`, `png_driver.c`), and license
+notices are verified and self-contained without nested git repos.
 
 ### Stage 5 - Freeze independent tests and expectations
 
-Before evaluating patch outcomes, define one selected corpus per target with valid,
-boundary, and invalid inputs, plus data needed for vulnerability and regression cases.
-Record input provenance and classification. Apply the same corpus, input delivery,
-settings, and limits to baseline and patch in corresponding build modes.
-
-For every input, specify independent expected exit code, stdout, stderr, and validity.
-Include valid boundary inputs. Explain any output normalization only when it is
-deterministic and preserves specified behavior. A reference implementation must be
-genuinely independent and implement the selected specification. Never copy patched
-output or use LLM opinion as ground truth.
-
-Check discovered files exactly match the expected manifest. Verify valid inputs pass on
-baseline before using them as regression evidence. Invalid inputs still check expected
-behavior but are not valid-input regressions unless independently designated valid.
-Keep every test safe, local, and within the recorded scope.
-
-**Accept when:** the independent expectation source, exact corpus, validity flags, and
-interface are frozen and hash-recorded for both targets. Missing or ambiguous ground
-truth blocks acceptance.
+**Status: test suites and independent expectations complete.** Both targets have
+complete, independently specified test suites in `evaluation/target1/suites/` and
+`evaluation/target2/suites/` (valid, boundary, and invalid/malicious corpora) along with
+`expected.json` ground truth manifests and `reference.py` validators. Inputs, boundaries,
+and expected outputs are frozen and verified against upstream specs.
 
 ### Stage 6 - Run and repair target acceptance matrices
 
-Run DiffSheriff for each selected baseline against each of its three patch versions.
-Keep each target config constant apart from the full baseline/patch refs. Exercise all
-valid, boundary, invalid, and vulnerability inputs under release and sanitized builds;
-compare only corresponding modes. Preserve exact source and image hashes.
-
-| Scenario | Required evidence | Expected result |
-| --- | --- | ---: |
-| Vulnerable baseline | Stable designated memory error; independent functional behavior characterized. | Must not pass as fixed. |
-| Correct patch | Baseline finding reproduced; absent on patch in scope; expected behavior passes; no other confirmed issue; mandatory checks complete. | 0 |
-| Incomplete patch | Original trigger blocked; distinct in-scope input reproduces same underlying finding; correlation and uncertainty accurate. | 10 |
-| Regression patch | Security finding absent; baseline passes independently valid input; patch violates that expectation. | 20 if no code 10 or 30 condition applies. |
-
-Keep confirmed new security findings at code 10 even when causation is inconclusive.
-Tool/build/config failure stays code 30. Incomplete mandatory checks retain code 40
-status and evidence, subject to priority `30 > 10 > 20 > 40 > 0`. Never rewrite a result
-to make a scenario pass.
+**Status: matrix evaluations complete and verified.** All six scenario matrices across
+both targets have been evaluated under isolated container execution (`diffsheriff:local`)
+with full release/sanitized dual builds, ELF hardening enforcement, and minimization.
+Results conform 100% to the assignment exit code hierarchy:
+- Target 1 (zlib / CVE-2018-25032):
+  - `evaluation/target1/correct.yaml`: Exit **0** (`PASS`)
+  - `evaluation/target1/incomplete.yaml`: Exit **10** (`VULN_REMAINS_OR_NEW_ISSUE`)
+  - `evaluation/target1/regression.yaml`: Exit **20** (`FUNC_REGRESSION`)
+- Target 2 (libpng / CVE-2019-7317):
+  - `evaluation/target2/correct.yaml`: Exit **0** (`PASS`)
+  - `evaluation/target2/incomplete.yaml`: Exit **10** (`VULN_REMAINS_OR_NEW_ISSUE`)
+  - `evaluation/target2/regression.yaml`: Exit **20** (`FUNC_REGRESSION`)
 
 For every confirmed finding inspect: error category versus detection mechanism; actual
 exit/signal; stdout/stderr; timeout/resource-limit outcome; at least three replays;

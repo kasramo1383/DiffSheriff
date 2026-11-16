@@ -281,3 +281,22 @@ def test_actual_git_insertion_hunk_matches_the_observed_function(tmp_path):
     result = correlate_stack_to_diff(frames, parse_unified_diff(diff), "base")
     assert result.is_correlated
     assert result.correlation_type == "Insertion in observed function"
+
+
+def test_edit_in_observed_function_matches_baseline_stack():
+    diff = (
+        "--- a/trees.c\n+++ b/trees.c\n"
+        "@@ -1076,3 +1054,4 @@ local void compress_block(s, ltree, dtree)\n"
+        "-    old();\n"
+        "-    dist = s->d_buf[lx];\n"
+        "-    lc = s->l_buf[lx++];\n"
+        "+    new();\n"
+        "+    dist = s->sym_buf[sx++];\n"
+        "+    lc = s->sym_buf[sx++];\n"
+    )
+    frames = [StackFrame(0, "0x123", "compress_block", "/src/trees.c", 1092)]
+    result = correlate_stack_to_diff(frames, parse_unified_diff(diff), "base")
+    assert result.is_correlated
+    assert result.correlation_type == "Edit in observed function"
+    assert result.matched_frame.function == "compress_block"
+    assert result.matched_line == 1092

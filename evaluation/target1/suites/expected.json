@@ -1,0 +1,38 @@
+{
+  "valid/valid_small.txt": {
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": "",
+    "valid_input": true
+  },
+  "valid/valid_large.txt": {
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": "",
+    "valid_input": true
+  },
+  "boundary/empty.txt": {
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": "",
+    "valid_input": true
+  },
+  "boundary/boundary_32k.txt": {
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": "",
+    "valid_input": true
+  },
+  "malicious/cve_2018_25032.input": {
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": "",
+    "valid_input": false
+  },
+  "malicious/cve_2018_25032_bypass.input": {
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": "",
+    "valid_input": false
+  }
+}

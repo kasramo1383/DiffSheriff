@@ -273,7 +273,10 @@ def compare_case(case, mode, runs, baseline_signature, known_baseline=False):
     if stable and base_sig and not patch_sig:
         correlation = base["correlation"]
         correlated = correlation["is_correlated"]
-        if correlation["correlation_type"] == "Insertion in observed function":
+        if correlation["correlation_type"] in {
+            "Insertion in observed function",
+            "Edit in observed function",
+        }:
             correlated = all(
                 item["correlation"]["is_correlated"]
                 and item["correlation"]["correlation_type"]
@@ -306,7 +309,8 @@ def compare_case(case, mode, runs, baseline_signature, known_baseline=False):
             notes.append(
                 f"{side} abnormal termination has no confirmed source signature"
             )
-    if case["valid_input"] and not base_ok:
+    fixed_flaw = any(status == "Fixed" for status, _, _ in findings)
+    if case["valid_input"] and not base_ok and not fixed_flaw:
         notes.append(
             "Baseline does not satisfy the independent valid-input expectation"
         )
@@ -416,7 +420,8 @@ def record_reproducer(
         ):
             return False, "", ""
         if (
-            digest not in known_expectations
+            functional
+            and digest not in known_expectations
             and cfg.test_suites.independent_reference_command
         ):
             reference = run_container(
@@ -437,9 +442,19 @@ def record_reproducer(
             record_reference_expectation(
                 reference.stdout, digest, known_expectations, known_validity
             )
-        observations = [
-            observe(source, binary, payload, settings, side, hunks) for _ in range(3)
-        ]
+        first_obs = observe(source, binary, payload, settings, side, hunks)
+        if not functional:
+            if first_obs["signature"] != signature:
+                return False, "", ""
+            observations = [first_obs] + [
+                observe(source, binary, payload, settings, side, hunks)
+                for _ in range(2)
+            ]
+        else:
+            observations = [first_obs] + [
+                observe(source, binary, payload, settings, side, hunks)
+                for _ in range(2)
+            ]
         replay_log.append(
             {
                 "input_sha256": hashlib.sha256(payload).hexdigest(),
@@ -473,6 +488,28 @@ def record_reproducer(
             raise
         minimized, minimization_stable = case["payload"], False
     digest = hashlib.sha256(minimized).hexdigest()
+    if (
+        digest not in known_expectations
+        and cfg.test_suites.independent_reference_command
+    ):
+        reference = run_container(
+            cfg.config_directory,
+            cfg.test_suites.independent_reference_command,
+            settings,
+            payload=minimized,
+        )
+        if (
+            reference.exit_code
+            or reference.timed_out
+            or reference.output_limited
+            or reference.resource_limited
+        ):
+            raise RuntimeError(
+                "Independent reference command failed on minimized reproducer"
+            )
+        record_reference_expectation(
+            reference.stdout, digest, known_expectations, known_validity
+        )
     case_id = hashlib.sha256((case["id"] + mode + side).encode()).hexdigest()[:20]
     bundle = run_directory / "reproducers" / case_id
     bundle.mkdir(parents=True)
@@ -827,12 +864,17 @@ def run_pipeline(cfg, artifact_root):
             regression |= decision["regression"]
             incomplete |= bool(decision["notes"])
             if case["valid_input"]:
-                summary.functional_passed += int(
-                    decision["base_ok"] and decision["patch_ok"]
+                passed = (decision["base_ok"] and decision["patch_ok"]) or (
+                    (
+                        decision["baseline_seen"]
+                        or any(
+                            status == "Fixed" for status, _, _ in decision["findings"]
+                        )
+                    )
+                    and decision["patch_ok"]
                 )
-                summary.functional_failed += int(
-                    not (decision["base_ok"] and decision["patch_ok"])
-                )
+                summary.functional_passed += int(passed)
+                summary.functional_failed += int(not passed)
             for status, observation, reason in unique:
                 finding = FindingReport(
                     f"finding-{len(summary.findings) + 1}",

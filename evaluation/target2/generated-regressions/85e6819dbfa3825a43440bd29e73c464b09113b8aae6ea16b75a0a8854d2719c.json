@@ -1,0 +1,27 @@
+{
+  "input": "85e6819dbfa3825a43440bd29e73c464b09113b8aae6ea16b75a0a8854d2719c.input",
+  "sha256": "b23d0743c8635fbcca452b86f54e88d1dccc454496cfbaabf6f6c8f22dc6d7e2",
+  "base_ref": "c9ceee6f648dd8f7e6bfa336bc00a4dd6174046f",
+  "signature": {
+    "error_type": "stack-use-after-return",
+    "file": "pngerror.c",
+    "function": "png_safe_execute",
+    "line": 954
+  },
+  "finding_signature": {
+    "error_type": "stack-use-after-return",
+    "file": "pngerror.c",
+    "function": "png_safe_execute",
+    "line": 954
+  },
+  "finding_side": "patch",
+  "mode": "sanitized",
+  "kind": "security",
+  "check": "full",
+  "valid_input": false,
+  "expected": {
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+}

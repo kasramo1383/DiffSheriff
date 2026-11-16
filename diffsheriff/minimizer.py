@@ -17,6 +17,7 @@ def ddmin(
     initial_payload: bytes,
     oracle: Callable[[bytes], Tuple[bool, str, str]],
     invariant: FailureInvariant,
+    max_granularity: int = 16,
 ) -> bytes:
     """
     Minimizes initial_payload using the classical Delta Debugging algorithm.
@@ -75,7 +76,7 @@ def ddmin(
         if reduced:
             continue
 
-        if n >= len(payload):
+        if n >= len(payload) or n >= max_granularity:
             break
         n = min(n * 2, len(payload))
 

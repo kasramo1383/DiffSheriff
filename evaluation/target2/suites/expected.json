@@ -1,0 +1,26 @@
+{
+  "valid/valid.png": {
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": "",
+    "valid_input": true
+  },
+  "boundary/empty.png": {
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": "",
+    "valid_input": false
+  },
+  "malicious/cve_2019_7317.png": {
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": "",
+    "valid_input": false
+  },
+  "malicious/cve_2019_7317_bypass.png": {
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": "",
+    "valid_input": false
+  }
+}

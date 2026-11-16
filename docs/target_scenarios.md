@@ -2,12 +2,20 @@
 
 ## Current status
 
-Stage 3 (Target selection and scope definition) is COMPLETE. Two real, non-toy C
-libraries have been selected, verified for buildability and memory error reproducibility
-under AddressSanitizer on Linux x86_64 ELF, and frozen with minimal deterministic C drivers
-and test corpora.
+Stages 3, 4, 5, and 6 are COMPLETE. Two real, non-toy C libraries have been
+selected, packaged into standalone git bundles (`source.bundle`), configured with
+independent test suites and specifications, and evaluated across all six scenario
+matrices with exact exit codes matching the priority hierarchy:
+`30 (BUILD_ERROR) > 10 (VULN) > 20 (REGRESSION) > 40 (INCONCLUSIVE) > 0 (PASS)`.
+
 - Target 1: `zlib` (v1.2.11 snapshot) for CVE-2018-25032.
+  - `correct.yaml` -> Exit **0** (`PASS`), 120 suite executions, Security: PASS, Functional: PASS.
+  - `incomplete.yaml` -> Exit **10** (`VULN_REMAINS_OR_NEW_ISSUE`), `cve_2018_25032_bypass.input` confirmed and minimized.
+  - `regression.yaml` -> Exit **20** (`FUNC_REGRESSION`), `valid_large.txt` functional regression minimized via ddmin to 1,001 bytes.
 - Target 2: `libpng` (v1.6.36 snapshot) for CVE-2019-7317.
+  - `correct.yaml` -> Exit **0** (`PASS`), 60 suite executions, Security: PASS, Functional: PASS.
+  - `incomplete.yaml` -> Exit **10** (`VULN_REMAINS_OR_NEW_ISSUE`), `cve_2019_7317_bypass.png` confirmed and minimized.
+  - `regression.yaml` -> Exit **20** (`FUNC_REGRESSION`), 72 suite executions, `valid.png` functional regression on patch confirmed and minimized.
 
 Dependency isolation is enforced: Target 2 dynamically links a pinned system zlib (`-lz`),
 ensuring complete independence from Target 1. Deterministic C drivers (`zlib_driver.c` and
@@ -116,7 +124,7 @@ Full commit hashes identify development snapshots, not release tags.
 1. **Target Independence:** Confirmed. libpng dynamically links against pinned system zlib (`-lz`), held strictly constant across all libpng versions.
 2. **Deterministic Interfaces:** Minimal drivers (`zlib_driver.c` and `png_driver.c`) provide uniform `--file <path>` CLI options without any target-specific verdict logic.
 3. **Reproducibility & Sanitizer Evidence:** Linux x86_64 builds compiled with clang AddressSanitizer reliably reproduce documented flaws on baselines and cleanly pass on upstream fixes.
-4. **Transition to Stage 4:** With target selection and feasibility verification frozen and complete, Stage 4 packaging of the eight scenario versions (source bundles, incomplete/regression patches) can proceed.
+4. **Stages 4, 5, and 6 Completed:** All eight scenario versions are packaged in `targets/target1/source.bundle` and `targets/target2/source.bundle`. Independent expectation manifests (`suites/expected.json` and `reference.py`) and evaluation configs (`evaluation/target1/*.yaml` and `evaluation/target2/*.yaml`) are verified. Full evaluations confirmed exact exit codes (0, 10, 20) matching the priority hierarchy.
 
 ## Scenario contract for each target
 

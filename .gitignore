@@ -63,6 +63,7 @@ ehthumbs.db
 .diffsheriff/
 scratch/
 reproducers/temp/
+/evaluation/target*/repository/
 
 # Durable project artifacts belong in Git, including generated and binary evidence.
 !/artifacts/
