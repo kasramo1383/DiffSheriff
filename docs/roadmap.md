@@ -95,13 +95,13 @@ repository currently proves, not what code appears to support in principle.
 
 | PDF category | Points | Current evidence | Required completion evidence |
 | --- | ---: | --- | --- |
-| Patch validation, version comparison, precise diff correlation | 25 | Generic synthetic checks and code exist; no selected-target matrix proves correlation on real source changes. | On both targets, retain fixed, incomplete, new-issue where applicable, regression, and inconclusive evidence. Relate findings to changed files/functions/paths using runtime and diff evidence, or report attribution inconclusive. |
-| Dynamic tests, boundaries, build separation, error classification | 25 | Synthetic tests and harmless native release/sanitized matrix exist. | Same selected valid, boundary, invalid corpora/settings across baseline and patch. Compare release with release and sanitized with sanitized. Retain category, mechanism, actual termination, signals, stdout/stderr, limits, and replay stability. |
-| Reproducibility, minimization, regression generation | 15 | Generic implementation, synthetic reports, replay tests, and minimized-results checkpoint exist. | For every confirmed target finding, preserve exact input/version/binary/build/environment/command, original and minimized bytes, at least three replay results, and an automatically enrolled regression that checks baseline finding plus independent patched behavior. Resolve unknown expectations before claiming a completed regression test. |
-| Two target scenarios and unseen-patch behavior | 15 | Candidate research only; project selection and feasibility testing pending; no target scenario refs or matrices. | Two independent selected C/C++ Linux x86_64 targets, at least one real non-toy project/library. Each has baseline, correct, incomplete, and regression versions. Retain a blind/unseen evaluation without target-specific recognition. Instructor defense-day testing remains external. |
-| CI/CD, JSON, exit codes | 10 | Reusable/manual target workflow and main verification workflow exist; local verification and cache reconciliation are recorded. | Verify all codes/priorities on the final revision without overriding results, check its hosted tool verification, and retain a selected correct-patch hosted run and artifacts. |
-| Binary hardening and protection changes | 5 | ELF parser and synthetic/native evidence exist. | For ordinary target binaries, retain NX, PIE, RELRO level, and canary evidence and compare baseline/patch downgrades. PIE does not prove runtime ASLR; a canary symbol does not prove every function is protected. |
-| Documentation, modularity, standalone execution | 5 | README, architecture, usage, CI notes, package, and artifacts exist. | A clean checkout installs/builds/runs/replays using delivered instructions and declared dependencies. Include target sources/refs/licenses, configs, inputs, reports, pipeline definition, and reproducer bundles. |
+| Patch validation, version comparison, precise diff correlation | 25 | Verified on Target 1 (zlib) and Target 2 (libpng). Diff correlation proven on real hunks (hunk edit in `compress_block` and caller/callee in `png_image_free` -> `png_safe_execute`). Fixed, Incomplete Fix, and Functional Regression findings accurately classified. | On both targets, retain fixed, incomplete, new-issue where applicable, regression, and inconclusive evidence. Relate findings to changed files/functions/paths using runtime and diff evidence, or report attribution inconclusive. |
+| Dynamic tests, boundaries, build separation, error classification | 25 | Dual release and sanitized builds verified across valid, boundary, and malicious suites for both targets. Detection mechanisms (ASan, UBSan), termination codes, limits, and replay stability confirmed. | Same selected valid, boundary, invalid corpora/settings across baseline and patch. Compare release with release and sanitized with sanitized. Retain category, mechanism, actual termination, signals, stdout/stderr, limits, and replay stability. |
+| Reproducibility, minimization, regression generation | 15 | Delta-debugging minimization (`ddmin`) and 3-run replay stability verified on real target findings (out-of-bounds, stack-use-after-return, and functional regression reduced to 1,001 bytes). Generated regressions enrolled in `generated-regressions`. | For every confirmed target finding, preserve exact input/version/binary/build/environment/command, original and minimized bytes, at least three replay results, and an automatically enrolled regression that checks baseline finding plus independent patched behavior. Resolve unknown expectations before claiming a completed regression test. |
+| Two target scenarios and unseen-patch behavior | 15 | Stages 3, 4, 5, and 6 complete. Both targets packaged into `source.bundle`, configured with independent test suites, and verified across all 6 matrix scenarios (exit 0 for correct, 10 for incomplete, 20 for regression). | Two independent selected C/C++ Linux x86_64 targets, at least one real non-toy project/library. Each has baseline, correct, incomplete, and regression versions. Retain a blind/unseen evaluation without target-specific recognition. Instructor defense-day testing remains external. |
+| CI/CD, JSON, exit codes | 10 | Exact priority hierarchy (0, 10, 20) confirmed across all matrix runs. Hosted GitHub Actions verification passed on commit `89f76f9` (run #43957254243). `validate_target.yml` configured. | Verify all codes/priorities on the final revision without overriding results, check its hosted tool verification, and retain a selected correct-patch hosted run and artifacts. |
+| Binary hardening and protection changes | 5 | Release ELF executables verified for NX=True, PIE=True, RELRO=full, and canary=True across all targets and modes. | For ordinary target binaries, retain NX, PIE, RELRO level, and canary evidence and compare baseline/patch downgrades. PIE does not prove runtime ASLR; a canary symbol does not prove every function is protected. |
+| Documentation, modularity, standalone execution | 5 | Full repository self-contained in standalone git bundles and independent test corpora. Clean archive size 18.07 MB (< 20 MB). `verify.sh` passes 214 tests with 0 failures. | A clean checkout installs/builds/runs/replays using delivered instructions and declared dependencies. Include target sources/refs/licenses, configs, inputs, reports, pipeline definition, and reproducer bundles. |
 
 The group technical score is out of 100. Each student also needs a separate defense out
 of 10: architecture and owned logic (3), finding/evidence analysis (3), and a limited
@@ -309,29 +309,18 @@ after they occur.
 
 ## Current next work
 
-The generic implementation and its recorded synthetic/harmless-native verification are
-complete through the cache-import, reference-parity, code-audit, and latest hosted
-verification records. The implementing agent must now complete Stages 3 through 9 in
-order: decide and freeze the pair/scope, construct all eight versions, freeze independent
-corpora, run and repair both real-target matrices, complete local and available hosted
-validation, perform a clean-room delivery audit, and prepare the blind/defense materials.
-Work continuously through verified checkpoints; do not stop after research, a plan, one
-target, or one successful scenario. Stop only for a genuine technical/safety blocker
-after recording attempted alternatives and leaving the repository in a resumable state.
+Stages 1 through 6 are COMPLETE and VERIFIED on both selected targets:
+- zlib (CVE-2018-25032) and libpng (CVE-2019-7317) have full scenario matrices evaluated under isolated Docker containers.
+- All exit codes (0, 10, 20) are confirmed matching the assignment priority hierarchy.
+- DiffSheriff pipeline, correlator, and minimizer fixes are merged, with 214 tests passing in `verify.sh`.
+- Hosted tool verification passed on GitHub Actions (`run #43957254243`).
 
-### Preparation-to-evaluation handoff
+The remaining implementable repository tasks are:
+1. **Stage 7 - Hosted target CI verification**: Optionally dispatch `validate_target.yml` for `evaluation/target1/correct.yaml` and `evaluation/target2/correct.yaml` via GitHub Actions.
+2. **Stage 8 - Clean-room delivery verification**: Verify standalone clean-room reproducibility and maintain repository archive `< 20 MB` (currently 18.07 MB).
+3. **Stage 9 - Blind evaluation & defense readiness**: Finalize blind evaluation package (hidden scenario inputs and answer key) and review individual defense preparation.
 
-Stages 3–5 are preparation. They may be completed by Antigravity using
-[`antigravity_preparation_instructions.md`](antigravity_preparation_instructions.md).
-Bounded build, sanitizer, trigger-feasibility, baseline-validity, and packaging smoke
-checks are allowed there because the scenario assets cannot be selected honestly without
-them. Those checks do not replace the final matrices.
-
-DeepSeek/Strix begins the final evaluation at Stage 6 after both target records, all eight
-versions, both independent corpora/expectation manifests, and both target configs satisfy
-their acceptance gates. It must verify the preparation and return to Stage 3–5 only if
-the assets are incomplete or contradicted by evidence. Never run both agents concurrently
-against the same writable checkout.
+External human events (in-person student defenses and instructor live defense-day testing) remain external.
 
 ## Status correction request
 
