@@ -130,6 +130,45 @@ document still represent output bytes with the Latin-1 mapping described above.
 For argv delivery, reduction skips byte slices that are not valid UTF-8 or contain
 NUL, instead of treating an unrepresentable candidate as a validator failure.
 
+## Reduction limits and retained outcomes
+
+The optional top-level `minimization` configuration bounds each reproducer's search:
+
+```yaml
+minimization:
+  max_granularity: 16
+  max_oracle_calls: 256
+```
+
+These are the defaults for existing configurations. Granularity must be an integer
+at least 2; oracle calls must be an integer at least 1. `null` disables an individual
+limit. Disabling both permits the complete delta-debugging search, which can be costly
+for large inputs. An oracle call evaluates one candidate and may run several reference
+and target processes; it is not a count of child-process executions. Initial input and
+empty-input checks consume this budget. The final three baseline and three patch
+replays run separately and are not skipped when the search limit is reached.
+
+`reproducer.json` retains a `minimization` record; report JSON includes the same summary
+under `evidence.minimizations`, with case/mode/side and a relative reproducer path.
+Records include original/reduced byte sizes, whether shrinking occurred, both limits,
+oracle-call count and the stop reason:
+
+| Stop reason | Meaning |
+| --- | --- |
+| `granularity_limit` | Finer partitions were not attempted beyond the configured cap. |
+| `oracle_call_limit` | The candidate-evaluation budget was consumed. |
+| `search_exhausted` | All chunks and complements at single-byte granularity were rejected for the retained input. |
+| `empty_reproducer` | Empty input preserves the finding. |
+| `single_byte_reproducer` | One byte remains after empty input was rejected. |
+| `initial_not_reproduced` | The initial reduction check failed; original bytes are retained and reproduction is incomplete. |
+
+A limit stop retains the last input known to preserve the invariant; it does not imply
+that the input shrank or is minimal. Final replay stability and independent functional
+expectations still determine the verdict. An exhausted search also does not prove a
+global minimum or establish input validity. The byte-returning `ddmin` helper remains
+available for existing Python callers; the pipeline uses `minimize` and its structured
+result to retain limits and outcomes.
+
 ## Validate and inspect
 
 ```sh

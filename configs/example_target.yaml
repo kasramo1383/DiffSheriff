@@ -34,6 +34,10 @@ execution:
   environment_variables:
     ASAN_OPTIONS: detect_leaks=0:abort_on_error=1:symbolize=1
     UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1
+# Optional reduction limits; null disables an individual limit.
+minimization:
+  max_granularity: 16
+  max_oracle_calls: 256
 hardening_baseline:
   enforce_nx: true
   enforce_pie: true

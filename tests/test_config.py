@@ -99,3 +99,41 @@ def test_old_schema_needs_explicit_migration(tmp_path):
                 tmp_path, VALID_CONFIG.replace("version: '2.0'", "version: '1.0'")
             )
         )
+
+
+@pytest.mark.parametrize(
+    "settings",
+    [
+        {},
+        {"max_granularity": 3, "max_oracle_calls": 10},
+        {"max_granularity": None, "max_oracle_calls": 1},
+        {"max_granularity": None, "max_oracle_calls": None},
+    ],
+)
+def test_minimization_configuration(tmp_path, settings):
+    data = yaml.safe_load(VALID_CONFIG)
+    data["minimization"] = settings
+    cfg = DiffSheriffConfig.from_yaml(write_config(tmp_path, yaml.safe_dump(data)))
+    assert cfg.minimization.max_granularity == settings.get("max_granularity", 16)
+    assert cfg.minimization.max_oracle_calls == settings.get("max_oracle_calls", 256)
+
+
+@pytest.mark.parametrize(
+    "settings",
+    [
+        None,
+        [],
+        {"unexpected": 1},
+        {"max_granularity": True},
+        {"max_granularity": 1},
+        {"max_granularity": 2.5},
+        {"max_oracle_calls": 0},
+        {"max_oracle_calls": False},
+        {"max_oracle_calls": "256"},
+    ],
+)
+def test_invalid_minimization_configuration(tmp_path, settings):
+    data = yaml.safe_load(VALID_CONFIG)
+    data["minimization"] = settings
+    with pytest.raises(ConfigError, match="minimization"):
+        DiffSheriffConfig.from_yaml(write_config(tmp_path, yaml.safe_dump(data)))

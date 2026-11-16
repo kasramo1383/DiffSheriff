@@ -1,0 +1,9 @@
+{
+  "diffsheriff/minimizer.py": "b0edd3d598bf2e484c492021ae02b40198715f7ab8c6ed43184698da73e7a038",
+  "diffsheriff/config.py": "67fce0f538312700dfb0c11cd44081b84b907047c0f5d15c0ed25b181481b4bb",
+  "diffsheriff/pipeline.py": "c926f494b6a21b5a12a6ca60d19e68ae695de84a538c6b24694cbd6efd8e1412",
+  "tests/test_minimizer.py": "b01dc2c2ab12614cd316fcc8c2c4e23a8ba77fb0f4debd35625b8ae6ce70a258",
+  "tests/test_config.py": "e2b7ec0c77c862e95706ed920c8a1c4ab51170206f37ad8e433f895b8a01d10c",
+  "tests/test_pipeline.py": "3e01207145b08c18a6832acc89e32bfaa4a0adbe2e4cc3ecb57303f180f1cb96",
+  "configs/example_target.yaml": "87f93617438547c125866e6be42dbd7ea7d41dc6096395094e34b637bb77b4b1"
+}

@@ -1,0 +1,21 @@
+Verification evidence: /mnt/f/KasraFolder/دانشگاه صنعتی آریامهر/ترم 7/امنیت داده و شبکه/Project/.diffsheriff/verification.UWHfn4
+All done! ✨ 🍰 ✨
+29 files would be left unchanged.
+........................................................................ [ 29%]
+........................................................................ [ 58%]
+........................................................................ [ 88%]
+.............................                                            [100%]
+- generated xml file: /mnt/f/KasraFolder/دانشگاه صنعتی آریامهر/ترم 7/امنیت داده و شبکه/Project/.diffsheriff/verification.UWHfn4/tests.xml -
+245 passed in 393.28s (0:06:33)
+Looking in indexes: https://mirror-pypi.runflare.com/
+Processing /mnt/f/KasraFolder/دانشگاه صنعتی آریامهر/ترم 7/امنیت داده و شبکه/Project
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: diffsheriff
+  Building wheel for diffsheriff (pyproject.toml): started
+  Building wheel for diffsheriff (pyproject.toml): finished with status 'done'
+  Created wheel for diffsheriff: filename=diffsheriff-0.1.0-py3-none-any.whl size=37842 sha256=32aa542c3ae8a9fab210c9a6feaaa79087d12f66de95e4193400e6819ed95745
+  Stored in directory: /tmp/pip-ephem-wheel-cache-a5yj6rwx/wheels/28/ce/96/7fe2b0552dddeb4dcdda7c1138d2700a4c7906bcf5fd2558fa
+Successfully built diffsheriff
+TOOL VERIFICATION PASSED (synthetic tests and harmless native fixture).
+Approved-target matrices, clean-room delivery, and individual defenses remain separate gates.

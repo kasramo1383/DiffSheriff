@@ -15,7 +15,7 @@ from diffsheriff.correlator import (
     parse_unified_diff,
 )
 from diffsheriff.hardening import compare_hardening, inspect_elf_hardening
-from diffsheriff.minimizer import FailureInvariant, ddmin
+from diffsheriff.minimizer import FailureInvariant, minimize
 from diffsheriff.reporter import (
     FindingReport,
     ValidationSummary,
@@ -478,15 +478,14 @@ def record_reproducer(
             )
         return preserved, identity["error_type"], location
 
-    minimization_stable = True
-    try:
-        minimized = ddmin(
-            case["payload"], oracle, FailureInvariant(identity["error_type"], location)
-        )
-    except ValueError as error:
-        if str(error) != "Initial payload does not preserve the failure invariant":
-            raise
-        minimized, minimization_stable = case["payload"], False
+    reduction = minimize(
+        case["payload"],
+        oracle,
+        FailureInvariant(identity["error_type"], location),
+        cfg.minimization,
+    )
+    minimized = reduction.payload
+    minimization_stable = reduction.stop_reason != "initial_not_reproduced"
     digest = hashlib.sha256(minimized).hexdigest()
     if (
         digest not in known_expectations
@@ -551,6 +550,7 @@ def record_reproducer(
         "settings": asdict(settings),
         "runs": runs,
         "minimization_log": replay_log,
+        "minimization": reduction.as_evidence(),
         "reproduced": reproduced,
         "stable": stable,
         "minimization_scope": (
@@ -634,6 +634,15 @@ def record_reproducer(
                 ),
                 encoding="utf-8",
             )
+    evidence.setdefault("minimizations", []).append(
+        {
+            "case": case["id"],
+            "mode": mode,
+            "finding_side": side,
+            "reproducer": bundle.relative_to(run_directory).as_posix(),
+            **reduction.as_evidence(),
+        }
+    )
     return (bundle.relative_to(run_directory) / "minimized.input").as_posix(), metadata
 
 
@@ -658,6 +667,7 @@ def run_pipeline(cfg, artifact_root):
             builds={},
             cases=[],
             reproducers=[],
+            minimizations=[],
         )
         (directory / "inputs").mkdir()
         for case in cases:

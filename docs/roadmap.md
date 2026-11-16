@@ -30,7 +30,7 @@ this review did not execute historical vulnerable binaries or dispatch CI.
 | Fixed, incomplete, new, regression, inconclusive; runtime-to-diff evidence (p. 2) | `compare_case`, source signatures, direct/caller/function correlation, generic tests. | Latest “Edit in observed function” evidence establishes a shared function, not execution of the changed branch. That limit is stated in code. Real-target raw stacks/diffs and attribution remain unauditable without run bundles. No additional new-issue target variant is explicitly required by the PDF. |
 | Valid, boundary, invalid suites and equivalent release/sanitized execution (p. 2) | Corresponding-mode matrix implemented. zlib has six corpus entries; PNG has four, with an empty invalid PNG as its only boundary case. | Coverage is narrow, especially valid PNG boundaries. zlib accepts arbitrary byte strings, so naming its memory-error triggers “invalid” does not establish semantic invalidity. Document actual validity and meaningful boundaries. |
 | Exact identities, environment, commands, three replays, original/minimized inputs (p. 3) | Replay and bundle creation implemented; historical synthetic/native bundles retained. | Selected-target full reports, binary/build hashes, replay observations, commands and original/minimized pair bundles are absent. Seven generated manifests contain inputs/identities but are insufficient reproducer evidence. |
-| Automatic minimization preserving error/location (p. 3) | Pipeline checks source signatures and stability; `ddmin` now stops at default `max_granularity=16`. | A reduction attempt is not proof of minimality. The cap can stop while removable bytes remain; no stop reason or achieved minimality is returned. The PDF requires automatic shrinking preserving the finding, not a mathematical global minimum. Retain actual reduction and replay evidence. |
+| Automatic minimization preserving error/location (p. 3) | Pipeline checks source signatures and stability. F06 adds configurable granularity/evaluation limits and retained sizes, stop reasons and call counts. | Generic reduction behavior is verified in the F06 checkpoint. Selected-target reduction and replay evidence remains required under F09. An exhausted or bounded search does not prove a global minimum. |
 | Automatically enroll and exercise regressions, checking baseline error and correct behavior (p. 3) | Generated inputs/manifests are loaded for exact baselines. | All three generated functional manifests set `valid_input: false`; `compare_case` requires true to classify a functional regression. Their future loading does not establish functional-regression coverage. “Full” expectations obtained from constant references need independent review. No retained later-run demonstration exists. |
 | NX, PIE, RELRO, canary, and downgrade warnings on ordinary binaries (p. 3) | ELF inspection/comparison implemented; configs demand all four protections. | Bundled Makefiles do not request stack protection or full RELRO and use `CC ?= clang`, which can yield make's built-in `cc`. Docker installs unversioned packages. No final target ELF evidence supports the prior blanket hardening claim. Required policy is not measured status. |
 | CLI, JSON, independent statuses, priority `30 > 10 > 20 > 40 > 0`, CI/CD (p. 3) | CLI/reporting/priority tests and two workflows implemented. | `validate_target.yml` never clones the source bundles into the config's ignored `repository` paths; a fresh runner cannot resolve them. Retained hosted record covers an older generic revision with target job skipped. Six isolated expected codes would not alone prove simultaneous-condition priority. |
@@ -41,8 +41,9 @@ this review did not execute historical vulnerable binaries or dispatch CI.
 
 ## Actionable fixes and acceptance tests
 
-All items below are open. Check an item only after its acceptance tests pass and its
-evidence is retained for the exact tested source/image. Update status here; keep
+F06 is complete for the generic tool, with evidence linked below. All other fixes
+remain open. Check an item only after its acceptance tests pass and its evidence is
+retained for the exact tested source/image. Update status here; keep
 source identities in [target_scenarios.md](target_scenarios.md), commands in
 [evaluation.md](evaluation.md), and results in their own artifact records. Extend
 existing tests where needed instead of duplicating coverage. F01 is the first action;
@@ -120,6 +121,11 @@ F02 and F04 can proceed independently. External review does not prevent technica
   behavior. Names and intended exit tables cannot substitute for the observations.
 
 ### F06 - Report minimization limits and verify the preserved finding
+
+**Status: complete for the generic tool.** The [reduction-limits checkpoint](../artifacts/checkpoints/reduction-limits/README.md)
+retains focused/full verification, the rebuilt image, package and tested source hashes.
+The usage guide documents configuration and every stop reason. F09 remains responsible
+for actual selected-target reduction/replay acceptance.
 
 - **Fix:** Make the reduction budget/limit explicit and return a stop reason and
   original/reduced sizes in retained evidence. Review the hidden granularity cap;
@@ -247,18 +253,10 @@ scope. Their manifests preserve original bytes and source identities. Newer sour
 changes prevent transferring historical passes to the current revision automatically.
 The instructor PDF controls scoring; no numerical grade is inferred from this review.
 
-## Cleanup verification
+## Repository structure
 
-Both source bundles passed `git bundle verify` before the disposable checkout cleanup
-was attempted. Duplicate corpora matched byte-for-byte, and duplicate drivers matched
-bundled baseline source after CRLF normalization. All 373 remaining artifact-manifest
-entries and seven generated input hashes matched their delivered bytes; 59 local
-Markdown links resolved. `git diff --check` passed. The selected-target matrices were
-not rerun for this documentation/artifact cleanup. The host Python lacks pytest, so
-the retained-manifest assertions were checked directly with the standard library.
-
-Tracked obsolete artifacts, duplicate source paths and tool-specific handoff prompts
-were removed. The stale local chat-context pointer was also removed. Ignored caches
-and disposable `evaluation/target*/repository` checkouts remain local pending manual
-cleanup; their tracked source bundles are intact. Use the single
-[agent handoff prompt](agent_handoff_prompt.md) to continue the fixes above.
+Use the single [agent handoff prompt](agent_handoff_prompt.md). Target source belongs
+in the exact scenario bundles; editable test assets belong in `evaluation/targetN/`.
+Distinct retained evidence is indexed by `artifacts/README.md`. Superseded early
+checkpoints and duplicate driver/corpus/handoff files were removed; Git history retains
+their committed versions. Caches and disposable target clones are excluded from delivery.

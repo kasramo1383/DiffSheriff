@@ -1,0 +1,40 @@
+{
+  "scope": "Synthetic byte invariant, no target executed; payload without byte 0x21 must equal required_hex.",
+  "initial_hex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f",
+  "required_hex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f2022232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f",
+  "results": {
+    "default_cap": {
+      "original_size": 64,
+      "minimized_size": 64,
+      "reduced": false,
+      "stop_reason": "granularity_limit",
+      "oracle_calls": 62,
+      "max_granularity": 16,
+      "max_oracle_calls": 256,
+      "limit_reached": true,
+      "payload_hex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f"
+    },
+    "expanded_search": {
+      "original_size": 64,
+      "minimized_size": 63,
+      "reduced": true,
+      "stop_reason": "search_exhausted",
+      "oracle_calls": 350,
+      "max_granularity": null,
+      "max_oracle_calls": 4096,
+      "limit_reached": false,
+      "payload_hex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f2022232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f"
+    },
+    "evaluation_budget": {
+      "original_size": 64,
+      "minimized_size": 64,
+      "reduced": false,
+      "stop_reason": "oracle_call_limit",
+      "oracle_calls": 3,
+      "max_granularity": null,
+      "max_oracle_calls": 3,
+      "limit_reached": true,
+      "payload_hex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f"
+    }
+  }
+}

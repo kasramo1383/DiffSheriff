@@ -6,6 +6,7 @@ currently delivered here. Generated regressions under `evaluation/` do not repla
 
 | Record | Purpose |
 | --- | --- |
+| [Reduction limits](checkpoints/reduction-limits/README.md) | Explicit reduction limits, stop reasons and synthetic/pipeline checks. |
 | [Code audit](checkpoints/code-audit/README.md) | Five repaired generic input/build/replay defects, test results and a harmless native run. |
 | [Evidence integrity](checkpoints/evidence-integrity/README.md) | Retained artifact hash checks and repairs. |
 | [CI formatting](checkpoints/ci-format/README.md) | Formatting configuration and historical hosted generic CI results. |

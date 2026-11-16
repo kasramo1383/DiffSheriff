@@ -575,7 +575,7 @@ def test_minimized_patch_diagnostic_changes_first_verdict(
     import diffsheriff.pipeline as pipeline
 
     cfg, _, _ = pipeline_fixture
-    execute, minimize = pipeline.execute_container, pipeline.ddmin
+    execute, minimize = pipeline.execute_container, pipeline.minimize
     minimizations = []
     if late_error:
         (tmp_path / "tests/invalid/later").write_bytes(b"diagnostic")
@@ -611,7 +611,7 @@ def test_minimized_patch_diagnostic_changes_first_verdict(
         return minimize(*args)
 
     monkeypatch.setattr(pipeline, "execute_container", reduced)
-    monkeypatch.setattr(pipeline, "ddmin", counted)
+    monkeypatch.setattr(pipeline, "minimize", counted)
     summary = run_pipeline(cfg, tmp_path / "runs")
     assert summary.exit_code == (30 if late_error else 10)
     assert summary.security_status == "FAIL"
@@ -642,7 +642,7 @@ def test_minimized_known_valid_case_adds_functional_regression(
 
     cfg, _, _ = pipeline_fixture
     cfg.test_suites.independent_reference_command = ["reference"]
-    execute, minimize = pipeline.execute_container, pipeline.ddmin
+    execute, minimize = pipeline.execute_container, pipeline.minimize
     minimizations = []
 
     def reduced(source, binary, payload, settings):
@@ -681,7 +681,7 @@ def test_minimized_known_valid_case_adds_functional_regression(
         reference,
     )
     monkeypatch.setattr(pipeline, "execute_container", reduced)
-    monkeypatch.setattr(pipeline, "ddmin", counted)
+    monkeypatch.setattr(pipeline, "minimize", counted)
     summary = run_pipeline(cfg, tmp_path / "runs")
     assert (
         summary.exit_code == 10
@@ -1180,3 +1180,62 @@ def test_late_replay_instability_revokes_fixed_status(
     assert summary.exit_code == 40
     assert not summary.security_flaws_fixed
     assert all(finding.status != "Fixed" for finding in summary.findings)
+
+
+@pytest.mark.parametrize("budget", [1, 256])
+def test_reproducer_retains_reduction_outcome_and_final_replays(
+    tmp_path, pipeline_fixture, budget
+):
+    cfg, _, _ = pipeline_fixture
+    cfg.minimization.max_oracle_calls = budget
+    summary = run_pipeline(cfg, tmp_path / "runs")
+    assert summary.exit_code == 0, summary.notes
+    record = summary.evidence["minimizations"][0]
+    bundle = Path(summary.evidence["run_directory"]) / record["reproducer"]
+    metadata = json.loads((bundle / "reproducer.json").read_text())
+    for key, value in metadata["minimization"].items():
+        assert record[key] == value
+    assert record["original_size"] == len((bundle / "original.input").read_bytes())
+    assert record["minimized_size"] == len((bundle / "minimized.input").read_bytes())
+    assert record["max_oracle_calls"] == budget
+    assert record["stop_reason"] == (
+        "oracle_call_limit" if budget == 1 else "search_exhausted"
+    )
+    assert not record["reduced"]
+    assert metadata["stable"]
+    assert all(len(runs) == 3 for runs in metadata["runs"].values())
+    report = json.loads((bundle.parents[1] / "report.json").read_text())
+    assert report["evidence"]["minimizations"] == summary.evidence["minimizations"]
+
+
+def test_initial_reduction_instability_is_retained(
+    tmp_path, pipeline_fixture, monkeypatch
+):
+    import diffsheriff.pipeline as pipeline
+
+    cfg, _, _ = pipeline_fixture
+    execute = pipeline.execute_container
+    calls = 0
+
+    def unstable(source, binary, payload, settings):
+        nonlocal calls
+        if (
+            source.parent.name == "base"
+            and source.name == "sanitized"
+            and payload == b"diagnostic"
+        ):
+            calls += 1
+            if calls == 4:
+                return ExecutionResult(0, "ok\n", "", False)
+        return execute(source, binary, payload, settings)
+
+    monkeypatch.setattr(pipeline, "execute_container", unstable)
+    summary = run_pipeline(cfg, tmp_path / "runs")
+    assert summary.exit_code == 40, summary.notes
+    record = summary.evidence["minimizations"][0]
+    assert record["stop_reason"] == "initial_not_reproduced"
+    assert record["oracle_calls"] == 1
+    bundle = Path(summary.evidence["run_directory"]) / record["reproducer"]
+    metadata = json.loads((bundle / "reproducer.json").read_text())
+    assert not metadata["stable"] and not metadata["reproduced"]
+    assert all(len(runs) == 3 for runs in metadata["runs"].values())

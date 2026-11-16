@@ -8,6 +8,8 @@ from typing import Optional
 
 import yaml
 
+from diffsheriff.minimizer import MinimizationLimits
+
 
 class ConfigError(ValueError):
     """Configuration cannot be evaluated safely."""
@@ -105,6 +107,7 @@ class DiffSheriffConfig:
     patch_ref: str
     baseline_signature: dict
     config_directory: Path
+    minimization: MinimizationLimits = field(default_factory=MinimizationLimits)
 
     @classmethod
     def from_yaml(cls, config_path: Path):
@@ -205,7 +208,15 @@ class DiffSheriffConfig:
             )
         for argument in reference:
             _string(argument, "independent_reference_command argument")
+        reduction = _mapping(data.get("minimization", {}), "minimization")
+        if set(reduction) - set(MinimizationLimits.__dataclass_fields__):
+            raise ConfigError("unknown minimization setting")
+        try:
+            minimization = MinimizationLimits(**reduction)
+        except ValueError as error:
+            raise ConfigError(f"minimization: {error}") from error
         return cls(
+            minimization=minimization,
             target_name=_string(target.get("name"), "target.name"),
             language=language,
             repository_path=(
