@@ -1,4 +1,7 @@
-# DNS-P1 feature comparison
+# Historical DNS-P1 feature comparison
+
+This review describes its named historical revision. Use [the roadmap](roadmap.md)
+for current acceptance and [target scenarios](target_scenarios.md) for delivered assets.
 
 This review compares [DNS-P1 / PatchGuard at
 `41173bab54a3b1aa0318564799a299e6d35573ea`](https://github.com/Kiarash-Sanei/DNS-P1/tree/41173bab54a3b1aa0318564799a299e6d35573ea)

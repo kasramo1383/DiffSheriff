@@ -42,6 +42,6 @@ test_suites:
   boundary_directory: suites/boundary
   malicious_directory: suites/invalid
   expectations: suites/expected.json
-  provenance: Approved course target evaluation suite independently verified against upstream specifications
+  provenance: Local course evaluation assets; instructor approval and independent semantic validation pending
   regression_directory: generated-regressions
   independent_reference_command: ["python3", "reference.py"]

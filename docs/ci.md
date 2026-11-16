@@ -13,6 +13,11 @@ from another workflow using `workflow_call`. The checkout includes full history 
 submodules; `target.repository_path` must resolve to the checked-out target repository
 with both source commits available. The runtime image is built from this checkout.
 
+The current workflow does not clone the delivered target bundles. Add the source
+setup described in [evaluation.md](evaluation.md) before dispatching a selected target;
+a fresh checkout otherwise lacks its configured `repository/` directory. Acceptance
+and retained-run limits belong in [the roadmap](roadmap.md).
+
 The job runs:
 
 ```sh

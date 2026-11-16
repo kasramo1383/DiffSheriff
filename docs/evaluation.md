@@ -1,6 +1,7 @@
 # Evaluation: what the team must do
 
-The remaining assessment work needs **two approved independent C/C++ targets**, at
+Use this procedure after resolving the acceptance gaps in [the roadmap](roadmap.md).
+The assessment needs **two approved independent C/C++ targets**, at
 least one a real non-toy project/library. Each needs a baseline and three patch
 versions: correct, incomplete, and functional regression. That is **six comparisons**,
 not one demonstration. Use only the approved local input scope; no exploit tooling is

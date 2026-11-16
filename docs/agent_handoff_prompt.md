@@ -1,50 +1,53 @@
 # Agent handoff prompt
 
-Use this prompt when another coding agent takes over the repository. Mutable status and
-acceptance criteria belong in [`roadmap.md`](roadmap.md); target facts belong in
-[`target_scenarios.md`](target_scenarios.md). Do not copy those facts into this file.
+Use this single prompt with any coding agent. The sole live work list and acceptance
+state are [roadmap.md](roadmap.md); this prompt contains no parallel progress checklist.
 
 ```text
-Finish every repository-implementable requirement of the DiffSheriff assignment.
+Continue the DiffSheriff course project through the actionable fixes in docs/roadmap.md.
 
-Read AGENTS.md, docs/course_assignment.pdf, docs/roadmap.md,
-docs/target_scenarios.md, and the records linked by the current unfinished roadmap
-stage before editing. The PDF is the requirements authority. Source, tests, hashes,
-run artifacts, and CI results are the verification authority.
+Read AGENTS.md, the original docs/course_assignment.pdf, and docs/roadmap.md first.
+Inspect staged, unstaged, untracked and ignored state. Existing cleanup/documentation
+changes may already be staged; preserve them and unrelated work. Follow the repository
+instructions for staging, commits and pushes.
 
-There is no team/instructor target-selection loop. Determine the target pair and
-bounded test scope from the PDF, primary upstream evidence, and isolated local
-feasibility tests. Record the decision honestly as a project selection, never as
-instructor approval. Then continue through every remaining roadmap stage: package all
-eight scenario versions, freeze independent corpora and expectations, run and repair
-both real-target matrices, complete final local and available hosted verification,
-perform the clean-room delivery audit, and prepare blind-evaluation and defense-study
-materials. Do not stop after planning, feasibility analysis, one target, or one
-successful scenario.
+Start at the first unfinished fix in the roadmap. Honor its dependencies, implement its
+specified change, and run its acceptance tests. Reuse existing tests; add coverage for
+real missing behavior. Continue through the remaining locally actionable fixes. This
+handoff requests implementation, verification and retained evidence, not another plan.
 
-Work in coherent verified checkpoints and update the owning record after each. Preserve
-existing user changes and retained evidence. Keep the project flat and understandable;
-do not add target-specific verdict logic, unnecessary frameworks/services, issue boards,
-sprints, or agent-activity records. Execute only selected historical C/C++ targets in
-an isolated, resource-limited local Linux/Docker lab. Never contact deployed systems,
-create exploit tooling, fabricate evidence, or turn a timeout/nonzero exit into a
-security finding.
+Keep facts in their owning files:
+- docs/roadmap.md: fix status, requirements gaps and next action.
+- docs/target_scenarios.md: target provenance, source mapping, exact refs and scope.
+- docs/evaluation.md and docs/usage.md: reproducible execution instructions.
+- docs/ci.md: CI operation; docs/defense_guide.md: contributor study and practice.
+- artifacts/: distinct durable run records with commands, results, identities and hashes.
 
-Run focused checks after each change and the full relevant verification before final
-handoff. Inspect actual JSON, readable reports, exit codes, replays, minimized inputs,
-hashes, and manifests. Preserve failures and skips honestly. Do not commit, push, pull,
-or discard work. Do not edit README for personal notes.
+Fix the observable behavior and independent references before relying on target verdicts.
+Never derive expectations from patched output, scenario names, branch/commit identifiers
+or a model's assertion. A trigger is not semantically invalid merely because it exposes
+memory corruption. Keep corresponding release/sanitized builds and inputs equivalent.
+Keep the validator generic; target-specific behavior belongs in source/config/test assets.
 
-Finish only when the PDF-to-evidence audit finds no locally actionable gap. Actual
-student defenses, an independent human blind exercise, instructor approval, and an
-instructor-only unseen-patch event are external facts: prepare the repository materials
-but never claim those events occurred. Report changed files, exact commands/results,
-final target matrices, clean-room outcome, genuine external remainder, and final Git
-status.
+Treat the original assignment as authority. Do not introduce a 20 MB cap, a particular
+CI provider or a special rehearsal-package format as instructor requirements. Prepare
+instructor-review materials, but do not claim approval without the response. Technical
+work can continue while external approval is pending. Actual participation, unaided
+student defenses and instructor unseen-patch evaluation remain human/external events.
+
+Run historical targets only in the documented isolated, resource-limited local lab.
+Preserve source/license provenance and separate run identities. After source changes,
+freeze new scenario refs and regenerate affected evidence honestly. Do not rewrite old
+observations or relabel synthetic/harmless runs as selected-target acceptance.
+
+After each coherent fix, inspect its actual reports/replays/tests, retain the necessary
+evidence, and update that fix in the roadmap. State the tested revision or normalized
+source hashes, commands, actual results and limits. A six-row expected-code table or an
+unexecuted workflow does not close an acceptance item. Do not mark external events done.
+
+Before handoff, run the required final checks, review the complete diff, remove only
+superseded or task-created temporary material, and stage the authorized changes. Report
+completed fix IDs, tests actually run, retained evidence, any genuine blocker and the
+first unfinished action. Provide the exact commit command; the user commits/pushes.
+Keep this file as the single agent handoff; do not create tool- or model-specific copies.
 ```
-
-For a Strix run, use the more detailed execution contract in
-[`strix_completion_instructions.md`](strix_completion_instructions.md).
-For the large Antigravity preparation chunk that completes Roadmap Stages 3–5 before
-the final Strix matrices, send [`antigravity_preparation_instructions.md`](antigravity_preparation_instructions.md)
-as the complete prompt.

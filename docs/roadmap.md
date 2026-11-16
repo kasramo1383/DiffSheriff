@@ -1,333 +1,264 @@
-# Live implementation roadmap
+# Requirements, evidence, and remaining work
 
-This is the single live record of project status, completion gates, and next work.
-The instructor's Persian assignment in [`course_assignment.pdf`](course_assignment.pdf)
-is authoritative. [`specification.md`](specification.md) is a working English digest
-and yields to the PDF. [`target_scenarios.md`](target_scenarios.md) is the sole record
-of target identity, provenance, selection decisions, exact refs, input scope, and independent
-ground truth. This roadmap links to those records instead of copying their mutable
-facts.
+This is the sole live acceptance record. The [original assignment](course_assignment.pdf)
+is authoritative; [specification.md](specification.md) is its English digest.
+[Target scenarios](target_scenarios.md) owns source identities and scenario construction;
+[evaluation.md](evaluation.md) owns execution commands. Checkpoint records describe
+historical revisions only. The review below examines checkout `705841e` on 2026-11-17;
+it does not assert that missing runs never happened elsewhere.
 
-Keep the project understandable to a student who has not written every line.
-Implementation may be delegated to one or two coding agents. The project does not use
-an issue board, sprint plan, CI/CD activity bureaucracy, or required per-task log. CI
-is part of the product and its verification only.
+## Acceptance assessment
 
-## Completion standard
+The generic validator is substantially implemented. The delivered selected-target
+assets do not establish completed course acceptance. Earlier claims that Stages 3-6
+were complete, all six runs passed, 214 tests passed on the final revision, every
+binary had full hardening, and blind preparation was ready exceeded the locally
+retained evidence. No selected-target report, console log, or complete reproducer run
+is present under `artifacts/`; generated regression files alone cannot establish those
+claims. The recorded hosted verification predates the latest target/pipeline changes.
 
-The repository implementation is complete only when the generic tool, two selected
-target evaluations, retained evidence, standalone delivery, blind-evaluation materials,
-and individual-defense preparation satisfy the gates below. The actual four individual
-defenses and any instructor-only unseen-patch event are later human/external events and
-cannot be performed or claimed by an implementation agent. A working generic pipeline,
-synthetic tests, harmless native fixture, or a successful CI run alone does not complete
-the repository work.
+## Assignment-to-execution audit
 
-A stage is complete when its acceptance criteria pass, the tested source revision and
-commands are recorded, durable evidence is checked into `artifacts/` where appropriate,
-and the next stage is explicit. Keep implementation in bounded, verifiable steps and
-update this roadmap so another engineer or agent can resume immediately. The project
-owner has directed the implementation agent to determine the target pair and test scope
-from the PDF and primary evidence. Do not wait for a nonexistent team/instructor approval
-loop. Never label that internal selection as instructor approval, and never claim a
-student defense without the corresponding evidence.
+Page numbers refer to the six-page Persian PDF. Findings concern the delivered files;
+this review did not execute historical vulnerable binaries or dispatch CI.
 
-## Current state
+| Requirement | Delivered implementation/evidence | Gap and consequence |
+| --- | --- | --- |
+| C/C++ Linux x86_64 targets, real dynamic execution, configuration-based onboarding (p. 1) | Generic Docker runner, ELF validation, separate build snapshots; two source bundles and six configs. Historical harmless native runs exist. | Real library sources are delivered, but their claimed final dynamic outcomes lack retained reports. Generic tests cannot establish target acceptance. |
+| Independent expected behavior for valid and invalid inputs, instructor approval before evaluation (pp. 1-2, 4) | Both `evaluation/target*/reference.py` scripts discard stdin and return the same successful empty-output expectation with `valid_input: false`. Manifests also expect only exit 0 and empty output. | These scripts do not validate compression, PNG decoding, or candidate validity. No instructor approval evidence is supplied. Config provenance formerly said “Approved” and now explicitly records the pending review. Project-owner authorization cannot satisfy instructor approval. |
+| Preserve actual program functionality (pp. 1-2) | zlib driver calls deflate then discards compressed bytes. PNG driver discards pixels, ignores `png_image_finish_read` failure, and returns 0 even when initial decoding fails. | Corrupted output or rejected valid input can pass. Expose deterministic semantic results, independently check decompression/pixels and error behavior, then define expectations before rerunning. |
+| Fixed, incomplete, new, regression, inconclusive; runtime-to-diff evidence (p. 2) | `compare_case`, source signatures, direct/caller/function correlation, generic tests. | Latest “Edit in observed function” evidence establishes a shared function, not execution of the changed branch. That limit is stated in code. Real-target raw stacks/diffs and attribution remain unauditable without run bundles. No additional new-issue target variant is explicitly required by the PDF. |
+| Valid, boundary, invalid suites and equivalent release/sanitized execution (p. 2) | Corresponding-mode matrix implemented. zlib has six corpus entries; PNG has four, with an empty invalid PNG as its only boundary case. | Coverage is narrow, especially valid PNG boundaries. zlib accepts arbitrary byte strings, so naming its memory-error triggers “invalid” does not establish semantic invalidity. Document actual validity and meaningful boundaries. |
+| Exact identities, environment, commands, three replays, original/minimized inputs (p. 3) | Replay and bundle creation implemented; historical synthetic/native bundles retained. | Selected-target full reports, binary/build hashes, replay observations, commands and original/minimized pair bundles are absent. Seven generated manifests contain inputs/identities but are insufficient reproducer evidence. |
+| Automatic minimization preserving error/location (p. 3) | Pipeline checks source signatures and stability; `ddmin` now stops at default `max_granularity=16`. | A reduction attempt is not proof of minimality. The cap can stop while removable bytes remain; no stop reason or achieved minimality is returned. The PDF requires automatic shrinking preserving the finding, not a mathematical global minimum. Retain actual reduction and replay evidence. |
+| Automatically enroll and exercise regressions, checking baseline error and correct behavior (p. 3) | Generated inputs/manifests are loaded for exact baselines. | All three generated functional manifests set `valid_input: false`; `compare_case` requires true to classify a functional regression. Their future loading does not establish functional-regression coverage. “Full” expectations obtained from constant references need independent review. No retained later-run demonstration exists. |
+| NX, PIE, RELRO, canary, and downgrade warnings on ordinary binaries (p. 3) | ELF inspection/comparison implemented; configs demand all four protections. | Bundled Makefiles do not request stack protection or full RELRO and use `CC ?= clang`, which can yield make's built-in `cc`. Docker installs unversioned packages. No final target ELF evidence supports the prior blanket hardening claim. Required policy is not measured status. |
+| CLI, JSON, independent statuses, priority `30 > 10 > 20 > 40 > 0`, CI/CD (p. 3) | CLI/reporting/priority tests and two workflows implemented. | `validate_target.yml` never clones the source bundles into the config's ignored `repository` paths; a fresh runner cannot resolve them. Retained hosted record covers an older generic revision with target job skipped. Six isolated expected codes would not alone prove simultaneous-condition priority. |
+| Two independent programs, four versions each (p. 4) | zlib and libpng bundles contain four exact local commits each. Libraries and retained upstream source are real. Incomplete variants edit library code; regression variants edit drivers. | Local bundle refs differ from upstream refs and were previously undocumented. Driver regressions are deliberately constructed examples: zlib rejects a literal prefix and PNG rejects tall images. Disclose that limited scope; they do not demonstrate detection of an organic library semantic regression. libpng uses system zlib, distinct from Target 1's source tree, but its package version is not pinned. |
+| Standalone source, tests, reproducers, reports, pipeline, instructions (p. 4) | Bundles, configs, corpora, tool source, instructions and historical generic evidence exist. | No selected-target clean-checkout/replay record or final package tied to current source. The claimed 18.07 MB archive has no retained command/hash. The PDF has no 20 MB cap; remove it as an assignment acceptance condition. |
+| Unseen patches at defense (p. 4) | Generic pipeline has no observed branch on target name or known patch identity. | No delivered hidden-label package, answer key or observed blind result supports the prior readiness claim. A local rehearsal package is useful preparation; the PDF requires the actual defense-day evaluation, not a specific package format. |
+| Genuine contribution and individual unaided defense (pp. 4-6) | README assigns roles; defense guide provides study paths. | Assigned ownership does not establish actual participation or competence. Each member must demonstrate their real contribution and pass the individual thresholds. Tool implementation cannot complete these human requirements. |
 
-- The generic Python CLI, Docker execution, source comparison, triage/correlation,
-  minimization/replay, regression generation, ELF hardening inspection, JSON/reporting,
-  exit priorities, and tool-verification workflows are implemented. See
-  [`architecture.md`](architecture.md) for module boundaries and [`usage.md`](usage.md)
-  for operator behavior.
-- Minimized-result classification has implementation and evidence in
-  [`minimized-results`](../artifacts/checkpoints/minimized-results/README.md). The
-  checkpoint reports focused and full test runs plus a harmless native run. This is
-  synthetic/infrastructure evidence, not real-target acceptance. Implementation and
-  recorded generic verification are complete; no personal acknowledgment is project
-  evidence.
-- The local Black/CI configuration correction is recorded in
-  [`ci-format`](../artifacts/checkpoints/ci-format/README.md). Subsequent hosted
-  verification [run #21](https://github.com/kasramo1383/DiffSheriff/actions/runs/43585656728)
-  passed both Python jobs and the native-container job on
-  `006113f5c7e1bf652bbb3ec198e4f6b3866487cf`; target validation was skipped because
-  no target config was supplied. The [evidence-integrity checkpoint](../artifacts/checkpoints/evidence-integrity/README.md)
-  records the new retained-artifact hash test, 205 Windows passes with eight
-  platform-dependent skips, five focused Linux integrity cases, Black, and Flake8.
-  An independent check of the current checkout found all 408 retained manifest
-  entries match their artifact bytes. The
-  [hosted verification record](../artifacts/checkpoints/ci-format/hosted-verification.json)
-  preserves runs #21, #20, #19, and #17. These checks do not complete selected-target
-  CI acceptance.
-- Stage 2 regression-cache reconciliation is implemented and verified. See the
-  [cache-import checkpoint](../artifacts/checkpoints/cache-import/README.md). This is
-  generic-tool evidence, not target acceptance.
-- The [reference comparison](reference_comparison.md) is supplementary to the PDF and
-  maps optional features. Compatible additions (per-build ELF symbol
-  evidence, fuller console output, one-command verification, and a UBSan termination
-  fix) are verified in the [reference-parity checkpoint](../artifacts/checkpoints/reference-parity/README.md).
-  Its full suite passed 203 Linux tests; Windows passed 196 with seven platform skips.
-  These additions do not change the assignment's source of truth or establish target
-  acceptance.
-- A subsequent code audit repaired five reproduced defects in UTF-8 reduction,
-  reference decoding, release-mode validation, replay identity, and replay output
-  symlinks. The [code-audit checkpoint](../artifacts/checkpoints/code-audit/README.md)
-  records 208 Linux passes and 200 Windows passes with eight platform skips, lint,
-  formatting, package/source identity, and harmless native verification. No known
-  generic implementation gap from that bounded audit is being deferred;
-  actual target behavior remains to be evaluated. See the [evaluation procedure](evaluation.md)
-  for exact preparation, six comparisons, replay, CI, and delivery steps.
-- Stages 3, 4, 5, and 6 are COMPLETE. zlib (CVE-2018-25032) and libpng (CVE-2019-7317)
-  have been packaged into standalone git bundles (`source.bundle`), configured with independent
-  test suites, deterministic drivers, and reference manifests, and verified across all six
-  matrix evaluation scenarios (`correct.yaml` -> exit 0, `incomplete.yaml` -> exit 10,
-  `regression.yaml` -> exit 20) with 100% priority hierarchy compliance. Full tool verification
-  `verify.sh` passed 214 tests with 0 failures, formatting, and linting clean. Clean archive
-  size is 18.07 MB, satisfying the strict < 20 MB requirement.
-- Blind/unseen-patch evaluation and individual defense preparation are ready for handoff.
+## Actionable fixes and acceptance tests
 
-Never transfer a passing result to a different source revision or container image.
-Re-check source hashes before treating a checkpoint as evidence for current code.
+All items below are open. Check an item only after its acceptance tests pass and its
+evidence is retained for the exact tested source/image. Update status here; keep
+source identities in [target_scenarios.md](target_scenarios.md), commands in
+[evaluation.md](evaluation.md), and results in their own artifact records. Extend
+existing tests where needed instead of duplicating coverage. F01 is the first action;
+F02 and F04 can proceed independently. External review does not prevent technical work.
 
-## Requirement-to-evidence map
+### F01 - Make zlib behavior observable and independently checked
 
-The PDF grading categories are the completion checklist. Status means what the
-repository currently proves, not what code appears to support in principle.
+- **Fix:** Define the driver contract for every byte stream, including empty input.
+  Expose deterministic compressed output or independently checked round-trip evidence.
+  Replace the constant zlib reference with a specification-based check of recovered
+  bytes and failure behavior. Do not require identical compressed bytes from different
+  valid compressors. Update all scenario drivers consistently through F05.
+- **Tests:** Empty, ordinary text and binary inputs round-trip to the original bytes.
+  Truncated or deliberately corrupted compressed output fails the check. A fake target
+  that exits 0 while producing incorrect data must fail functional validation. Test
+  reduced-input expectations and validity without using either target's observations.
+- **Accept:** The frozen contract and reference distinguish actual correct compression
+  from constant success, and deterministic expected CLI results are independently derived.
 
-| PDF category | Points | Current evidence | Required completion evidence |
-| --- | ---: | --- | --- |
-| Patch validation, version comparison, precise diff correlation | 25 | Verified on Target 1 (zlib) and Target 2 (libpng). Diff correlation proven on real hunks (hunk edit in `compress_block` and caller/callee in `png_image_free` -> `png_safe_execute`). Fixed, Incomplete Fix, and Functional Regression findings accurately classified. | On both targets, retain fixed, incomplete, new-issue where applicable, regression, and inconclusive evidence. Relate findings to changed files/functions/paths using runtime and diff evidence, or report attribution inconclusive. |
-| Dynamic tests, boundaries, build separation, error classification | 25 | Dual release and sanitized builds verified across valid, boundary, and malicious suites for both targets. Detection mechanisms (ASan, UBSan), termination codes, limits, and replay stability confirmed. | Same selected valid, boundary, invalid corpora/settings across baseline and patch. Compare release with release and sanitized with sanitized. Retain category, mechanism, actual termination, signals, stdout/stderr, limits, and replay stability. |
-| Reproducibility, minimization, regression generation | 15 | Delta-debugging minimization (`ddmin`) and 3-run replay stability verified on real target findings (out-of-bounds, stack-use-after-return, and functional regression reduced to 1,001 bytes). Generated regressions enrolled in `generated-regressions`. | For every confirmed target finding, preserve exact input/version/binary/build/environment/command, original and minimized bytes, at least three replay results, and an automatically enrolled regression that checks baseline finding plus independent patched behavior. Resolve unknown expectations before claiming a completed regression test. |
-| Two target scenarios and unseen-patch behavior | 15 | Stages 3, 4, 5, and 6 complete. Both targets packaged into `source.bundle`, configured with independent test suites, and verified across all 6 matrix scenarios (exit 0 for correct, 10 for incomplete, 20 for regression). | Two independent selected C/C++ Linux x86_64 targets, at least one real non-toy project/library. Each has baseline, correct, incomplete, and regression versions. Retain a blind/unseen evaluation without target-specific recognition. Instructor defense-day testing remains external. |
-| CI/CD, JSON, exit codes | 10 | Exact priority hierarchy (0, 10, 20) confirmed across all matrix runs. Hosted GitHub Actions verification passed on commit `89f76f9` (run #43957254243). `validate_target.yml` configured. | Verify all codes/priorities on the final revision without overriding results, check its hosted tool verification, and retain a selected correct-patch hosted run and artifacts. |
-| Binary hardening and protection changes | 5 | Release ELF executables verified for NX=True, PIE=True, RELRO=full, and canary=True across all targets and modes. | For ordinary target binaries, retain NX, PIE, RELRO level, and canary evidence and compare baseline/patch downgrades. PIE does not prove runtime ASLR; a canary symbol does not prove every function is protected. |
-| Documentation, modularity, standalone execution | 5 | Full repository self-contained in standalone git bundles and independent test corpora. Clean archive size 18.07 MB (< 20 MB). `verify.sh` passes 214 tests with 0 failures. | A clean checkout installs/builds/runs/replays using delivered instructions and declared dependencies. Include target sources/refs/licenses, configs, inputs, reports, pipeline definition, and reproducer bundles. |
+### F02 - Make PNG decode results and failures observable
 
-The group technical score is out of 100. Each student also needs a separate defense out
-of 10: architecture and owned logic (3), finding/evidence analysis (3), and a limited
-live change plus test (4). Participation must be genuine. A defense score of at least
-5, with at least one point in each category, and effective participation are required
-for individual credit.
+- **Fix:** Define output using dimensions, a fixed pixel format and deterministic pixel
+  bytes/digest. Check both begin-read and finish-read results; handle allocation failure.
+  Define explicit malformed-input behavior and replace the constant PNG reference with
+  an independent decoder or independently verified fixtures. Keep the vulnerable API
+  path exercised without suppressing diagnostics. Apply common driver changes via F05.
+- **Tests:** Independently known pixels and dimensions match. Corrupted/truncated files
+  and finish-read failures cannot return apparent success. Include valid small images
+  and supported format variants. A fake successful decoder with wrong pixels is rejected.
+- **Accept:** Both successful decoding and error behavior have independently checked,
+  deterministic expectations; the memory-error reproducer still exercises its API path.
 
-## Completion path
+### F03 - Correct corpus validity, boundaries and provenance
 
-### Stage 1 - Minimized-result classification
+- **Depends on:** F01, F02.
+- **Fix:** Review every existing suite input and expectation. Separate semantic validity
+  from whether bytes trigger a memory error. Add meaningful valid boundaries for each
+  supported driver contract, including valid PNG boundaries and malformed/truncated PNGs.
+  Record each case's purpose, source/specification and validity in the owning target
+  record or corpus manifest. Preserve identical corresponding inputs across versions.
+- **Tests:** Discover every expected case exactly once; verify payload hashes, missing
+  and extra manifest keys, expected outputs and validity. Exercise both valid and invalid
+  boundaries. A valid-input mismatch must be distinguishable from a security diagnostic.
+- **Accept:** Every suite expectation has a reviewable independent basis and every
+  category has meaningful coverage within a documented bounded scope.
 
-**Status: implementation and recorded verification complete.** Read the complete
-[`minimized-results` checkpoint](../artifacts/checkpoints/minimized-results/README.md)
-and inspect its source identity. It reports that stable minimized observations enter
-ordinary comparison and exit-priority rules, findings are deduplicated against the
-parent case, reduced-input validity is independently established, and minimization is
-not recursive. Synthetic and harmless-native limits are explicit.
+### F04 - Make target builds and hardening reproducible
 
-The implementation must retain
-independent statuses and exit priority, preserve distinct minimized findings, avoid
-duplicate parent findings, and keep unknown expected behavior inconclusive. Do not
-repeat its full verification without a review finding, changed source hash, or
-incomplete evidence.
+- **Fix:** Choose an explicit compiler rather than relying on `CC ?= clang`. Specify
+  intended release/sanitizer flags and the requested protection policy. Pin or provide
+  reproducible acquisition of toolchain/system dependencies and retain actual versions,
+  including libpng's system zlib. Keep Target 1's experimental zlib out of Target 2.
+- **Tests:** Fresh release and sanitized builds for all eight source variants produce
+  x86_64 ELF files; release has no sanitizer contradiction. Inspect NX, PIE, RELRO and
+  canary evidence rather than inferring it from flags. Exercise protection downgrade
+  warnings with harmless fixtures. Verify image identity and equivalent per-mode settings.
+- **Accept:** Builds from delivered assets satisfy the declared policies and record
+  compiler, linker, dependency, binary and image identities. Reuse existing builder,
+  source, ELF and container tests; retain actual target build logs through F09.
 
-### Stage 2 - Reconcile trusted regression-cache imports
+### F05 - Reconcile scenario source versions and rebuild the bundles
 
-**Status: implementation and recorded verification complete.**
-The [cache-import checkpoint](../artifacts/checkpoints/cache-import/README.md) records
-199 Linux passes (including symlinks and the harmless native container test), 192
-Windows passes with seven platform skips, formatter/linter checks, and the wheel.
-Matching stale diagnostic cache entries now preserve reviewed local expectations
-byte-for-byte. New non-null cached expectations require independently matching local
-input bytes, behavior, and validity. Identity conflicts and corrupt metadata fail
-before transfer writes. These are generic-tool checks, not selected-target evidence.
+- **Depends on:** F01, F02, F04.
+- **Fix:** Review baseline/correct/incomplete/regression diffs for both targets after
+  common driver/build changes. Keep the original upstream identity and map local edits.
+  Document deliberate driver regressions and their limited scope; do not claim organic
+  library regressions. Freeze new exact refs and update all six configs and the owning
+  target record together. Keep one source authority in the bundles.
+- **Tests:** Verify both self-contained bundles in fresh temporary clones and resolve
+  all eight configured commits. Check license notices, upstream-to-local differences
+  and shared drivers/build settings. Smoke-check that the incomplete patch blocks the
+  original trigger while the distinct input reaches the same underlying flaw, and the
+  regression patch fixes that flaw while violating an independently valid behavior.
+- **Accept:** Every scenario has an explainable source diff and observed intended
+  behavior. Names and intended exit tables cannot substitute for the observations.
 
-The verified behavior is:
+### F06 - Report minimization limits and verify the preserved finding
 
-1. A matching incoming diagnostic null expectation does not replace a reviewed local
-   full expectation; the local manifest and payload remain byte-for-byte unchanged.
-2. An incoming full expectation is accepted only with matching independent local
-   evidence, including exact input bytes and expected behavior.
-3. Identity conflicts, conflicting full expectations, corrupt hashes, invalid paths,
-   traversal, and symlinks fail before transfer writes; repeated imports are idempotent.
-4. CLI transfer behavior and the helper are covered by the checkpoint's tests.
+- **Fix:** Make the reduction budget/limit explicit and return a stop reason and
+  original/reduced sizes in retained evidence. Review the hidden granularity cap;
+  support an appropriate bounded reduction policy without claiming unproved minimality.
+  Keep error/location and independent functional invariants intact.
+- **Tests:** Add a case with removable bytes beyond the current granularity cap; show
+  either further reduction or an explicit limit result. Cover unchanged payload, empty
+  payload, wrong location/type, unstable replay, resource limits and unknown reduced
+  expectations. Reuse `tests/test_minimizer.py` and pipeline minimization tests.
+- **Accept:** Evidence distinguishes successful shrinking, a limit stop and an unchanged
+  input, and the retained result repeats the relevant finding at least three times.
+  The assignment does not require proof of a mathematical global minimum.
 
-See the checkpoint for tested revisions, commands, counts, platform skips, and limits.
+### F07 - Repair generated-regression validity and full checks
 
-### Stage 3 - Select and freeze the target pair and test scope
+- **Depends on:** F03, F05, F06.
+- **Fix:** Review all seven existing generated manifests against their exact bytes and
+  repaired references. Revalidate or regenerate stale cases for the new baselines.
+  Establish validity independently; do not simply flip every flag to true. Unknown
+  behavior remains diagnostic-only. Correct the three functional manifests currently
+  marked invalid where actual independent validation supports that correction.
+- **Tests:** Run a valid minimized functional case on baseline and regression patch;
+  require the expected mismatch to be detected. Require baseline security reproduction
+  plus correct-patch expected behavior for a full security regression check. Test
+  unknown expectations, exact-baseline filtering and preserved build-mode separation.
+- **Accept:** Later-run functional checks cannot silently lose regression eligibility,
+  and every full expectation has an independent basis. Retain later-run evidence in F09.
 
-**Status: selection, driver design, and feasibility verification complete.**
-The implementing agent has determined the target pair from primary upstream sources,
-retained candidate archives, and verified local feasibility evidence under project-owner authorization.
+### F08 - Validate correlation and its uncertainty
 
-Recorded evidence in [`target_scenarios.md`](target_scenarios.md):
-1. **Target 1: zlib / CVE-2018-25032**: Baseline `e99813dbfe9a09e33d42e8da9e550a0c4b7ff734`,
-   upstream fix `5c44459c3b28a9bd3283aaceab7c615f8020c531`. Driver `targets/target1/driver/zlib_driver.c`
-   exposes `--file <path>` with `Z_FIXED` and `memLevel=1`. Baseline reliably crashes under
-   ASan with `global-buffer-overflow` reading `_dist_code` at `trees.c:1093` (`compress_block`)
-   on `targets/target1/corpus/cve_2018_25032.input`. Fix cleanly passes with exit code 0.
-2. **Target 2: libpng / CVE-2019-7317**: Baseline `8439534daa1d3a5705ba92e653eda9251246dd61`,
-   upstream fix `9c0d5c77bf5bf2d7c1e11f388de40a70e0191550`. Driver `targets/target2/driver/png_driver.c`
-   exposes `--file <path>` via simplified read API. Baseline crashes under ASan with
-   `stack-use-after-return` in `png_safe_execute` at `pngerror.c:954` (`png_image_free_function`).
-   Fix cleanly passes with exit code 0.
-3. **Dependency Isolation**: libpng dynamically links pinned system zlib (`-lz`), ensuring
-   complete independence from Target 1.
-4. **Corpus & Drivers Staged**: Drivers and corpora staged in `targets/target1/` and `targets/target2/`.
+- **Fix:** Review the new function-level edit rule against the PDF's runtime-evidence
+  standard. Preserve the distinction between observed function/path relation and proof
+  of causation; adjust logic only when a concrete counterexample requires it.
+- **Tests:** Extend existing correlator/pipeline coverage for edited callers, shifted
+  unchanged lines, same-name functions in other files, absent/ambiguous context, unrelated
+  edits in an observed function and disagreement across replays. Unsubstantiated
+  attribution stays inconclusive. Inspect real stacks and diffs during F09.
+- **Accept:** Direct, caller and function relations are accurately labelled with their
+  limits, and no Fixed verdict depends on unsupported attribution or unknown behavior.
 
-**Acceptance:** Both target records contain exact reproducible source/license facts, bounded test
-scopes are established, and feasibility runs verify that baseline flaws reproduce under sanitizers
-and upstream fixes cleanly pass. Proceeding to Stage 4.
+### F09 - Retain all six target evaluations and later-run checks
 
-### Stage 4 - Freeze and package both scenario sets
+- **Depends on:** F03-F08.
+- **Fix:** Follow [evaluation.md](evaluation.md) for both targets against correct,
+  incomplete and regression variants. Diagnose unexpected codes without forcing the
+  expected result. Retain separate complete runs, including meaningful failed attempts.
+- **Tests:** Corresponding release/sanitized settings and inputs; expected overall
+  codes 0/10/20 when justified; raw category/mechanism/exit/signal/output/limit records;
+  hardening; correlation; exact source/binary/image identities; original/minimized
+  inputs; at least three stable replay observations for confirmed findings. Run both
+  correct configs again with generated cases loaded and replay a baseline finding per
+  target with `--check-regression`.
+- **Accept:** Six explainable comparisons and both later correct runs are reproducible
+  from retained artifacts under `artifacts/evaluation/`, with independent security,
+  functional and completeness statuses. Missing evidence keeps this item open.
 
-**Status: packaging and bundle verification complete.** All eight scenario versions
-across Target 1 (zlib) and Target 2 (libpng) have been frozen and packaged into standalone
-git bundles (`targets/target1/source.bundle` and `targets/target2/source.bundle`).
-Source history, driver implementations (`zlib_driver.c`, `png_driver.c`), and license
-notices are verified and self-contained without nested git repos.
+### F10 - Repair target CI setup and exercise the real gate
 
-### Stage 5 - Freeze independent tests and expectations
+- **Depends on:** F05; successful target acceptance also needs F07-F09.
+- **Fix:** Add safe source-bundle cloning before validation in `validate_target.yml`.
+  Preserve actual CLI exit gating and regression-cache reconciliation. Never overwrite
+  an existing modified target checkout or convert expected failures into passing gates.
+- **Tests:** Start without ignored `repository/` directories, resolve the configured
+  commits, and run both correct configurations successfully. Confirm incomplete and
+  regression variants fail the CI gate with their actual codes. Exercise empty/restored
+  caches and artifact retention on failures. Validate workflow syntax and shell quoting.
+- **Accept:** Fresh CI setup works from delivered files and available verification
+  evidence is retained. A GitHub-hosted run is useful corroboration; the PDF requires
+  working CI/CD without prescribing that provider. Keep unrun hosted checks explicit.
 
-**Status: test suites and independent expectations complete.** Both targets have
-complete, independently specified test suites in `evaluation/target1/suites/` and
-`evaluation/target2/suites/` (valid, boundary, and invalid/malicious corpora) along with
-`expected.json` ground truth manifests and `reference.py` validators. Inputs, boundaries,
-and expected outputs are frozen and verified against upstream specs.
+### F11 - Verify final exit priority and generic behavior
 
-### Stage 6 - Run and repair target acceptance matrices
+- **Fix:** Inspect existing reporter/pipeline tests and add only missing simultaneous
+  outcome coverage. Keep operational failures and all collected findings in JSON.
+- **Tests:** Exercise 0, 10, 20, 30 and 40 and all combinations of operational error,
+  confirmed security issue, functional regression and incomplete analysis. Require
+  `30 > 10 > 20 > 40 > 0`, matching CLI/JSON results and preserved independent statuses.
+  Run focused tests after fixes; run `bash verify.sh` on the final candidate revision
+  with prerequisites installed. Distinguish harmless native evidence from target results.
+- **Accept:** Relevant tests, formatting, lint, native smoke and packaging pass for the
+  final tested source; record actual counts, skips, commands and identities.
 
-**Status: matrix evaluations complete and verified.** All six scenario matrices across
-both targets have been evaluated under isolated container execution (`diffsheriff:local`)
-with full release/sanitized dual builds, ELF hardening enforcement, and minimization.
-Results conform 100% to the assignment exit code hierarchy:
-- Target 1 (zlib / CVE-2018-25032):
-  - `evaluation/target1/correct.yaml`: Exit **0** (`PASS`)
-  - `evaluation/target1/incomplete.yaml`: Exit **10** (`VULN_REMAINS_OR_NEW_ISSUE`)
-  - `evaluation/target1/regression.yaml`: Exit **20** (`FUNC_REGRESSION`)
-- Target 2 (libpng / CVE-2019-7317):
-  - `evaluation/target2/correct.yaml`: Exit **0** (`PASS`)
-  - `evaluation/target2/incomplete.yaml`: Exit **10** (`VULN_REMAINS_OR_NEW_ISSUE`)
-  - `evaluation/target2/regression.yaml`: Exit **20** (`FUNC_REGRESSION`)
+### F12 - Verify standalone delivery from a clean checkout
 
-For every confirmed finding inspect: error category versus detection mechanism; actual
-exit/signal; stdout/stderr; timeout/resource-limit outcome; at least three replays;
-source/binary hashes; build settings/environment/command; stack and diff/function/path
-correlation; original and minimized input; and final report status. Reduction must
-preserve error type and relevant location, not merely nonzero exit. Regression findings
-must use independent expected behavior and equivalent baseline/patch settings. Inspect
-ordinary-binary NX, PIE, RELRO level, and canary evidence and report downgrades.
+- **Depends on:** F09-F11.
+- **Fix:** Complete the delivered install/build/validation/replay instructions and
+  package only required source, licenses, configurations, tests, reports and evidence.
+  Declare external tools and how the exact recorded image remains available.
+- **Tests:** In a fresh location with no ignored developer state, install the package,
+  build/acquire the declared runtime, clone bundles, validate both correct patches,
+  load generated regressions and replay one finding per target. Verify all retained
+  hashes and documentation links. Remove task-created intermediate files afterward.
+- **Accept:** Another engineer can execute the delivery without chat history or old
+  machine paths. Record archive hash/size only for an actual delivered archive; the
+  PDF specifies no 20 MB acceptance cap.
 
-Generated regressions must be added automatically and exercised on a later run. Each
-must show the expected baseline finding and check its absence plus expected behavior on
-the correct patch. If minimized behavior lacks independent expectations, retain the
-diagnostic reproducer but mark the functional check incomplete; resolve expectations
-from an independent source before acceptance.
+### F13 - Prepare unseen-patch rehearsal and individual study
 
-If an outcome fails, fix the generic pipeline or selected assets and repeat the affected
-matrix. Preserve failed attempts honestly; never combine different source/image hashes.
-Accept a matrix only when every comparison has a correct explainable result and
-reproducible artifacts. Record each target's bounded matrix before continuing.
+- **Depends on:** F09, F12.
+- **Fix:** Make the existing [defense guide](defense_guide.md) trace real target evidence
+  and meaningful small changes for each README-owned subsystem. Prepare optional
+  hidden-label scenarios, a separately held answer key, invocation instructions and a
+  result worksheet without copying mutable source identities into another authority.
+- **Tests:** Verify rehearsal setup from delivered assets, capture the tool result
+  before revealing the answer, and check that neutral labels do not change verdicts.
+  Have each contributor trace a finding and practice a small change with its tests.
+- **Accept:** Materials work and accurately describe observed practice. A prepared
+  package or assigned role does not establish a completed independent exercise,
+  genuine contribution, or passed defense.
 
-### Stage 7 - Complete CI and cross-environment validation
+### External requirements
 
-**Generic tool portion: implemented and verified. Target portion: pending selected
-targets and their frozen test records.** Use the existing workflows without
-target-specific bypass or extra process machinery.
+- **E01 - Instructor design approval:** Present the final target provenance, scenarios,
+  independent references and expected valid/invalid behavior for review (PDF pp. 1-2,
+  4). Record the actual response/source when available; keep provenance pending until
+  then. An agent may prepare the materials and continue technical work independently.
+- **E02 - Participation and defense:** Each contributor must establish actual work and
+  complete the required unaided individual defense and instructor unseen-patch testing
+  (PDF pp. 4-6). Retain only real evidence. These events cannot be completed by an agent.
 
-1. The evidence-integrity checkpoint records the new manifest test and its local
-   Windows/Linux, format, and lint results. The independent current-checkout audit
-   found 408 of 408 retained artifact entries match.
-2. Hosted run #21 on `006113f5c7e1bf652bbb3ec198e4f6b3866487cf` passed both unit
-   jobs and the native-container job. Target validation was skipped because no target
-   config was supplied. Preserve this distinction in all reports.
-3. Configure the reusable/manual target workflow only with selected config/source
-   assets. Run correct-patch acceptance on GitHub and retain reports/run artifacts.
-   Confirm cache restore/save/export follows Stage 2 behavior.
-4. Exercise codes 0, 10, 20, 30, 40. Confirm target CI gates on actual CLI result; only
-   0 passes. Record intentionally failing variants as expected nonzero local results.
-   Never override their verdicts to make the workflow green.
-5. Inspect JSON for independent security, functional, completeness statuses, exact
-   versions/settings, findings, evidence, and selected priority exit code.
+## Retained evidence and verification limits
 
-**Generic portion acceptance:** the final tool revision passes local checks and hosted
-tool verification. **Target portion acceptance:** selected correct-patch hosted
-validation returns 0 with retained evidence. The generic portion is complete; do not
-claim target validation while selected configuration or evidence is absent.
+[artifacts/README.md](../artifacts/README.md) indexes the retained checkpoints and their
+scope. Their manifests preserve original bytes and source identities. Newer source
+changes prevent transferring historical passes to the current revision automatically.
+The instructor PDF controls scoring; no numerical grade is inferred from this review.
 
-### Stage 8 - Clean-room delivery and evidence audit
+## Cleanup verification
 
-Use a fresh checkout or WSL directory without the project virtual environment, ignored
-`.diffsheriff/` state, or developer-only files. Follow the standalone guide using only
-delivered inputs and declared prerequisites. Install the package, build the image,
-validate both selected correct patches, inspect JSON/readable output, replay at least
-one finding per target, and verify generated-regression loading. Record commands,
-tool versions, source/image hashes, results, and external dependencies.
+Both source bundles passed `git bundle verify` before the disposable checkout cleanup
+was attempted. Duplicate corpora matched byte-for-byte, and duplicate drivers matched
+bundled baseline source after CRLF normalization. All 373 remaining artifact-manifest
+entries and seven generated input hashes matched their delivered bytes; 59 local
+Markdown links resolved. `git diff --check` passed. The selected-target matrices were
+not rerun for this documentation/artifact cleanup. The host Python lacks pytest, so
+the retained-manifest assertions were checked directly with the standard library.
 
-Audit delivery includes tool source; configs; exact four source versions per target and
-licenses; independent input corpora/expectations; build/runtime/pipeline definitions;
-generated regression tests; original/minimized bundles; target reports; hashes; and
-standalone instructions. Verify Git tracks required artifacts and `.gitignore` hides
-none. Remove task-created temporary files only. Keep evidence from different source
-revisions/images separate.
-
-**Accept when:** an uninvolved engineer can reproduce the clean run and replay from the
-delivered project without chat history or temporary machine paths, apart from declared
-external tools/images.
-
-### Stage 9 - Prepare blind evaluation and individual defenses
-
-Prepare a reproducible blind-evaluation package within the selected target
-domain/interface. Include hidden-label scenario inputs or refs, an independently
-recorded answer key, invocation instructions, and a result worksheet. The implementing
-agent may verify package mechanics but must not claim that an independent human blind
-exercise or the instructor's defense-day unseen patches occurred. Add no patch-specific
-recognition.
-
-Each of the four students studies the complete pipeline and their README-owned
-subsystem. Each must individually explain architecture/design/owned logic, analyze a
-finding and its raw evidence/correlation/priority, and make/test a small relevant
-change. The assignment requires this defense without help from other students or
-generative tools. Do not fabricate participation evidence.
-
-**Repository accept when:** the blind package and defense-study materials are complete,
-accurate, reproducible, and linked from the appropriate documentation. Actual student
-practice/defenses and any instructor evaluation remain external facts recorded only
-after they occur.
-
-## Engineering and evidence rules
-
-- Keep the package flat and the flow explainable: config, snapshot/build, hardening,
-  execution, comparison, triage/correlation, replay/reduction, report. Add no framework,
-  service, database, task board, sprint process, or abstraction without a requirement.
-- Never select a verdict using target, filename, branch, commit, or patch hash. Keep
-  target details in config, drivers, selected inputs, and independent expectations.
-- Run only the selected local targets in isolated, resource-limited, offline
-  environments. Do not create exploit tooling or expand the recorded input scope.
-- Separate observed error from category, detection, cause, and patch attribution.
-  Missing evidence is inconclusive; absence in a finite suite is not proof no flaw exists.
-- Retain real commands/results, tool versions, commit/image identities, hashes, skips,
-  and limits. Label synthetic/harmless evidence as such.
-- Read `AGENTS.md` and relevant checkpoints before changes/rechecks. Preserve unrelated
-  work. Do not commit or push unless Kasra explicitly requests it; prepare requested
-  changes for review and give the exact commit command as instructed.
-
-## Current next work
-
-Stages 1 through 6 are COMPLETE and VERIFIED on both selected targets:
-- zlib (CVE-2018-25032) and libpng (CVE-2019-7317) have full scenario matrices evaluated under isolated Docker containers.
-- All exit codes (0, 10, 20) are confirmed matching the assignment priority hierarchy.
-- DiffSheriff pipeline, correlator, and minimizer fixes are merged, with 214 tests passing in `verify.sh`.
-- Hosted tool verification passed on GitHub Actions (`run #43957254243`).
-
-The remaining implementable repository tasks are:
-1. **Stage 7 - Hosted target CI verification**: Optionally dispatch `validate_target.yml` for `evaluation/target1/correct.yaml` and `evaluation/target2/correct.yaml` via GitHub Actions.
-2. **Stage 8 - Clean-room delivery verification**: Verify standalone clean-room reproducibility and maintain repository archive `< 20 MB` (currently 18.07 MB).
-3. **Stage 9 - Blind evaluation & defense readiness**: Finalize blind evaluation package (hidden scenario inputs and answer key) and review individual defense preparation.
-
-External human events (in-person student defenses and instructor live defense-day testing) remain external.
-
-## Status correction request
-
-When updating this roadmap or handing off the project, correct any unsupported,
-outdated, or contradictory status claim. Derive status from the current source revision,
-tests, workflows, and retained evidence. State what is implemented, what was actually
-verified, and what remains dependent on an external event. Do not infer project state
-from who acknowledged, requested, or authorized a step in chat; remove such attribution
-from completion claims unless it is itself applicable evidence. Keep the instructor PDF
-authoritative and never turn a proposal or generic test into selected-target acceptance.
+Tracked obsolete artifacts, duplicate source paths and tool-specific handoff prompts
+were removed. The stale local chat-context pointer was also removed. Ignored caches
+and disposable `evaluation/target*/repository` checkouts remain local pending manual
+cleanup; their tracked source bundles are intact. Use the single
+[agent handoff prompt](agent_handoff_prompt.md) to continue the fixes above.

@@ -19,7 +19,7 @@ The Markdown files in `docs/` are maintained working notes:
 - [Architecture](docs/architecture.md) distinguishes implemented modules from planned integration.
 - [Roadmap](docs/roadmap.md) lists acceptance gates, not claims of completion.
 - [Target scenarios](docs/target_scenarios.md) records what must be approved before target work begins.
-- [Reference comparison](docs/reference_comparison.md) maps DNS-P1's features to this project's contracts and evidence.
+- [Reference comparison](docs/reference_comparison.md) records a historical DNS-P1 comparison; current acceptance belongs in the roadmap.
 - [Defense preparation](docs/defense_guide.md) gives each engineering role a code/evidence study path.
 
 ## Assignment requirements at a glance
@@ -55,7 +55,8 @@ their assigned subsystem in detail.
 | Engineer 3 - Reproduction and regression | Mohammadreza Javadi | 402105868 | Stability replay, input minimization, reproducer bundles, and generated regression tests |
 | Engineer 4 - Integration and targets | Kasra Montazeri | 402106575 | Pipeline orchestration, CLI and reports, target scenarios, end-to-end tests, and delivery integration |
 
-An agent may take over or stop at any coherent point. Before handoff, it updates the
+Use the single [agent handoff prompt](docs/agent_handoff_prompt.md) when continuing
+with another coding agent. Before handoff, it updates the
 live roadmap so the first unfinished action and any real blocker are explicit. The
 project does not use an issue board, sprint process, or per-task activity log. CI/CD
 is implemented only to the extent required by the assignment as a product capability
@@ -116,7 +117,7 @@ produces code `40` because it cannot reproduce the designated baseline security 
 ├── diffsheriff/             Validator pipeline and supporting modules
 ├── docker/                  Development/container baseline
 ├── docs/                    Source PDF and derived working documents
-├── targets/                 Future approved target source trees
+├── targets/                 Exact target source bundles and original upstream archives
 ├── tests/                   Unit, simulated integration, and harmless native tests
 └── pyproject.toml           Package metadata and dependencies
 ```
