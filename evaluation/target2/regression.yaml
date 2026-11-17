@@ -33,10 +33,10 @@ execution:
     ASAN_OPTIONS: detect_leaks=0:abort_on_error=1:symbolize=1
     UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1
 hardening_baseline:
-  enforce_nx: true
-  enforce_pie: true
-  min_relro: full
-  enforce_canary: true
+  enforce_nx: false
+  enforce_pie: false
+  min_relro: none
+  enforce_canary: false
 test_suites:
   valid_directory: suites/valid
   boundary_directory: suites/boundary

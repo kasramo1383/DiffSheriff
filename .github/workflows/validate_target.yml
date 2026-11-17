@@ -29,6 +29,16 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Prepare target sources
+        run: |
+          for target in target1 target2; do
+            destination="evaluation/$target/repository"
+            if [ -e "$destination" ] || [ -L "$destination" ]; then
+              echo "Refusing to overwrite existing target source: $destination" >&2
+              exit 1
+            fi
+            git clone -- "targets/$target/source.bundle" "$destination"
+          done
       - run: python -m pip install .
       - run: docker build -t diffsheriff:local -f docker/Dockerfile .
       - name: Restore previously generated regressions
