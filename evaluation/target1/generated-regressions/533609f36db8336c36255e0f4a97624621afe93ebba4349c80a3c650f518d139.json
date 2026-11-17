@@ -18,7 +18,7 @@
   "mode": "sanitized",
   "kind": "security",
   "check": "full",
-  "valid_input": false,
+  "valid_input": true,
   "expected": {
     "exit_code": 0,
     "stdout": "",

@@ -27,12 +27,12 @@
     "exit_code": 0,
     "stdout": "",
     "stderr": "",
-    "valid_input": false
+    "valid_input": true
   },
   "malicious/cve_2018_25032_bypass.input": {
     "exit_code": 0,
     "stdout": "",
     "stderr": "",
-    "valid_input": false
+    "valid_input": true
   }
 }

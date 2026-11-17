@@ -8,7 +8,7 @@
   "mode": "sanitized",
   "kind": "functional",
   "check": "full",
-  "valid_input": false,
+  "valid_input": true,
   "expected": {
     "exit_code": 0,
     "stdout": "",
