@@ -1,0 +1,31 @@
+{
+  "scope": "Retry of failed runtime build, followed by generic verification; no selected-target acceptance.",
+  "revision": "d68f152e7cadb19626b359be7871957c5ccf5a72",
+  "source_identity": "source-sha256.json, CRLF normalized to LF; staged snapshot matched before testing",
+  "direct_build": {
+    "exit_code": 1,
+    "error": "Docker Hub anonymous-token HTTP 403",
+    "log": "build-direct.log"
+  },
+  "proxy_build": {
+    "exit_code": 0,
+    "proxy": "HTTP proxy on Windows host port 10808 via WSL gateway 172.22.224.1",
+    "log": "build-proxy.log",
+    "command": "HTTP_PROXY=http://HOST_GATEWAY:10808 HTTPS_PROXY=http://HOST_GATEWAY:10808 http_proxy=http://HOST_GATEWAY:10808 https_proxy=http://HOST_GATEWAY:10808 ALL_PROXY=http://HOST_GATEWAY:10808 all_proxy=http://HOST_GATEWAY:10808 NO_PROXY=localhost,127.0.0.1,::1 no_proxy=localhost,127.0.0.1,::1 docker build --progress=plain --platform linux/amd64 --build-arg HTTP_PROXY=http://HOST_GATEWAY:10808 --build-arg HTTPS_PROXY=http://HOST_GATEWAY:10808 -t diffsheriff:local -f docker/Dockerfile .",
+    "cache_scope": "Build reused cached OS/dependency layers; not a no-cache dependency rebuild."
+  },
+  "runtime_image": "sha256:d596e5159a0b6ecc0fcb60ac79673b12bbe2e2607769f26bef17d8205dfeb7cf",
+  "runtime_installed_correlator_sha256": "58fbf74e5659aac934fa82f237e63818acc4c87595fc1ce9f8570e2169117816",
+  "image_has_no_proxy_environment": true,
+  "verification_command": "DIFFSHERIFF_TEST_IMAGE=RECORDED_IMAGE_ID bash verify.sh (proxy variables removed)",
+  "verification_exit_code": 0,
+  "junit_results": {
+    "tests": "274",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0"
+  },
+  "installed_wheel_cli_check": "passed outside source directory",
+  "wheel_sha256": "27aff27a94533e8d6f931a24dd3752fb613d100f0ebd586191de17a58623d34f",
+  "temporary_snapshot": "removed after copying and verifying retained evidence"
+}

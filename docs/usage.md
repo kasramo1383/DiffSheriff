@@ -265,3 +265,29 @@ filled from actual source and instructor decisions. After real-target validation
 each contributor should explain one finding's observations, source correlation,
 priority outcome, and replay, then make and test a small change in their owned
 subsystem. This guide does not claim that the review has taken place.
+
+
+## Retrying Docker Hub access from WSL
+
+If the ordinary build fails at `auth.docker.io` with HTTP 403, first check direct
+connectivity. A working local proxy can then be applied to that build process only.
+For the Windows proxy on port 10808, WSL in NAT mode reaches the Windows host through
+its default gateway, rather than WSL's own localhost:
+
+```bash
+gateway=$(ip -4 route show default | awk '{print $3; exit}')
+proxy="http://$gateway:10808"
+env HTTP_PROXY="$proxy" HTTPS_PROXY="$proxy" \
+    http_proxy="$proxy" https_proxy="$proxy" \
+    ALL_PROXY="$proxy" all_proxy="$proxy" \
+    NO_PROXY=localhost,127.0.0.1,::1 no_proxy=localhost,127.0.0.1,::1 \
+    docker build --progress=plain --platform linux/amd64 \
+      --build-arg HTTP_PROXY="$proxy" --build-arg HTTPS_PROXY="$proxy" \
+      -t diffsheriff:local -f docker/Dockerfile .
+```
+
+The proxy must already accept connections from WSL. This command does not configure
+the Docker daemon or persist proxy variables in your shell. The target runner continues
+to use restricted offline containers. The [retained retry](../artifacts/checkpoints/correlation-priority/retry/README.md)
+records the direct HTTP 403, successful proxy-assisted build, cache use, image identity
+and verification. A cached build does not establish fresh dependency acquisition.

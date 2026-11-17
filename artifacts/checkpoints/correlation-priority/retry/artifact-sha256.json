@@ -1,0 +1,10 @@
+{
+  "build-direct.log": "75c93d5e0f481bcbb98f01f0db0d455babe4ba3f294c140f1131315142cee6fe",
+  "build-proxy.log": "f5100bb5499a7fbb1d730ac1a69d33b7d71a89e6877ebf07d69e603d7ddebf05",
+  "full-linux.xml": "6ae35b5d6ebef4435ee6ff61d21e7d22e29381be741e1dd2f36efc317a0355e1",
+  "package/diffsheriff-0.1.0-py3-none-any.whl": "27aff27a94533e8d6f931a24dd3752fb613d100f0ebd586191de17a58623d34f",
+  "README.md": "ff5c279c0cc221ae1c4526afd21fc9b70ef28e5c99f2e2d9f9d6370607c4df1a",
+  "source-sha256.json": "8a960c678ee02e7b179f7512120d9be717168b8cb385e83307f68f57d6d5be8e",
+  "verification.json": "64a3b0161b38d32484fc2907dd6bc69ef088e63736e5d2ccc5b2e35e92fc68b6",
+  "verify-linux.log": "70821d212e60d670a8b3090b8a3eb17ef9255398d96c4cfa1c707dbeca4dfcae"
+}

@@ -1,0 +1,21 @@
+Verification evidence: /tmp/diffsheriff-build-retry-d0hf7arv/.diffsheriff/verification.oZnsXB
+All done! ✨ 🍰 ✨
+29 files would be left unchanged.
+........................................................................ [ 26%]
+........................................................................ [ 52%]
+........................................................................ [ 78%]
+..........................................................               [100%]
+- generated xml file: /tmp/diffsheriff-build-retry-d0hf7arv/.diffsheriff/verification.oZnsXB/tests.xml -
+274 passed in 71.31s (0:01:11)
+Looking in indexes: https://mirror-pypi.runflare.com/
+Processing /tmp/diffsheriff-build-retry-d0hf7arv
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: diffsheriff
+  Building wheel for diffsheriff (pyproject.toml): started
+  Building wheel for diffsheriff (pyproject.toml): finished with status 'done'
+  Created wheel for diffsheriff: filename=diffsheriff-0.1.0-py3-none-any.whl size=37585 sha256=27aff27a94533e8d6f931a24dd3752fb613d100f0ebd586191de17a58623d34f
+  Stored in directory: /home/kasra/.cache/pip/wheels/67/ad/0d/c4030003a895349e023a81afbe7fa0266b72e5a95934142863
+Successfully built diffsheriff
+TOOL VERIFICATION PASSED (synthetic tests and harmless native fixture).
+Approved-target matrices, clean-room delivery, and individual defenses remain separate gates.

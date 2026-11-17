@@ -205,9 +205,12 @@ remains in F09. Ambiguity now prevents Fixed rather than choosing an edit by pro
 
 **Status: complete for this tested generic-tool revision.** The [same checkpoint](../artifacts/checkpoints/correlation-priority/README.md)
 retains all 16 mixed-outcome CLI/JSON checks, focused/full verification and package
-installation. Full verification used the recorded existing runtime image; a normal
-image rebuild hit Docker Hub HTTP 403. This does not close F04's reproducible build
-work or F09's selected-target matrices. Rerun relevant checks after future source changes.
+installation. The initial run used an older runtime after Docker Hub HTTP 403.
+The [runtime retry](../artifacts/checkpoints/correlation-priority/retry/README.md)
+subsequently rebuilt the image through a process-scoped local proxy and passed full
+verification with that exact image. OS/dependency build layers were cached. This does
+not close F04's dependency reproducibility work or F09's selected-target matrices.
+Rerun relevant checks after future source changes.
 
 - **Fix:** Inspect existing reporter/pipeline tests and add only missing simultaneous
   outcome coverage. Keep operational failures and all collected findings in JSON.
