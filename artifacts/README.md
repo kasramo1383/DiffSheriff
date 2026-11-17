@@ -6,6 +6,7 @@ currently delivered here. Generated regressions under `evaluation/` do not repla
 
 | Record | Purpose |
 | --- | --- |
+| [PNG contract](checkpoints/png-contract/README.md) | Decode-error handling, updated source versions, reviewed fixtures and native scenario checks. |
 | [Zlib contract and CI setup](checkpoints/zlib-contract-ci/README.md) | Bounded zlib status/validity, native cases and fresh source-bundle setup. |
 | [Correlation and priority](checkpoints/correlation-priority/README.md) | Ambiguous attribution repair and all 16 mixed-outcome CLI checks; [rebuilt-runtime retry](checkpoints/correlation-priority/retry/README.md). |
 | [Reduction limits](checkpoints/reduction-limits/README.md) | Explicit reduction limits, stop reasons and synthetic/pipeline checks. |

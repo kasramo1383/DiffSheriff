@@ -36,10 +36,10 @@ was implemented and tested; they do not create new assignment requirements.
 | PDF requirement | Current assessment and necessary remainder |
 | --- | --- |
 | Configurable C/C++ Linux x86_64 targets and actual dynamic execution (p. 1) | Generic source/build/runner/ELF pipeline is implemented and tested. Both real library source bundles are delivered. Retain selected-target runs, not just harmless infrastructure tests. |
-| Independent behavior for valid/invalid inputs, instructor design approval (pp. 1-2, 4) | Static expected manifests exist, but their independent basis and selected driver contracts are not sufficiently documented. The zlib reference now implements a documented bounded status/validity contract; the PNG reference still returns blanket success and false validity. Review the selected cases, not every possible library input. Instructor approval evidence is unavailable. |
+| Independent behavior for valid/invalid inputs, instructor design approval (pp. 1-2, 4) | Static expected manifests exist, but their independent basis and selected driver contracts are not sufficiently documented. Both targets now have documented bounded contracts. PNG uses only reviewed fixture expectations and rejects unknown reference inputs. Review the selected cases, not every possible library input. Instructor approval evidence is unavailable. |
 | Correlation and Fixed/Incomplete/New/Regression/Inconclusive (p. 2) | Generic implementation and tests exist. F08 added conservative handling of multiple function-edit candidates. Real-target reports must explain the supported relation and uncertainty; function-level evidence does not require proof of causation. |
 | Valid/boundary/invalid suites, corresponding release/sanitized builds, error/mechanism/termination/output/limits (p. 2) | Implemented generically. Target suites exist; verify their chosen cases and labels. zlib memory-error triggers are not semantically invalid merely because they crash. An empty PNG can be an invalid boundary case; add cases only where the agreed boundary/functional behavior is otherwise untested. |
-| Reproducers, automatic reduction, three replays and enrolled later-run regressions (p. 3) | Implemented generically; F06 records reduction limits/outcomes. Selected-target full run bundles are absent. The two zlib functional manifests now have independently justified true validity; the PNG functional case still needs review. Keep unknown expectations inconclusive instead of inventing them. |
+| Reproducers, automatic reduction, three replays and enrolled later-run regressions (p. 3) | Implemented generically; F06 records reduction limits/outcomes. Selected-target full run bundles are absent. The two zlib functional manifests now have independently justified true validity; the old PNG cases were retired as legacy evidence after the driver/source refs changed. New-baseline later-run acceptance remains pending. Keep unknown expectations inconclusive instead of inventing them. |
 | Release hardening inspection and downgrade warnings (p. 3) | Implemented, with generic downgrade tests. Verify actual release observations on both targets. Absolute all-protections minima were a project policy, not a PDF requirement, and are relaxed in the selected configs. |
 | CLI, JSON, independent statuses and priority `30 > 10 > 20 > 40 > 0` (p. 3) | F11 verifies all 16 combinations through CLI and JSON. CI now prepares the bundle-backed source directories and refuses existing destinations; full selected-target CI results remain pending. |
 | Two independent programs, at least one real, four versions each (p. 4) | Two real libraries and all eight local snapshot refs exist. libpng uses system zlib rather than Target 1's tree. Inspect scenario behavior in the required six comparisons; deliberate driver regressions are acceptable within the declared/approved contract. |
@@ -54,7 +54,7 @@ full delivered reports/reproducer runs; they remain unverified rather than dispr
 
 F06, F08 and F11 have generic implementation/verification evidence. Keep their IDs for
 continuity; their already completed optional safeguards are not further work. The first
-action is F02, coordinated with the remaining F03/F07 work. Complete each remaining item with the smallest
+action is the remaining F03/F07/F09 target evaluation and regression work. Complete each remaining item with the smallest
 change that satisfies the stated course requirement. Keep results with their run and
 update status here without introducing another checklist or approval workflow.
 
@@ -76,6 +76,12 @@ Instructor approval and the full security matrix remain separate requirements.
   successful exit must not conceal a failure of the behavior actually being claimed.
 
 ### F02 - Justify PNG behavior and handle failures in that scope
+
+**Implemented and verified for the selected native-format contract.** The
+[PNG checkpoint](../artifacts/checkpoints/png-contract/README.md) records begin/finish/
+allocation handling, reviewed fixtures and native results across all four variants.
+The baseline/incomplete security paths remain observable; full F09 tool acceptance
+and independent expectations for newly reduced bytes remain separate work.
 
 - **Fix:** Define the supported decode/error behavior for the chosen fixtures. Check
   relevant read/finish-read/allocation results instead of silently treating failure as
@@ -109,6 +115,10 @@ Instructor approval and the full security matrix remain separate requirements.
 
 ### F05 - Update packaged sources only when needed
 
+**PNG driver update packaged and verified.** All four current refs/configs and the
+source bundle agree. Legacy refs preserve the prior versions; source-mapping evidence
+records the exact transition. No library fix or license was changed.
+
 - **Depends on:** Any source changes in F01/F02/F04.
 - **Fix:** If drivers/builds change, update the affected four scenario refs, bundles,
   configs and owning target record together. If existing source already meets the
@@ -126,9 +136,11 @@ three replay results; an unchanged limit stop alone does not demonstrate shrinki
 
 ### F07 - Repair generated regression checks
 
-**zlib validity repaired; PNG and full later-run acceptance remain open.** Four zlib
+**zlib validity repaired; legacy PNG cases retired; full later-run acceptance open.** Four zlib
 manifests retain their original bytes/refs and now mark their valid compression inputs
 correctly. Both functional cases are verified as eligible when the pipeline loads them.
+PNG no longer enrolls the three obsolete-baseline cases or invents expectations for
+unknown bytes; new-baseline generated regressions still need F09 demonstration.
 
 - **Depends on:** F03 and any changed baseline refs.
 - **Fix:** Review the seven generated cases against their actual bytes and independent

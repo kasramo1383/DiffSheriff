@@ -1,0 +1,29 @@
+{
+  "scope": "F02 PNG native-format error/status contract; F05 updated packaged refs; legacy cases retired. Full F09 matrices/reproducer enrollment remain open.",
+  "parent_revision": "a41d0e36157773f2831d28f248ba0da5ec62e21d",
+  "runtime_image": "sha256:d596e5159a0b6ecc0fcb60ac79673b12bbe2e2607769f26bef17d8205dfeb7cf",
+  "source_identity": "source-sha256.json; .bundle raw bytes, other text CRLF normalized to LF; staged snapshot matched before verification",
+  "commands": [
+    "python3 -m pytest -q tests/test_target_assets.py tests/test_pipeline.py -p no:cacheprovider",
+    "native build_isolated_matrix/execute_container: four configured source variants, two modes, four fixture inputs, three replays",
+    "git checkout-index --all --prefix=TEMP_LINUX_SNAPSHOT/",
+    "DIFFSHERIFF_TEST_IMAGE=RECORDED_ID bash verify.sh",
+    "pip install checkpoint wheel to temporary target; installed CLI --help outside source"
+  ],
+  "wheel_sha256": "6ac4ec869f957dc5cfd5bdd8d1b211761264c6420c53b37d43f15cb5ca838924",
+  "installed_wheel_check": "passed",
+  "junit_results": {
+    "focused.xml": {
+      "tests": "117",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    "full-linux.xml": {
+      "tests": "294",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    }
+  }
+}

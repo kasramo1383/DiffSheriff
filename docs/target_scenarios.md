@@ -3,7 +3,8 @@
 [The roadmap](roadmap.md) owns acceptance status and requirement gaps. This record
 owns target identities, construction and input locations. Instructor approval evidence
 has not been supplied. The bounded zlib completion/status contract is documented
-below; PNG contract/reference review remains pending. Neither is instructor-approved.
+below; the native-format PNG completion/rejection contract is recorded at the end.
+Neither is instructor-approved.
 
 ## Source identities
 
@@ -39,14 +40,14 @@ bundled commits, rather than a second independently editable copy under `targets
 ### Target 2 packaged versions
 
 Bundle: `targets/target2/source.bundle`. SHA-256:
-`64caa34d8dc8d72f116d9d563979bbb12d3d77704f64965811b3df524459032a`.
+`dff58e37fd39e005163ed3a6b0e422317a46d661c41ef8476ee4bd5576c31fd0`.
 
 | Version | Exact local commit |
 | --- | --- |
-| baseline | `c9ceee6f648dd8f7e6bfa336bc00a4dd6174046f` |
-| correct | `c27a4c54b68bc966025b8bfb79b01f0fd70a6106` |
-| incomplete | `75682381b55f07b6c86ce5d120745c63311854c0` |
-| regression | `7e8cbfdb88229e21c64dcc65be4a8fe4a6ee29f7` |
+| baseline | `b1bd9ad4088a429292111a831247a26bbe06b350` |
+| correct | `d57c4e247776fe92f3128cb4e71410bb86edb907` |
+| incomplete | `e11572a245295b26d8874fe3a8084801762f898f` |
+| regression | `426e4f9baa9b35ed6635423b50f3c7e43fd6c8b0` |
 
 Configurations and the sole editable test corpus are under `evaluation/target2/`.
 Clone the bundle as described in [evaluation.md](evaluation.md); the disposable
@@ -63,7 +64,7 @@ than 1,000 bytes beginning with the literal `Antigravity`. These are deliberatel
 constructed local scenarios. Their definitions do not establish observed outcomes.
 
 libpng uses bundled `driver/png_driver.c` and the simplified read API. Its driver
-ignores read failures and discards decoded pixels. The incomplete variant changes
+checks begin/finish-read and allocation failures and discards decoded pixels. The incomplete variant changes
 `png_image_free` to apply the safe cleanup only for widths at most 100, retaining the
 old path for larger widths. Its regression variant changes the driver to reject heights
 above 50. libpng links system zlib with `-lz`, separately from Target 1; neither the
@@ -91,9 +92,9 @@ in its replaced Makefile; Target 2 preserves all original file contents. Both ad
 driver/build assets. Keep the original upstream archives: they preserve provenance
 and original line endings/build material independently of the local snapshot history.
 
-The existing constant reference scripts provide no input-specific validation. Constant
-expected outputs can be legitimate for a documented bounded contract, but the blanket
-false validity and success for new reduced inputs need independent justification.
+The zlib reference covers its bounded completion contract. PNG uses reviewed fixed
+fixture expectations and no general reduced-input reference. Unknown reduced behavior
+remains diagnostic/inconclusive until independently established.
 Fixed reviewed fixture expectations can suffice; no general decoder is required. zlib byte
 streams are generally legitimate compression inputs even when labelled “invalid”
 because they exercise a memory defect. PNG validity requires independent parsing.
@@ -133,7 +134,7 @@ completion, including the byte streams that expose the security defect. Unsuppor
 larger payloads fail the reference explicitly; this does not claim the driver enforces
 that assessment bound. The existing `invalid/` directory is a legacy security-corpus
 location, not proof of malformed compression data. Invalid-interface coverage remains
-a separate F03 review item. PNG validity/reference work is unchanged and remains open.
+a separate F03 review item. PNG has its separate native-format contract below; general format decoding is outside this scope.
 
 Tests independently compress/decompress the selected payloads with Python's system
 zlib and verify that every manifest/reference validity agrees. This demonstrates that
@@ -149,3 +150,38 @@ The [bounded native verification](../artifacts/checkpoints/zlib-contract-ci/READ
 records successful completion on baseline/correct and failure of the documented
 large-input regression, including the existing reduced case. It is not the full
 security matrix and does not establish instructor approval.
+
+
+## Native-format PNG completion/rejection contract
+
+The driver keeps libpng's header-selected native format and supplies no colormap to
+`png_image_finish_read`. The independent basis is the bundled/upstream `png.h`
+simplified-read documentation: begin-read fills the header; finish-read completes
+decoding and reports success/failure, and colormapped output requires a colormap.
+The selected RGBA `valid.png` is byte-identical to upstream `pngtest.png` (verified
+against the bundled source). Successful completion returns 0 with no output.
+Begin/finish-read rejection returns 2 with no output. Allocation failure returns 3.
+Cleanup runs on each of these paths, preserving the library flaw on the baseline.
+
+The two existing indexed-color security fixtures request native palette output without
+its required colormap, so the correct driver rejects them with 2. They are outside the
+selected successful interface, even though the original trigger is a valid indexed
+PNG file. Do not equate their directory name with global PNG-format invalidity.
+Empty input rejects with 2. The deliberately constructed regression still rejects
+height above 50 with code 1 and its existing diagnostic; the RGBA fixture has height 69.
+
+`reference.py` recognizes only the four reviewed fixture hashes. Unknown bytes receive
+no guessed expectation. The configs use the fixed expectation manifest and disable
+the optional general reference command. Functional minimization may use known valid
+fixtures; unknown reduced security behavior remains incomplete until reviewed.
+No broader decoder or new dependency was introduced.
+
+All four scenario driver versions were updated identically (preserving the deliberate
+regression guard), and the configs now explicitly use Clang. Current refs are in the
+table above; the bundle keeps the previous versions under `legacy/baseline`,
+`legacy/correct`, `legacy/incomplete` and `legacy/regression`. The exact old-to-new map
+is retained with the [PNG checkpoint](../artifacts/checkpoints/png-contract/README.md).
+The three generated cases for the old baseline, including the truncated alleged
+functional reproducer, were moved unchanged to that checkpoint's `legacy-regressions/`.
+They are not current regression tests. Later pipeline runs must generate/review cases
+for the new baseline rather than copying the former blanket success expectations.

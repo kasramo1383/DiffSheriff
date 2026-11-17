@@ -3,8 +3,8 @@ target:
   name: libpng-cve-2019-7317
   language: c
   repository_path: repository
-  base_ref: 'c9ceee6f648dd8f7e6bfa336bc00a4dd6174046f'
-  patch_ref: '7e8cbfdb88229e21c64dcc65be4a8fe4a6ee29f7'
+  base_ref: 'b1bd9ad4088a429292111a831247a26bbe06b350'
+  patch_ref: '426e4f9baa9b35ed6635423b50f3c7e43fd6c8b0'
   baseline_signature:
     error_type: stack-use-after-return
     file: pngerror.c
@@ -14,10 +14,10 @@ build:
   timeout_seconds: 120
   clean_command: make clean
   release:
-    command: make release
+    command: make release CC=clang
     binary_path: driver_release
   sanitized:
-    command: make sanitized
+    command: make sanitized CC=clang
     binary_path: driver_sanitized
 execution:
   image: diffsheriff:local
@@ -42,6 +42,6 @@ test_suites:
   boundary_directory: suites/boundary
   malicious_directory: suites/invalid
   expectations: suites/expected.json
-  provenance: Local course evaluation assets; instructor approval and independent semantic validation pending
+  provenance: Reviewed native-format PNG completion/rejection fixtures in docs/target_scenarios.md; instructor approval pending
   regression_directory: generated-regressions
-  independent_reference_command: ["python3", "reference.py"]
+  independent_reference_command: []

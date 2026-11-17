@@ -115,6 +115,12 @@ def test_workflow_prepares_all_configured_commits_without_developer_state(tmp_pa
                 text=True,
             )
             assert result.stdout.strip() == "commit"
+    png_repo = tmp_path / "evaluation/target2/repository"
+    png_base = yaml.safe_load((PNG / "correct.yaml").read_text())["target"]["base_ref"]
+    sample = subprocess.check_output(
+        ["git", "-C", str(png_repo), "show", png_base + ":pngtest.png"]
+    )
+    assert sample == (PNG / "suites/valid/valid.png").read_bytes()
     # A second invocation cannot overwrite existing source or local modifications.
     marker = tmp_path / "evaluation/target1/repository/local-work"
     marker.write_text("keep")
@@ -134,3 +140,121 @@ def test_workflow_missing_bundle_fails_before_validation(tmp_path):
     )
     assert result.returncode != 0
     assert not (tmp_path / "evaluation/target1/repository").exists()
+
+
+PNG = ROOT / "evaluation/target2"
+
+
+def test_png_fixture_expectations_are_fixed_and_unknown_inputs_have_no_oracle():
+    from diffsheriff.config import DiffSheriffConfig
+    from diffsheriff.pipeline import discover_cases
+
+    cfg = DiffSheriffConfig.from_yaml(PNG / "correct.yaml")
+    assert cfg.test_suites.independent_reference_command == []
+    cases, _ = discover_cases(cfg)
+    cases = [case for case in cases if not case["id"].startswith("regression/")]
+    assert len(cases) == 4  # Review the corpus, not future generated cases.
+    for case in cases:
+        result = subprocess.run(
+            [sys.executable, str(PNG / "reference.py")],
+            input=case["payload"],
+            capture_output=True,
+            check=True,
+        )
+        assert json.loads(result.stdout) == {
+            **case["expected"],
+            "valid_input": case["valid_input"],
+        }
+        if case["id"] == "valid/valid.png":
+            assert case["payload"][25] == 6  # RGBA, the selected valid fixture.
+            assert case["expected"]["exit_code"] == 0
+        elif case["suite"] == "malicious":
+            assert case["payload"][25] == 3  # Native indexed format needs a colormap.
+            assert not case["valid_input"] and case["expected"]["exit_code"] == 2
+    unknown = subprocess.run(
+        [sys.executable, str(PNG / "reference.py")],
+        input=b"unreviewed bytes",
+        capture_output=True,
+    )
+    assert unknown.returncode == 2 and not unknown.stdout
+
+
+@pytest.mark.skipif(sys.platform == "win32", reason="uses the Linux C compiler")
+@pytest.mark.parametrize("phase,expected", [(0, 2), (1, 2), (2, 0), (3, 3)])
+def test_png_driver_checks_begin_finish_and_allocation_failures(
+    tmp_path, phase, expected
+):
+    repo = tmp_path / "repo"
+    subprocess.run(
+        [
+            "git",
+            "clone",
+            "--quiet",
+            str(ROOT / "targets/target2/source.bundle"),
+            str(repo),
+        ],
+        check=True,
+        capture_output=True,
+    )
+    cfg = yaml.safe_load((PNG / "correct.yaml").read_text())["target"]
+    driver = subprocess.check_output(
+        ["git", "-C", str(repo), "show", cfg["patch_ref"] + ":driver/png_driver.c"]
+    )
+    (tmp_path / "png_driver.c").write_bytes(driver)
+    (tmp_path / "png.h").write_text("""
+typedef unsigned char *png_bytep;
+typedef struct { unsigned version, width, height; } png_image;
+#define PNG_IMAGE_VERSION 1
+#define PNG_IMAGE_SIZE(image) 8
+int png_image_begin_read_from_file(png_image *, const char *);
+int png_image_finish_read(png_image *, void *, void *, int, void *);
+void png_image_free(png_image *);
+""")
+    (tmp_path / "harness.c").write_text("""
+#include <stdlib.h>
+#include <assert.h>
+#include "png.h"
+static int phase, cleaned;
+int png_image_begin_read_from_file(png_image *p, const char *f) {
+    (void)f; p->height=1; return phase != 0;
+}
+int png_image_finish_read(png_image *p, void *b, void *data, int row, void *map) {
+    (void)p; (void)b; (void)data; (void)row; (void)map; return phase != 1;
+}
+void png_image_free(png_image *p) { (void)p; ++cleaned; }
+static void *allocate(size_t n) { return phase == 3 ? NULL : malloc(n); }
+#define malloc allocate
+#define main target_main
+#include "png_driver.c"
+#undef malloc
+#undef main
+int main(int argc, char **argv) {
+    (void)argc; phase=atoi(argv[1]);
+    char *args[]={"driver", "--file", "fixture"};
+    int result=target_main(3,args); assert(cleaned == 1); return result;
+}
+""")
+    # The header is included by both harness and real driver.
+    header = tmp_path / "png.h"
+    header.write_text(
+        "#ifndef FIXTURE_PNG_H\n#define FIXTURE_PNG_H\n"
+        + header.read_text()
+        + "\n#endif\n"
+    )
+    subprocess.run(
+        [
+            "cc",
+            "-I",
+            str(tmp_path),
+            str(tmp_path / "harness.c"),
+            "-o",
+            str(tmp_path / "program"),
+        ],
+        check=True,
+        capture_output=True,
+    )
+    result = subprocess.run(
+        [str(tmp_path / "program"), str(phase)], capture_output=True
+    )
+    assert result.returncode == expected
+    assert not result.stdout and not result.stderr
