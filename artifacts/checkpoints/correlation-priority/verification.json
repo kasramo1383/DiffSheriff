@@ -1,0 +1,37 @@
+{
+  "scope": "F08/F11 generic verification: synthetic correlations/mixed outcomes and harmless native Docker fixture; no selected-target acceptance.",
+  "parent_revision": "d4ec949fa33ddce40bb72b25f5862cc9a33c4233",
+  "source_identity": "source-sha256.json, normalized CRLF to LF, matched against staged snapshot",
+  "python": "3.12.3",
+  "runtime_image": "sha256:2593eebfc445cbc4b4cc441d8922e3d6ab6b9b604e04212443e0359b3d98efda",
+  "runtime_scope": "Existing image used only as execution environment. Current validator source runs on host; normal image rebuild failed on Docker Hub HTTP 403 (build-failed.log).",
+  "commands": [
+    "python3 -m pytest -q tests/test_correlator.py tests/test_pipeline.py -p no:cacheprovider (red)",
+    "python3 -m pytest -q tests/test_correlator.py tests/test_pipeline.py tests/test_reporter.py -p no:cacheprovider (focused)",
+    "git checkout-index --all --prefix=TEMP_LINUX_SNAPSHOT/",
+    "bash verify.sh",
+    "python3 -m pip install --no-deps --target TEMP_INSTALL CHECKPOINT_WHEEL; installed CLI --help/import outside source"
+  ],
+  "installed_wheel_check": "passed",
+  "wheel_sha256": "a3046c82b8c6bd8fc6942f15d798cf481c6d9c56ce4abff246df09ac13c43f70",
+  "junit_results": {
+    "red.xml": {
+      "tests": "137",
+      "failures": "3",
+      "errors": "0",
+      "skipped": "0"
+    },
+    "focused.xml": {
+      "tests": "142",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    "full-linux.xml": {
+      "tests": "273",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    }
+  }
+}

@@ -27,7 +27,7 @@ this review did not execute historical vulnerable binaries or dispatch CI.
 | C/C++ Linux x86_64 targets, real dynamic execution, configuration-based onboarding (p. 1) | Generic Docker runner, ELF validation, separate build snapshots; two source bundles and six configs. Historical harmless native runs exist. | Real library sources are delivered, but their claimed final dynamic outcomes lack retained reports. Generic tests cannot establish target acceptance. |
 | Independent expected behavior for valid and invalid inputs, instructor approval before evaluation (pp. 1-2, 4) | Both `evaluation/target*/reference.py` scripts discard stdin and return the same successful empty-output expectation with `valid_input: false`. Manifests also expect only exit 0 and empty output. | These scripts do not validate compression, PNG decoding, or candidate validity. No instructor approval evidence is supplied. Config provenance formerly said “Approved” and now explicitly records the pending review. Project-owner authorization cannot satisfy instructor approval. |
 | Preserve actual program functionality (pp. 1-2) | zlib driver calls deflate then discards compressed bytes. PNG driver discards pixels, ignores `png_image_finish_read` failure, and returns 0 even when initial decoding fails. | Corrupted output or rejected valid input can pass. Expose deterministic semantic results, independently check decompression/pixels and error behavior, then define expectations before rerunning. |
-| Fixed, incomplete, new, regression, inconclusive; runtime-to-diff evidence (p. 2) | `compare_case`, source signatures, direct/caller/function correlation, generic tests. | Latest “Edit in observed function” evidence establishes a shared function, not execution of the changed branch. That limit is stated in code. Real-target raw stacks/diffs and attribution remain unauditable without run bundles. No additional new-issue target variant is explicitly required by the PDF. |
+| Fixed, incomplete, new, regression, inconclusive; runtime-to-diff evidence (p. 2) | `compare_case`, source signatures, direct/caller/function correlation, generic tests. | F08 now rejects ambiguous function-edit attribution; a single function match still does not prove execution of the changed branch. Real-target raw stacks/diffs and attribution remain unauditable without run bundles. No additional new-issue target variant is explicitly required by the PDF. |
 | Valid, boundary, invalid suites and equivalent release/sanitized execution (p. 2) | Corresponding-mode matrix implemented. zlib has six corpus entries; PNG has four, with an empty invalid PNG as its only boundary case. | Coverage is narrow, especially valid PNG boundaries. zlib accepts arbitrary byte strings, so naming its memory-error triggers “invalid” does not establish semantic invalidity. Document actual validity and meaningful boundaries. |
 | Exact identities, environment, commands, three replays, original/minimized inputs (p. 3) | Replay and bundle creation implemented; historical synthetic/native bundles retained. | Selected-target full reports, binary/build hashes, replay observations, commands and original/minimized pair bundles are absent. Seven generated manifests contain inputs/identities but are insufficient reproducer evidence. |
 | Automatic minimization preserving error/location (p. 3) | Pipeline checks source signatures and stability. F06 adds configurable granularity/evaluation limits and retained sizes, stop reasons and call counts. | Generic reduction behavior is verified in the F06 checkpoint. Selected-target reduction and replay evidence remains required under F09. An exhausted or bounded search does not prove a global minimum. |
@@ -41,7 +41,7 @@ this review did not execute historical vulnerable binaries or dispatch CI.
 
 ## Actionable fixes and acceptance tests
 
-F06 is complete for the generic tool, with evidence linked below. All other fixes
+F06, F08 and F11 are complete for the generic tool, with evidence linked below. Other fixes
 remain open. Check an item only after its acceptance tests pass and its evidence is
 retained for the exact tested source/image. Update status here; keep
 source identities in [target_scenarios.md](target_scenarios.md), commands in
@@ -156,6 +156,11 @@ for actual selected-target reduction/replay acceptance.
 
 ### F08 - Validate correlation and its uncertainty
 
+**Status: complete for the generic tool.** The [correlation/priority checkpoint](../artifacts/checkpoints/correlation-priority/README.md)
+reproduces ambiguous function-edit attribution, repairs the arbitrary hunk selection,
+and verifies consistent runtime/expectation requirements. Real-target stack/diff review
+remains in F09. Ambiguity now prevents Fixed rather than choosing an edit by proximity.
+
 - **Fix:** Review the new function-level edit rule against the PDF's runtime-evidence
   standard. Preserve the distinction between observed function/path relation and proof
   of causation; adjust logic only when a concrete counterexample requires it.
@@ -197,6 +202,12 @@ for actual selected-target reduction/replay acceptance.
   working CI/CD without prescribing that provider. Keep unrun hosted checks explicit.
 
 ### F11 - Verify final exit priority and generic behavior
+
+**Status: complete for this tested generic-tool revision.** The [same checkpoint](../artifacts/checkpoints/correlation-priority/README.md)
+retains all 16 mixed-outcome CLI/JSON checks, focused/full verification and package
+installation. Full verification used the recorded existing runtime image; a normal
+image rebuild hit Docker Hub HTTP 403. This does not close F04's reproducible build
+work or F09's selected-target matrices. Rerun relevant checks after future source changes.
 
 - **Fix:** Inspect existing reporter/pipeline tests and add only missing simultaneous
   outcome coverage. Keep operational failures and all collected findings in JSON.

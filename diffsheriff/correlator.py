@@ -162,18 +162,19 @@ def correlate_stack_to_diff(frames, hunks, side="patch"):
             )
             if frame:
                 edit_candidates.append((frame, hunk))
-        if edit_candidates:
-            by_frame = {}
-            for frame, hunk in edit_candidates:
-                if frame.index not in by_frame:
-                    by_frame[frame.index] = (frame, [])
-                by_frame[frame.index][1].append(hunk)
-            best_index = min(by_frame)
-            best_frame, hunks_for_frame = by_frame[best_index]
-            best_hunk = min(
-                hunks_for_frame,
-                key=lambda h: min(abs(ln - best_frame.line) for ln in h.old_lines),
+        if len(edit_candidates) > 1:
+            return CorrelationVerdict(
+                False,
+                "Inconclusive",
+                None,
+                None,
+                None,
+                None,
+                "Multiple edited hunks match observed functions; attribution is "
+                "ambiguous. Stack order and line proximity cannot select an edit.",
             )
+        if edit_candidates:
+            best_frame, best_hunk = edit_candidates[0]
             return CorrelationVerdict(
                 True,
                 "Edit in observed function",

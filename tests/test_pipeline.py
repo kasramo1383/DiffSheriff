@@ -1239,3 +1239,150 @@ def test_initial_reduction_instability_is_retained(
     metadata = json.loads((bundle / "reproducer.json").read_text())
     assert not metadata["stable"] and not metadata["reproduced"]
     assert all(len(runs) == 3 for runs in metadata["runs"].values())
+
+
+@pytest.mark.parametrize(
+    "ambiguous,changing_caller,known_expected",
+    [
+        (False, False, True),
+        (True, False, True),
+        (False, True, True),
+        (False, False, False),
+    ],
+)
+def test_function_edit_fixed_requires_unique_consistent_runtime_and_expectation(
+    tmp_path, pipeline_fixture, monkeypatch, ambiguous, changing_caller, known_expected
+):
+    import diffsheriff.pipeline as pipeline
+
+    cfg, _, _ = pipeline_fixture
+    diff = (
+        "--- a/source.c\n+++ b/source.c\n"
+        "@@ -10 +10 @@ int caller(char *input) {\n-old();\n+new();\n"
+    )
+    if ambiguous:
+        diff += "@@ -20 +20 @@ int caller(char *input) {\n-old();\n+new();\n"
+    monkeypatch.setattr(
+        pipeline.subprocess,
+        "run",
+        lambda *a, **kw: subprocess.CompletedProcess(a, 0, diff.encode(), b""),
+    )
+    if not known_expected:
+        path = tmp_path / "expected.json"
+        value = json.loads(path.read_text())
+        value["malicious/input"]["stdout"] = "independently required output\n"
+        path.write_text(json.dumps(value))
+    execute = pipeline.execute_container
+    calls = 0
+
+    def observed(source, binary, payload, settings):
+        nonlocal calls
+        result = execute(source, binary, payload, settings)
+        if (
+            source.parent.name == "base"
+            and source.name == "sanitized"
+            and payload == b"diagnostic"
+        ):
+            calls += 1
+            if changing_caller and calls % 3 == 2:
+                return replace(
+                    result, stderr=result.stderr.replace("in caller", "in unrelated")
+                )
+        return result
+
+    monkeypatch.setattr(pipeline, "execute_container", observed)
+    summary = run_pipeline(cfg, tmp_path / "runs")
+    fixed = not ambiguous and not changing_caller and known_expected
+    assert summary.exit_code == (0 if fixed else 40), summary.notes
+    assert summary.security_flaws_fixed == int(fixed)
+
+
+@pytest.mark.parametrize(
+    "operational,security,functional,incomplete,expected_code",
+    [
+        (False, False, False, False, 0),
+        (False, False, False, True, 40),
+        (False, False, True, False, 20),
+        (False, False, True, True, 20),
+        (False, True, False, False, 10),
+        (False, True, False, True, 10),
+        (False, True, True, False, 10),
+        (False, True, True, True, 10),
+        (True, False, False, False, 30),
+        (True, False, False, True, 30),
+        (True, False, True, False, 30),
+        (True, False, True, True, 30),
+        (True, True, False, False, 30),
+        (True, True, False, True, 30),
+        (True, True, True, False, 30),
+        (True, True, True, True, 30),
+    ],
+)
+def test_cli_mixed_outcomes_preserve_json_and_priority(
+    tmp_path,
+    pipeline_fixture,
+    monkeypatch,
+    operational,
+    security,
+    functional,
+    incomplete,
+    expected_code,
+):
+    import diffsheriff.pipeline as pipeline
+
+    _, config_path, state = pipeline_fixture
+    state["scenario"] = "remaining" if security else "fixed"
+    (tmp_path / "tests/invalid/z-last").write_bytes(b"late")
+    path = tmp_path / "expected.json"
+    values = json.loads(path.read_text())
+    values["malicious/z-last"] = values["malicious/input"]
+    path.write_text(json.dumps(values))
+    execute = pipeline.execute_container
+
+    def combined(source, binary, payload, settings):
+        if operational and payload == b"late":
+            raise OSError("late operational failure")
+        if functional and source.parent.name == "patch" and payload == b"ordinary":
+            return ExecutionResult(0, "wrong\n", "", False)
+        return execute(source, binary, payload, settings)
+
+    monkeypatch.setattr(pipeline, "execute_container", combined)
+    if incomplete:
+        monkeypatch.setattr(
+            pipeline,
+            "inspect_elf_hardening",
+            lambda p: HardeningResult(
+                True, p.parent.parent.name != "patch", "full", True
+            ),
+        )
+    report_path = tmp_path / "report.json"
+    result = CliRunner().invoke(
+        main,
+        [
+            "--config",
+            str(config_path),
+            "--output-json",
+            str(report_path),
+            "--artifacts",
+            str(tmp_path / "runs"),
+        ],
+    )
+    report = json.loads(report_path.read_text())
+    assert result.exit_code == report["exit_code"] == expected_code, result.output
+    assert f"exit {expected_code}" in result.output
+    assert report["analysis_complete"] == (not operational and not incomplete)
+    statuses = {f["status"] for f in report["findings"]}
+    if security:
+        assert report["security_status"] == "FAIL"
+        assert "Incomplete Fix" in statuses
+    if functional:
+        assert report["functional_status"] == "FAIL"
+        assert "Functional Regression" in statuses
+    if operational:
+        assert any("late operational failure" in note for note in report["notes"])
+    if incomplete:
+        assert report["hardening_degraded"]
+    retained = json.loads(
+        (Path(report["evidence"]["run_directory"]) / "report.json").read_text()
+    )
+    assert retained == report

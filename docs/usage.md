@@ -193,6 +193,14 @@ candidate insertions, and changing caller evidence remain inconclusive. Existing
 edited-line correlation still applies to both versions, and a new patch diagnostic
 does not acquire causal attribution from this baseline-only rule.
 
+For a hunk that replaces existing lines, `Edit in observed function` requires one
+matching hunk with an unambiguous function declaration and matching runtime file/function.
+Several matching edit hunks remain inconclusive; stack order and line distance do not
+identify which change matters. A direct edited-line runtime intersection takes precedence.
+Function-only evidence does not prove branch execution or patch causation. A Fixed
+verdict still requires the same hunk across baseline replays and independently expected
+behavior on the patch.
+
 The report identifies its run directory. `total_tests_run` counts suite executions
 (including their three repetitions); additional minimization and reproducer executions
 are recorded in the corresponding replay logs. stdout/stderr are bounded per stream;

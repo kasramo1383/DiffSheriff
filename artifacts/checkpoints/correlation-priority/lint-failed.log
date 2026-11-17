@@ -1,0 +1,6 @@
+Verification evidence: /tmp/diffsheriff-correlation-t2o1cti7/.diffsheriff/verification.ZYA5RE
+All done! ✨ 🍰 ✨
+29 files would be left unchanged.
+tests/test_correlator.py:312:89: E501 line too long (104 > 88 characters)
+tests/test_correlator.py:342:89: E501 line too long (104 > 88 characters)
+tests/test_pipeline.py:1259:89: E501 line too long (104 > 88 characters)

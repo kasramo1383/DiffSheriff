@@ -300,3 +300,66 @@ def test_edit_in_observed_function_matches_baseline_stack():
     assert result.correlation_type == "Edit in observed function"
     assert result.matched_frame.function == "compress_block"
     assert result.matched_line == 1092
+
+
+@pytest.mark.parametrize("second_function,second_line", [("parse", 30), ("caller", 30)])
+def test_multiple_observed_edit_hunks_do_not_select_by_proximity(
+    second_function, second_line
+):
+    diff = (
+        "--- a/source.c\n+++ b/source.c\n"
+        "@@ -10 +10 @@ int parse(char *input) {\n-old();\n+new();\n"
+        f"@@ -{second_line} +{second_line} @@ int {second_function}(char *input) {{\n"
+        "-old();\n+new();\n"
+    )
+    frames = [
+        StackFrame(0, "", "parse", "/src/source.c", 12),
+        StackFrame(1, "", "caller", "/src/source.c", 32),
+    ]
+    result = correlate_stack_to_diff(frames, parse_unified_diff(diff), "base")
+    assert not result.is_correlated
+    assert result.hunk is None
+    assert "ambiguous" in result.reason.lower()
+
+
+@pytest.mark.parametrize(
+    "header,path",
+    [
+        ("", "/src/source.c"),
+        ("int unrelated(char *input) {", "/src/source.c"),
+        ("int parse(char *input);", "/src/source.c"),
+        ("int parse(char *input) {", "/src/other/source.c"),
+    ],
+)
+def test_function_edit_needs_unambiguous_declaration_and_exact_path(header, path):
+    diff = (
+        f"--- a/source.c\n+++ b/source.c\n@@ -10 +10 @@ {header}\n" "-old();\n+new();\n"
+    )
+    result = correlate_stack_to_diff(
+        [StackFrame(0, "", "parse", path, 12)], parse_unified_diff(diff), "base"
+    )
+    assert not result.is_correlated
+
+
+def test_function_edit_relation_does_not_claim_branch_execution():
+    diff = (
+        "--- a/source.c\n+++ b/source.c\n"
+        "@@ -10 +10 @@ int caller(char *input) {\n-old();\n+new();\n"
+    )
+    frames = [
+        StackFrame(0, "", "parse", "/src/parse.c", 4),
+        StackFrame(1, "", "caller", "/src/source.c", 32),
+    ]
+    hunks = parse_unified_diff(diff)
+    result = correlate_stack_to_diff(frames, hunks, "base")
+    assert result.is_correlated
+    assert result.matched_frame.function == "caller"
+    assert result.correlation_type == "Edit in observed function"
+    assert "not proof" in result.reason
+    assert not correlate_stack_to_diff(frames, hunks, "patch").is_correlated
+    # A real edited-line intersection still wins over function-level ambiguity.
+    frames[0] = StackFrame(0, "", "caller", "/src/source.c", 10)
+    assert (
+        correlate_stack_to_diff(frames, hunks, "base").correlation_type
+        == "Direct Match"
+    )
