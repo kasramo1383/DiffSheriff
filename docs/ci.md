@@ -13,10 +13,10 @@ from another workflow using `workflow_call`. The checkout includes full history 
 submodules; `target.repository_path` must resolve to the checked-out target repository
 with both source commits available. The runtime image is built from this checkout.
 
-The current workflow does not clone the delivered target bundles. Add the source
-setup described in [evaluation.md](evaluation.md) before dispatching a selected target;
-a fresh checkout otherwise lacks its configured `repository/` directory. Acceptance
-and retained-run limits belong in [the roadmap](roadmap.md).
+The `Prepare target sources` step clones the two delivered bundles before the CLI runs.
+It refuses an existing destination (including local modifications) and stops on a
+missing/corrupt bundle. Fresh-runner tests verify every configured commit is available.
+Target acceptance results remain separate from source-setup verification.
 
 The job runs:
 

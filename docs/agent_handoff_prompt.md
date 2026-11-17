@@ -12,9 +12,12 @@ changes may already be staged; preserve them and unrelated work. Follow the repo
 instructions for staging, commits and pushes.
 
 Start at the first unfinished fix in the roadmap. Honor its dependencies, implement its
-specified change, and run its acceptance tests. Reuse existing tests; add coverage for
+smallest required change, and run its acceptance checks. Skip optional items such as
+F13 rehearsal packaging. Treat F06/F08/F11 as completed generic work, not requests for
+more features. Reuse existing tests; add coverage for
 real missing behavior. Continue through the remaining locally actionable fixes. This
-handoff requests implementation, verification and retained evidence, not another plan.
+handoff requests implementation, verification and retained evidence within the course
+scope. Do not turn optional engineering choices into additional completion conditions.
 
 Keep facts in their owning files:
 - docs/roadmap.md: fix status, requirements gaps and next action.
@@ -23,14 +26,21 @@ Keep facts in their owning files:
 - docs/ci.md: CI operation; docs/defense_guide.md: contributor study and practice.
 - artifacts/: distinct durable run records with commands, results, identities and hashes.
 
-Fix the observable behavior and independent references before relying on target verdicts.
+Justify the selected observable behavior and independent expectations before relying on
+target verdicts. Fixed documentation-based or independently reviewed fixture expectations
+can suffice; a general-purpose decoder or arbitrary-input reference executable is not
+required. Change a driver only where the agreed behavior needs it.
 Never derive expectations from patched output, scenario names, branch/commit identifiers
 or a model's assertion. A trigger is not semantically invalid merely because it exposes
 memory corruption. Keep corresponding release/sanitized builds and inputs equivalent.
 Keep the validator generic; target-specific behavior belongs in source/config/test assets.
 
 Treat the original assignment as authority. Do not introduce a 20 MB cap, a particular
-CI provider or a special rehearsal-package format as instructor requirements. Prepare
+CI provider or a special rehearsal-package format as instructor requirements. Do not
+require exhaustive formats, universal dependency pins, all binary protections enabled,
+branch-execution proof, organic regression bugs or scalability work. Inspection of the
+four protections and downgrade warnings remain required. Deliberate driver regressions
+can qualify within the declared/approved target contract. Prepare
 instructor-review materials, but do not claim approval without the response. Technical
 work can continue while external approval is pending. Actual participation, unaided
 student defenses and instructor unseen-patch evaluation remain human/external events.

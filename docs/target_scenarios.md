@@ -2,8 +2,8 @@
 
 [The roadmap](roadmap.md) owns acceptance status and requirement gaps. This record
 owns target identities, construction and input locations. Instructor approval evidence
-has not been supplied. Configuration provenance records that approval and independent
-semantic validation are pending.
+has not been supplied. The bounded zlib completion/status contract is documented
+below; PNG contract/reference review remains pending. Neither is instructor-approved.
 
 ## Source identities
 
@@ -67,12 +67,15 @@ ignores read failures and discards decoded pixels. The incomplete variant change
 `png_image_free` to apply the safe cleanup only for widths at most 100, retaining the
 old path for larger widths. Its regression variant changes the driver to reject heights
 above 50. libpng links system zlib with `-lz`, separately from Target 1; neither the
-Dockerfile nor package instructions pin that dependency version.
+Dockerfile nor package instructions pin that dependency version. Record the actual
+version/image used for comparison and replay; universal package pinning is optional.
 
 Bundled Makefiles offer `release`, `sanitized` and `clean`. Their default flags lack
 explicit stack-canary and full-RELRO options; `CC ?= clang` does not override GNU make's
 built-in `CC=cc`. Record actual build commands and ELF results instead of assuming
-the configuration hardening policy was satisfied.
+the configuration hardening policy was satisfied. The selected configs now impose no
+absolute all-enabled minimum: the PDF requires inspection and downgrade warnings, not
+forcing protections absent from the baseline.
 
 ## Input and expectation ownership
 
@@ -88,7 +91,10 @@ in its replaced Makefile; Target 2 preserves all original file contents. Both ad
 driver/build assets. Keep the original upstream archives: they preserve provenance
 and original line endings/build material independently of the local snapshot history.
 
-The existing constant reference scripts provide no semantic validation. zlib byte
+The existing constant reference scripts provide no input-specific validation. Constant
+expected outputs can be legitimate for a documented bounded contract, but the blanket
+false validity and success for new reduced inputs need independent justification.
+Fixed reviewed fixture expectations can suffice; no general decoder is required. zlib byte
 streams are generally legitimate compression inputs even when labelled “invalid”
 because they exercise a memory defect. PNG validity requires independent parsing.
 RFC 1950/1951 and the PNG format specification are candidate authorities; merely naming
@@ -103,3 +109,43 @@ Retain observations against the exact local commit hashes above, source/binary/i
 hashes, corresponding release/sanitized settings, raw diagnostics, correlation, at least
 three replays, original/minimized bytes and independently checked expected behavior.
 Target names, branch labels and expected exit tables are never verdict evidence.
+
+
+## Bounded zlib functional contract
+
+The selected driver accepts file byte streams of 0 through 65,536 bytes for this
+assessment. All current suite and generated cases fit that range. Within it, ordinary
+success means `deflateInit2` succeeds and `deflate(..., Z_FINISH)` reaches `Z_STREAM_END`;
+the driver then returns 0 with empty stdout/stderr. File access, allocation, stream
+initialization or failure to finish is not successful completion. This is an API
+completion/status contract; it makes no claim to compare compressed output bytes.
+
+The independent basis is the upstream `zlib.h` API documentation in both retained
+upstream archives and the bundled baseline, especially the `deflate`/`Z_FINISH` and
+`deflateBound` documentation: sufficient bound-sized output permits stream completion,
+and `Z_STREAM_END` means all input was consumed and all output produced. The driver
+uses that bound and checks completion. No expectation is copied from patched output.
+The bounded size stays well below the driver's `uInt` input-size limit and uses the
+same documented resource limits across variants.
+
+The reference therefore reports all in-scope bytes as valid and predicts successful
+completion, including the byte streams that expose the security defect. Unsupported
+larger payloads fail the reference explicitly; this does not claim the driver enforces
+that assessment bound. The existing `invalid/` directory is a legacy security-corpus
+location, not proof of malformed compression data. Invalid-interface coverage remains
+a separate F03 review item. PNG validity/reference work is unchanged and remains open.
+
+Tests independently compress/decompress the selected payloads with Python's system
+zlib and verify that every manifest/reference validity agrees. This demonstrates that
+the payloads are legitimate compression input; it does not inspect the target driver's
+discarded compressed output. The two generated functional cases are now eligible for
+functional-regression checks. Their bytes and source-version identities are unchanged.
+
+For actual builds, all three zlib configs select Clang and define `HAVE_UNISTD_H` in
+both modes. The custom bundled Makefile bypasses upstream configure; without that
+normal platform feature definition, Clang rejects undeclared `read`, `write`, `close`
+and `lseek` in the legacy gzip sources. No source or bundle commits were changed.
+The [bounded native verification](../artifacts/checkpoints/zlib-contract-ci/README.md)
+records successful completion on baseline/correct and failure of the documented
+large-input regression, including the existing reduced case. It is not the full
+security matrix and does not establish instructor approval.

@@ -1,0 +1,32 @@
+{
+  "scope": "F01 bounded zlib completion/status and F10 source setup. F02/PNG, invalid-interface coverage and full target security/CI matrices remain open.",
+  "parent_revision": "7dc900e8879971ea315c2f01ebb2b406a769e71f",
+  "source_identity": "source-sha256.json, normalized CRLF to LF; staged snapshot matched before testing",
+  "python": "3.12.3",
+  "runtime_image": "sha256:d596e5159a0b6ecc0fcb60ac79673b12bbe2e2607769f26bef17d8205dfeb7cf",
+  "runtime_scope": "Existing runtime; generic validator modules unchanged. New reference/workflow/assets tested from staged snapshot.",
+  "commands": [
+    "python3 -m pytest -q tests/test_target_assets.py tests/test_pipeline.py -p no:cacheprovider",
+    "native build_isolated_matrix and execute_container using configured zlib commands; five inputs, three variants, two modes, three executions",
+    "git checkout-index --all --prefix=TEMP_LINUX_SNAPSHOT/",
+    "DIFFSHERIFF_TEST_IMAGE=RECORDED_ID bash verify.sh",
+    "pip install checkpoint wheel to temporary target; installed CLI --help outside source"
+  ],
+  "junit_results": {
+    "focused.xml": {
+      "tests": "112",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    "full-linux.xml": {
+      "tests": "280",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    }
+  },
+  "wheel_sha256": "aaedf86c92b13513de00c5f65e7c6708f92dd41ec4feadd964b185fe58af7460",
+  "installed_wheel_check": "passed",
+  "project_commit_created": false
+}

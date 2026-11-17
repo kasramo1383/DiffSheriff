@@ -74,8 +74,11 @@ Schema version `2.0` replaces the original scaffold schema; old files fail with 
 - `stdin` and `file` carry arbitrary bytes; `argv` carries one UTF-8 argument and
   cannot represent NUL. Set `fixed_arguments` and optional `file_argument_flag` as
   needed. Equivalent versions always use the same settings.
-- Hardening minima are policy requirements. A missing minimum or a downgrade warns
-  and prevents PASS, even when other checks succeed.
+- Hardening minima are optional operator policy, not mandatory all-enabled course
+  requirements. The example config is stricter than the six selected target configs,
+  whose absolute minima are neutral. ELF inspection and downgrade warnings always run.
+  An explicitly enabled missing minimum or a detected downgrade still prevents PASS
+  under the current conservative verdict policy.
 
 ## Independent expectations
 
