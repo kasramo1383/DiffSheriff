@@ -3,6 +3,7 @@
 import hashlib
 import json
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import sys
@@ -11,10 +12,309 @@ import zlib
 import pytest
 import yaml
 
+from diffsheriff.config import DiffSheriffConfig
+
 ROOT = Path(__file__).resolve().parents[1]
 TARGET = ROOT / "evaluation/target1"
+TARGETS = ("target1", "target2")
+VARIANTS = {"correct": 0, "incomplete": 10, "regression": 20}
+BUNDLES = ROOT / "targets"
+SUITES = ("valid", "boundary", "invalid")
+SCENARIOS = ROOT / "docs/target_scenarios.md"
+
+requires_bundles = pytest.mark.skipif(
+    not all((BUNDLES / target / "source.bundle").is_file() for target in TARGETS),
+    reason="this workspace omits the delivered targets/<target>/source.bundle files",
+)
+requires_corpus = pytest.mark.skipif(
+    not all(
+        (ROOT / "evaluation" / target / "suites" / suite).is_dir()
+        for target in TARGETS
+        for suite in SUITES
+    ),
+    reason="this workspace omits the evaluation/<target>/suites payload files",
+)
 
 
+def scenario_section(target):
+    """The `target_scenarios.md` section that owns one target's packaged refs."""
+    text = SCENARIOS.read_text(encoding="utf-8")
+    section = text.split(f"### Target {target[-1]} packaged versions", 1)[1]
+    return section.split("\n### ", 1)[0]
+
+
+def scenario_commits(target):
+    return dict(
+        re.findall(
+            r"\| (baseline|correct|incomplete|regression) \| `([0-9a-f]{40})` \|",
+            scenario_section(target),
+        )
+    )
+
+
+def documented_signature(target):
+    text = SCENARIOS.read_text(encoding="utf-8")
+    match = re.search(
+        rf"^\| Target {target[-1]} \([^)]+\) \| `([^`]+)` \| `([^`]+)` \| "
+        r"`([^`]+)` \| (\d+) \|$",
+        text,
+        re.MULTILINE,
+    )
+    assert match, f"no documented signature for {target}"
+    return {
+        "error_type": match[1],
+        "file": match[2],
+        "function": match[3],
+        "line": int(match[4]),
+    }
+
+
+def config_paths():
+    return [
+        (target, variant, ROOT / "evaluation" / target / f"{variant}.yaml")
+        for target in TARGETS
+        for variant in VARIANTS
+    ]
+
+
+def config_data(path):
+    return yaml.safe_load(path.read_text(encoding="utf-8"))
+
+
+def test_all_six_target_configs_follow_schema_two():
+    for _, _, path in config_paths():
+        data = config_data(path)
+        assert str(data["version"]) == "2.0", path
+        assert set(data) <= {
+            "version",
+            "target",
+            "build",
+            "execution",
+            "minimization",
+            "hardening_baseline",
+            "test_suites",
+        }, path
+        for key in ("name", "language", "repository_path", "base_ref", "patch_ref"):
+            assert data["target"][key], (path, key)
+        assert set(data["target"]["baseline_signature"]) == {
+            "error_type",
+            "file",
+            "function",
+            "line",
+        }, path
+
+
+def test_scenario_commits_match_the_six_configurations():
+    for target in TARGETS:
+        documented = scenario_commits(target)
+        assert set(documented) == {"baseline", "correct", "incomplete", "regression"}
+        for variant, patch in [
+            ("correct", "correct"),
+            ("incomplete", "incomplete"),
+            ("regression", "regression"),
+        ]:
+            data = config_data(ROOT / "evaluation" / target / f"{variant}.yaml")
+            assert data["target"]["base_ref"] == documented["baseline"], (
+                target,
+                variant,
+            )
+            assert data["target"]["patch_ref"] == documented[patch], (target, variant)
+        assert len(set(documented.values())) == 4, target
+
+
+def test_only_patch_ref_differs_between_variants():
+    for target in TARGETS:
+        variants = {
+            variant: config_data(ROOT / "evaluation" / target / f"{variant}.yaml")
+            for variant in VARIANTS
+        }
+        reference = variants["correct"]
+        for variant, data in variants.items():
+            comparable = {
+                **data,
+                "target": {**data["target"], "patch_ref": None},
+            }
+            expected = {
+                **reference,
+                "target": {**reference["target"], "patch_ref": None},
+            }
+            assert comparable == expected, (target, variant)
+            assert data["target"]["patch_ref"] != reference["target"]["patch_ref"] or (
+                variant == "correct"
+            )
+
+
+def test_configs_reproduce_the_documented_baseline_signature():
+    for target in TARGETS:
+        documented = documented_signature(target)
+        for variant in VARIANTS:
+            config = DiffSheriffConfig.from_yaml(
+                ROOT / "evaluation" / target / f"{variant}.yaml"
+            )
+            assert config.baseline_signature == documented, (target, variant)
+
+
+def test_configs_declare_a_buildable_and_executable_target():
+    for target, variant, path in config_paths():
+        config = DiffSheriffConfig.from_yaml(path)
+        build, execution, suites = config.build, config.execution, config.test_suites
+        assert config.repository_path == (path.parent / "repository").resolve()
+        assert "clang" in build.release_command, (target, variant)
+        assert "clang" in build.sanitized_command, (target, variant)
+        # Corresponding modes must be distinguishable; target1 passes the
+        # sanitizer flags explicitly while target2's Makefile owns them.
+        assert build.sanitized_command != build.release_command, (target, variant)
+        assert build.release_binary_path != build.sanitized_binary_path
+        assert build.timeout_seconds > 0
+        assert execution.input_method == "file"
+        assert execution.file_argument_flag == "--file"
+        assert execution.image == "diffsheriff:local"
+        assert execution.memory_mb > 0 and execution.cpus > 0
+        assert execution.pids_limit > 0 and execution.output_limit_bytes > 0
+        options = execution.environment_variables
+        assert "external_symbolizer_path=" in options["ASAN_OPTIONS"]
+        assert "external_symbolizer_path=" in options["UBSAN_OPTIONS"]
+        assert suites.expectations == "suites/expected.json"
+        assert suites.provenance.strip()
+
+
+def test_suite_manifests_resolve_inside_the_configuration_directory():
+    for target, variant, path in config_paths():
+        config = DiffSheriffConfig.from_yaml(path)
+        root = config.config_directory.resolve()
+        expectations = (root / config.test_suites.expectations).resolve()
+        assert expectations.is_file(), (target, variant)
+        assert expectations.is_relative_to(root), (target, variant)
+        declared = {
+            "valid": config.test_suites.valid_directory,
+            "boundary": config.test_suites.boundary_directory,
+            "malicious": config.test_suites.malicious_directory,
+        }
+        for suite, directory in declared.items():
+            resolved = (root / directory).resolve()
+            assert resolved.is_relative_to(root), (target, variant, suite)
+        assert (
+            (root / config.test_suites.regression_directory)
+            .resolve()
+            .is_relative_to(root)
+        )
+        manifest = json.loads(expectations.read_text(encoding="utf-8"))
+        for key in manifest:
+            suite, name = key.split("/", 1)
+            assert suite in declared, (target, variant, key)
+            payload = (root / declared[suite] / name).resolve()
+            assert payload.is_relative_to(root), (target, variant, key)
+
+
+def test_variant_outcomes_match_the_justified_scenario_table():
+    assert VARIANTS == {"correct": 0, "incomplete": 10, "regression": 20}
+    evaluation = (ROOT / "docs/evaluation.md").read_text(encoding="utf-8")
+    rows = re.findall(
+        r"^\| (target[12]) \| (correct|incomplete|regression) \| "
+        r"`evaluation/(target[12])/(correct|incomplete|regression)\.yaml` \| (\d+) \|$",
+        evaluation,
+        re.MULTILINE,
+    )
+    assert len(rows) == 6, rows
+    documented = {
+        (target, variant): (config_target, config_variant, int(code))
+        for target, variant, config_target, config_variant, code in rows
+    }
+    assert set(documented) == {
+        (target, variant) for target in TARGETS for variant in VARIANTS
+    }
+    for (target, variant), (config_target, config_variant, code) in documented.items():
+        assert (target, variant) == (config_target, config_variant)
+        assert code == VARIANTS[variant]
+
+
+def test_matrix_runner_covers_every_comparison():
+    script = ROOT / "scripts/run_matrix.sh"
+    source = script.read_text(encoding="utf-8")
+    subprocess.run(["bash", "-n", str(script)], check=True)
+    listed = subprocess.check_output(["bash", str(script), "--list"], text=True).split()
+    assert listed == [
+        f"{target}:{variant}:{code}"
+        for target in TARGETS
+        for variant, code in VARIANTS.items()
+    ]
+    assert "scripts/verify_matrix_run.py" in source
+    assert "--output-json" in source and "--artifacts" in source
+    assert "evaluation/$target/$variant.yaml" in source
+    assert "MATRIX_SYMBOLIZER_PATH" in source
+
+
+def matrix_run(tmp_path, *, exit_code=0, replays=3, kind="security"):
+    """Synthetic retained evidence with the shape the runner must verify."""
+    out = tmp_path / "target1" / "correct"
+    bundle = out / "runs" / "run-fixture" / "reproducers" / "case"
+    bundle.mkdir(parents=True)
+    payload = b"minimized"
+    (bundle / "original.input").write_bytes(b"original")
+    (bundle / "minimized.input").write_bytes(payload)
+    (bundle / "reproducer.json").write_text(
+        json.dumps(
+            {
+                "kind": kind,
+                "finding_side": "base",
+                "minimized_sha256": hashlib.sha256(payload).hexdigest(),
+                "runs": {"base": [{}] * replays, "patch": [{}] * replays},
+            }
+        )
+    )
+    (out / "report.json").write_text(
+        json.dumps(
+            {
+                "schema_version": "2.0",
+                "exit_code": exit_code,
+                "evidence": {"baseline_identity_modes": ["sanitized"]},
+            }
+        )
+    )
+    return out, bundle
+
+
+def test_matrix_verifier_accepts_replayable_evidence(tmp_path):
+    sys.path.insert(0, str(ROOT / "scripts"))
+    try:
+        from verify_matrix_run import verify
+    finally:
+        sys.path.pop(0)
+    out, _ = matrix_run(tmp_path)
+    assert verify(out, "target1", "correct", 0, 0) == []
+
+
+@pytest.mark.parametrize(
+    "problem", ["exit-mismatch", "no-baseline", "missing-bundle", "short-replay"]
+)
+def test_matrix_verifier_rejects_incomplete_evidence(tmp_path, problem):
+    sys.path.insert(0, str(ROOT / "scripts"))
+    try:
+        from verify_matrix_run import verify
+    finally:
+        sys.path.pop(0)
+    out, bundle = matrix_run(tmp_path, replays=3 if problem != "short-replay" else 2)
+    if problem == "exit-mismatch":
+        assert verify(out, "target1", "correct", 10, 0)
+    elif problem == "no-baseline":
+        (out / "report.json").write_text(
+            json.dumps(
+                {
+                    "schema_version": "2.0",
+                    "exit_code": 0,
+                    "evidence": {"baseline_identity_modes": []},
+                }
+            )
+        )
+        assert verify(out, "target1", "correct", 0, 0)
+    elif problem == "missing-bundle":
+        (bundle / "minimized.input").unlink()
+        assert verify(out, "target1", "correct", 0, 0)
+    else:
+        assert verify(out, "target1", "correct", 0, 0)
+
+
+@requires_corpus
 def test_zlib_corpus_and_generated_validity_agree_with_reference():
     from diffsheriff.config import DiffSheriffConfig
     from diffsheriff.pipeline import discover_cases
@@ -96,6 +396,7 @@ def copy_bundles(tmp_path):
 
 
 @pytest.mark.skipif(sys.platform == "win32", reason="CI uses bash on Linux")
+@requires_bundles
 def test_workflow_prepares_all_configured_commits_without_developer_state(tmp_path):
     copy_bundles(tmp_path)
     subprocess.run(
@@ -132,6 +433,7 @@ def test_workflow_prepares_all_configured_commits_without_developer_state(tmp_pa
 
 
 @pytest.mark.skipif(sys.platform == "win32", reason="CI uses bash on Linux")
+@requires_bundles
 def test_workflow_missing_bundle_fails_before_validation(tmp_path):
     copy_bundles(tmp_path)
     (tmp_path / "targets/target1/source.bundle").unlink()
@@ -143,7 +445,9 @@ def test_workflow_missing_bundle_fails_before_validation(tmp_path):
 
 
 @pytest.mark.skipif(sys.platform == "win32", reason="CI uses bash on Linux")
-@pytest.mark.parametrize("second", ["ready", "missing", "occupied", "symlink"])
+@pytest.mark.parametrize(
+    "second", ["ready", "missing", "occupied", "symlink", "invalid-bundle"]
+)
 def test_workflow_preflights_both_bundle_destinations(tmp_path, second):
     fixture = tmp_path / "fixture"
     fixture.mkdir()
@@ -171,8 +475,10 @@ def test_workflow_preflights_both_bundle_destinations(tmp_path, second):
     for target in ("target1", "target2"):
         bundle = tmp_path / "targets" / target / "source.bundle"
         bundle.parent.mkdir(parents=True)
-        if target == "target1" or second != "missing":
+        if target == "target1" or second not in {"missing", "invalid-bundle"}:
             git("bundle", "create", str(bundle), "--all")
+        elif second == "invalid-bundle":
+            bundle.write_bytes(b"not a git bundle")
 
     first = tmp_path / "evaluation/target1/repository"
     last = tmp_path / "evaluation/target2/repository"
@@ -210,6 +516,7 @@ def test_workflow_preflights_both_bundle_destinations(tmp_path, second):
 PNG = ROOT / "evaluation/target2"
 
 
+@requires_corpus
 def test_png_fixture_expectations_are_fixed_and_unknown_inputs_have_no_oracle():
     from diffsheriff.config import DiffSheriffConfig
     from diffsheriff.pipeline import discover_cases
@@ -245,6 +552,7 @@ def test_png_fixture_expectations_are_fixed_and_unknown_inputs_have_no_oracle():
 
 
 @pytest.mark.skipif(sys.platform == "win32", reason="uses the Linux C compiler")
+@requires_bundles
 @pytest.mark.parametrize("phase,expected", [(0, 2), (1, 2), (2, 0), (3, 3)])
 def test_png_driver_checks_begin_finish_and_allocation_failures(
     tmp_path, phase, expected

@@ -5,6 +5,9 @@ import pytest
 import yaml
 from diffsheriff.config import ConfigError, DiffSheriffConfig
 
+ROOT = Path(__file__).resolve().parents[1]
+SYMBOLIZER = "external_symbolizer_path=/usr/bin/llvm-symbolizer"
+
 VALID_CONFIG = """
 version: '2.0'
 target:
@@ -137,3 +140,50 @@ def test_invalid_minimization_configuration(tmp_path, settings):
     data["minimization"] = settings
     with pytest.raises(ConfigError, match="minimization"):
         DiffSheriffConfig.from_yaml(write_config(tmp_path, yaml.safe_dump(data)))
+
+
+def test_sanitizer_environment_options_round_trip(tmp_path):
+    data = yaml.safe_load(VALID_CONFIG)
+    data["execution"]["environment_variables"] = {
+        "ASAN_OPTIONS": (
+            "detect_leaks=0:abort_on_error=1:symbolize=1:"
+            "external_symbolizer_path=/usr/bin/llvm-symbolizer"
+        ),
+        "UBSAN_OPTIONS": (
+            "print_stacktrace=1:halt_on_error=1:"
+            "external_symbolizer_path=/usr/bin/llvm-symbolizer"
+        ),
+    }
+    config = DiffSheriffConfig.from_yaml(write_config(tmp_path, yaml.safe_dump(data)))
+    assert (
+        config.execution.environment_variables
+        == data["execution"]["environment_variables"]
+    )
+
+
+def shipped_configs():
+    return [
+        ROOT / "configs/example_target.yaml",
+        *sorted((ROOT / "evaluation").glob("target*/*.yaml")),
+    ]
+
+
+@pytest.mark.parametrize("path", shipped_configs(), ids=lambda path: path.name)
+def test_shipped_configurations_symbolize_sanitizer_reports(path):
+    """Every shipped config must give Clang an explicit external symbolizer.
+
+    Without it, UBSan/ASan frames stay as `module+offset`, triage resolves the
+    function as `unknown`, and the designated baseline signature cannot be
+    established. See context/symbolizer-diagnosis.json.
+    """
+    config = DiffSheriffConfig.from_yaml(path)
+    required = {
+        "ASAN_OPTIONS": ("detect_leaks=0", "abort_on_error=1", "symbolize=1"),
+        "UBSAN_OPTIONS": ("print_stacktrace=1", "halt_on_error=1"),
+    }
+    for variable, options in required.items():
+        entries = config.execution.environment_variables[variable].split(":")
+        assert SYMBOLIZER in entries, f"{path.name}: {variable} lacks the symbolizer"
+        for option in options:
+            assert option in entries, f"{path.name}: {variable} lacks {option}"
+        assert entries.count(SYMBOLIZER) == 1

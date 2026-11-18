@@ -1,10 +1,22 @@
 import hashlib
 import json
+from pathlib import Path
+import sys
 
 import pytest
+from click.testing import CliRunner
 
+from diffsheriff.cli import main
 from diffsheriff.config import ConfigError
 from diffsheriff.regressions import copy_regressions
+from diffsheriff.pipeline import run_pipeline
+from .test_pipeline import pipeline_fixture as _shared_pipeline_fixture  # noqa: F401
+
+
+@pytest.fixture
+def pipeline_fixture(_shared_pipeline_fixture):  # noqa: F811 (pytest fixture)
+    """Reuse the synthetic pipeline fixture from the end-to-end test module."""
+    return _shared_pipeline_fixture
 
 
 def retained_suite(path):
@@ -254,9 +266,9 @@ def test_patch_coordinate_signature_is_supported(tmp_path):
     assert (destination / "case.json").exists()
 
 
-def functional_export(path, cases):
+def functional_export(path, cases, exist_ok=False):
     """Write full-check functional manifests mapping manifest name to input name."""
-    path.mkdir()
+    path.mkdir(exist_ok=exist_ok)
     for manifest_name, input_name in cases.items():
         payload = f"harmless {input_name}".encode()
         (path / input_name).write_bytes(payload)
@@ -404,3 +416,185 @@ def test_export_rejects_missing_source_path_without_retiring_existing_files(tmp_
     with pytest.raises(ConfigError, match="Missing retained regression directory"):
         copy_regressions(source, destination, "a" * 40, replace_existing=True)
     assert destination_bytes(destination) == before
+
+
+def stale_snapshot(path):
+    """A snapshot the refresh must retire: manifests owned by the same baseline."""
+    functional_export(
+        path, {"stale.json": "stale.input", "kept.json": "kept.input"}, exist_ok=True
+    )
+    return path
+
+
+def test_export_refresh_retires_stale_manifests_for_the_baseline(tmp_path):
+    source, destination = tmp_path / "source", tmp_path / "destination"
+    functional_export(source, {"kept.json": "kept.input"})
+    copy_regressions(source, destination, "a" * 40, replace_existing=True)
+    stale_snapshot(destination)
+    # Both snapshots claim baseline "a"*40; only the exported one survives.
+    copy_regressions(source, destination, "a" * 40, replace_existing=True)
+    assert sorted(path.name for path in destination.iterdir()) == [
+        "kept.input",
+        "kept.json",
+    ]
+
+
+def test_export_refresh_retains_manifests_of_other_baselines(tmp_path):
+    source, destination = tmp_path / "source", tmp_path / "destination"
+    functional_export(source, {"kept.json": "kept.input"})
+    copy_regressions(source, destination, "a" * 40, replace_existing=True)
+    functional_export(destination, {"other.json": "other.input"}, exist_ok=True)
+    other = destination / "other.json"
+    other.write_text(
+        json.dumps({**json.loads(other.read_bytes()), "base_ref": "b" * 40})
+    )
+    other_before = other.read_bytes()
+    copy_regressions(source, destination, "a" * 40, replace_existing=True)
+    assert other.read_bytes() == other_before
+    assert (destination / "other.input").exists()
+
+
+def test_mixed_valid_and_invalid_external_manifests_corrupt_nothing(tmp_path):
+    source, destination = tmp_path / "source", tmp_path / "destination"
+    retained_suite(source)
+    (source / "invalid.json").write_text(json.dumps({"base_ref": "a" * 40}))
+    with pytest.raises(ConfigError, match="Invalid retained regression"):
+        copy_regressions(source, destination, "a" * 40)
+    assert not destination.exists()
+
+
+def test_unverified_external_expectation_is_rejected_before_transfer(tmp_path):
+    source, destination = tmp_path / "source", tmp_path / "destination"
+    retained_suite(source)
+    item = json.loads((source / "case.json").read_bytes())
+    item.update(
+        check="full",
+        expected={"exit_code": 0, "stdout": "cache only\n", "stderr": ""},
+    )
+    (source / "case.json").write_text(json.dumps(item))
+    with pytest.raises(ConfigError, match="independent local expectation"):
+        copy_regressions(source, destination, "a" * 40)
+    assert not destination.exists()
+
+
+def test_cli_rejects_invalid_retained_manifest_without_touching_the_cache(
+    tmp_path, pipeline_fixture
+):
+    cfg, config_path, _ = pipeline_fixture
+    invalid = tmp_path / "invalid-retained"
+    invalid.mkdir()
+    (invalid / "case.json").write_text(json.dumps({"base_ref": "a" * 40}))
+    report = tmp_path / "report.json"
+    result = CliRunner().invoke(
+        main,
+        [
+            "--config",
+            str(config_path),
+            "--output-json",
+            str(report),
+            "--artifacts",
+            str(tmp_path / "runs"),
+            "--regressions-from",
+            str(invalid),
+        ],
+    )
+    assert result.exit_code == 30, result.output
+    payload = json.loads(report.read_text(encoding="utf-8"))
+    assert payload["verdict"] == "BUILD_OR_CONFIG_ERROR"
+    assert not (cfg.config_directory / cfg.test_suites.regression_directory).exists()
+
+
+def test_minimized_baseline_failure_is_enrolled_with_its_bytes(
+    tmp_path, pipeline_fixture
+):
+    cfg, _, _ = pipeline_fixture
+    summary = run_pipeline(cfg, tmp_path / "runs")
+    assert summary.exit_code == 0, summary.notes
+    bundle = (
+        Path(summary.evidence["run_directory"]) / summary.evidence["reproducers"][0]
+    )
+    metadata = json.loads((bundle / "reproducer.json").read_text(encoding="utf-8"))
+    assert metadata["kind"] == "security"
+    assert metadata["finding_side"] == "base"
+    minimized = (bundle / "minimized.input").read_bytes()
+    assert (bundle / "original.input").exists()
+    manifests = sorted(
+        (cfg.config_directory / cfg.test_suites.regression_directory).glob("*.json")
+    )
+    enrolled = [
+        json.loads(path.read_text(encoding="utf-8"))
+        for path in manifests
+        if path.with_suffix(".input").read_bytes() == minimized
+    ]
+    assert enrolled
+    for item in enrolled:
+        assert item["base_ref"] == cfg.base_ref
+        assert item["sha256"] == hashlib.sha256(minimized).hexdigest()
+        assert item["kind"] == "security"
+        assert item["finding_side"] == "base"
+        assert item["signature"] == cfg.baseline_signature
+
+
+def test_later_run_loads_generated_cases_and_confirms_the_patch(
+    tmp_path, pipeline_fixture
+):
+    cfg, _, _ = pipeline_fixture
+    first = run_pipeline(cfg, tmp_path / "runs")
+    assert first.exit_code == 0, first.notes
+    second = run_pipeline(cfg, tmp_path / "runs")
+    assert second.exit_code == 0, second.notes
+    generated = [
+        record
+        for record in second.evidence["cases"]
+        if record["id"].startswith("regression/")
+    ]
+    assert generated
+    security = [item for item in generated if item["baseline_signature"]]
+    assert security
+    for record in security:
+        assert record["baseline_signature"] == cfg.baseline_signature
+        if record["baseline_mode"] == record["mode"]:
+            assert all(
+                run["signature"] == cfg.baseline_signature
+                for run in record["runs"]["base"]
+            )
+        # The correct patch must show neither the designated failure nor a new one.
+        assert all(run["signature"] is None for run in record["runs"]["patch"])
+
+
+@pytest.mark.parametrize(
+    "scenario,check_regression",
+    [("fixed", True), ("regression", False)],
+)
+def test_reproduce_exits_zero_after_three_stable_replays(
+    tmp_path, pipeline_fixture, monkeypatch, scenario, check_regression
+):
+    from diffsheriff import reproduce
+
+    cfg, _, state = pipeline_fixture
+    state["scenario"] = scenario
+    summary = run_pipeline(cfg, tmp_path / "runs")
+    bundles = [
+        Path(summary.evidence["run_directory"]) / item
+        for item in summary.evidence["reproducers"]
+    ]
+    kind = "security" if check_regression else "functional"
+    bundle = next(
+        item
+        for item in bundles
+        if json.loads((item / "reproducer.json").read_text())["kind"] == kind
+    )
+    argv = ["reproduce", str(bundle)]
+    if check_regression:
+        argv.append("--check-regression")
+    monkeypatch.setattr(sys, "argv", argv)
+    with pytest.raises(SystemExit) as exit_info:
+        reproduce.main()
+    assert exit_info.value.code == 0
+    replay = json.loads((bundle / "replay.json").read_text(encoding="utf-8"))
+    assert replay["reproduced"] is True
+    assert replay["stable"] is True
+    assert len(replay["runs"]["base"]) >= 3
+    assert len(replay["runs"]["patch"]) >= 3
+    if check_regression:
+        assert replay["regression_pass"] is True

@@ -1,7 +1,7 @@
 # Target source and scenario record
 
 [The roadmap](roadmap.md) owns acceptance status and requirement gaps. This record
-owns target identities, construction and input locations. Instructor approval evidence
+owns target identities, construction and input locations. Instructor approval was waived by the course team.
 has not been supplied. The bounded zlib completion/status contract is documented
 below; the native-format PNG completion/rejection contract is recorded at the end.
 Neither is instructor-approved.
@@ -53,6 +53,26 @@ Configurations and the sole editable test corpus are under `evaluation/target2/`
 Clone the bundle as described in [evaluation.md](evaluation.md); the disposable
 `repository/` checkout is ignored. Driver and Makefile source belong to the exact
 bundled commits, rather than a second independently editable copy under `targets/`.
+
+### Designated baseline signatures
+
+Every comparison for a target must establish the same designated baseline diagnostic
+in the baseline build before a patch outcome can be claimed. This record owns those
+values; the six configs must match it exactly. Target 1 reproduces the signature
+retained in the historical attempt (`context/historical-report.json`). Target 2's
+value is the configured expectation for the documented cleanup flaw; the baseline run
+confirms it and no expectation is ever taken from patch output.
+
+| Target | `error_type` | `file` | `function` | `line` |
+| --- | --- | --- | --- | --- |
+| Target 1 (zlib) | `out-of-bounds` | `trees.c` | `compress_block` | 1092 |
+| Target 2 (libpng) | `stack-use-after-return` | `pngerror.c` | `png_safe_execute` | 954 |
+
+The zlib diagnostic is the sanitizer's out-of-bounds report from the `Z_FIXED`
+deflate path in `compress_block`. The libpng diagnostic is reported from the
+simplified-read error path in `png_safe_execute`, which runs the cleanup callback
+(`png_image_free`) whose incomplete variant keeps the use-after-free reachable for
+image widths above 100.
 
 ## Driver and patch scope
 

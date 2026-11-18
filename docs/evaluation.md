@@ -49,6 +49,8 @@ python -m pip install -e '.[dev]'
 git clone targets/target1/source.bundle evaluation/target1/repository
 git clone targets/target2/source.bundle evaluation/target2/repository
 docker build --platform linux/amd64 -t diffsheriff:local -f docker/Dockerfile .
+docker run --rm --entrypoint /bin/sh diffsheriff:local \
+  -c 'test -x /usr/bin/llvm-symbolizer'
 bash verify.sh
 ```
 
@@ -58,32 +60,66 @@ The selected configs use neutral absolute minima; retain their actual observatio
 bundles into a fresh checkout; do not overwrite existing source worktrees. Keep the
 bundles in Git, not unmanaged nested `.git` directories.
 
-Then run this matrix. Each invocation creates a separate retained run; console output
-and the latest report are saved beside it. The table compares expected outcomes without
-changing the validator's verdict:
+The `docker run` line is a required preflight: the sanitizer runtime needs an external
+symbolizer to turn a stack address into `function file:line`. Without it Clang prints
+`WARNING: invalid path to external symbolizer!`, triage resolves the function as
+`unknown`, the designated baseline signature cannot be established, and the comparison
+is inconclusive (40). All six configs therefore set
+`external_symbolizer_path=/usr/bin/llvm-symbolizer` in `ASAN_OPTIONS` and
+`UBSAN_OPTIONS`; the runtime image already installs LLVM. If the preflight fails,
+install LLVM in the image rather than lowering the expectation.
+
+Then run the six comparisons:
 
 ```bash
-failed=0
-for target in target1 target2; do
-  for pair in correct:0 incomplete:10 regression:20; do
-    variant=${pair%:*}; expected=${pair#*:}
-    out="artifacts/evaluation/$target/$variant"
-    mkdir -p "$out"
-    actual=0
-    diffsheriff --config "evaluation/$target/$variant.yaml" \
-      --output-json "$out/report.json" --artifacts "$out/runs" \
-      > "$out/console.log" 2>&1 || actual=$?
-    printf '%s/%s expected=%s actual=%s\n' "$target" "$variant" "$expected" "$actual"
-    [ "$actual" -eq "$expected" ] || failed=1
-  done
-done
-[ "$failed" -eq 0 ]
+bash scripts/run_matrix.sh
+```
+
+The runner executes each comparison separately, saves its console output, retains the
+JSON report and run bundles under `artifacts/evaluation/<target>/<variant>/`, compares
+the process exit code with the justified outcome, and then verifies the retained
+evidence through `scripts/verify_matrix_run.py`. It preflights Docker, the image, the
+symbolizer, both configurations, both cloned repositories and every configured commit
+before it executes anything, and it never rewrites an exit code. `--list` prints the
+six rows; `MATRIX_ARTIFACTS` relocates the output root.
+
+The rows are:
+
+| Target | Variant | Config | Expected |
+| --- | --- | --- | ---: |
+| target1 | correct | `evaluation/target1/correct.yaml` | 0 |
+| target1 | incomplete | `evaluation/target1/incomplete.yaml` | 10 |
+| target1 | regression | `evaluation/target1/regression.yaml` | 20 |
+| target2 | correct | `evaluation/target2/correct.yaml` | 0 |
+| target2 | incomplete | `evaluation/target2/incomplete.yaml` | 10 |
+| target2 | regression | `evaluation/target2/regression.yaml` | 20 |
+
+Each row is one `diffsheriff --config … --output-json … --artifacts …` invocation; the
+equivalent manual loop for one comparison is:
+
+```bash
+out="artifacts/evaluation/target1/correct"
+mkdir -p "$out"
+actual=0
+diffsheriff --config evaluation/target1/correct.yaml \
+  --output-json "$out/report.json" --artifacts "$out/runs" \
+  > "$out/console.log" 2>&1 || actual=$?
+python3 scripts/verify_matrix_run.py "$out" --target target1 --variant correct \
+  --actual "$actual" --expected 0
 ```
 
 Inspect every JSON: corresponding build modes, baseline identity, independent statuses,
 hardening, correlation, three replay observations, and original/minimized inputs.
 Code 30 means a build/config/tool problem; 40 means insufficient evidence. Diagnose
 the recorded reason; never override those codes to match the table.
+
+The verifier fails a comparison that lacks a retained report, whose report exit code
+differs from the process exit code, whose `evidence.baseline_identity_modes` is empty,
+or whose reproducer bundles lack `reproducer.json`, `original.input`,
+`minimized.input`, a matching minimized-input hash, or three baseline replays. Fix the
+underlying cause and rerun; do not relax the check. A failing run keeps its
+`console.log`, so the recorded `analysis_incomplete_reasons` and notes explain the
+outcome.
 
 ## 3. Demonstrate replay, regression enrollment, and CI
 
