@@ -1,3 +1,5 @@
 *.sh text eol=lf
 # Preserve evidence bytes and hashes across Windows and Linux checkouts.
 artifacts/** -text
+# Generated regression inputs are hashed payloads, not text files.
+evaluation/target1/generated-regressions/*.input -text
