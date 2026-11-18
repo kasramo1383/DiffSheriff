@@ -16,14 +16,35 @@ with both source commits available. The runtime image is built from this checkou
 The `Prepare target sources` step preflights both bundle paths
 (`targets/<target>/source.bundle`) and both destinations
 (`evaluation/<target>/repository`) before it clones either bundle. A missing
-bundle, or an existing or symlinked destination, stops the step before it
-creates a checkout. Only then does the step clone the two bundles in the existing
-order. Fresh-runner tests verify every configured commit is available. If a clone
-itself fails after a successful preflight, the first checkout may already exist;
-retry from a fresh checkout or clean runner rather than reusing the partial
-workspace, because the step refuses an existing destination and never deletes one.
+bundle, a file that `git bundle list-heads` cannot read, or an existing or symlinked
+destination stops the step before it creates a checkout. Only then does the step
+clone the two bundles in the existing order. Fresh-runner tests verify every
+configured commit is available, and synthetic bundles verify that an unreadable
+second bundle leaves the first destination untouched. If a clone itself fails after a
+successful preflight, the first checkout may already exist; retry from a fresh
+checkout or clean runner rather than reusing the partial workspace, because the step
+refuses an existing destination and never deletes one.
 See the [evaluation guide](evaluation.md) for standalone setup. Target acceptance
 results remain separate from source setup verification.
+
+After the runtime image is built, the job verifies the external symbolizer inside it:
+
+```sh
+docker run --rm --entrypoint /bin/sh diffsheriff:local \
+  -c 'test -x /usr/bin/llvm-symbolizer'
+```
+
+This is a target-acceptance precondition, not a convenience check. Clang's ASan/UBSan
+runtime must invoke `llvm-symbolizer` to turn a stack address into
+`function file:line`. Without it the runtime prints
+`WARNING: invalid path to external symbolizer!`, frames stay as `module+offset`,
+triage reports the function as `unknown`, the designated `baseline_signature` cannot
+be established, and the comparison returns 40 (INCONCLUSIVE) with
+`baseline_identity_unestablished`. All six shipped configs set
+`external_symbolizer_path=/usr/bin/llvm-symbolizer` in `ASAN_OPTIONS` and
+`UBSAN_OPTIONS`, and the job fails before validation if the image cannot honor it.
+The runner also supplies that default for sanitizer options that omit the path, which
+keeps replays of bundles recorded before this option existed usable.
 
 The job runs:
 
@@ -40,6 +61,49 @@ The CLI's exit code is the job's validation result. Only 0 passes; 10, 20, 30, a
 demonstration, never an override that turns a vulnerable patch into a passing gate.
 Target validation is not automatically run for pull requests. The unit and harmless
 native jobs continue to run there.
+
+## Reproduce the job from a clean checkout
+
+Every command below uses only committed files. No absolute path, ignored directory,
+local regression cache, or uncommitted edit is required.
+
+```sh
+git clone REPOSITORY_URL diffsheriff-clean
+cd diffsheriff-clean
+git rev-parse HEAD                        # record the evaluated revision
+
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -e '.[dev]'
+
+for target in target1 target2; do
+  test -f "targets/$target/source.bundle"
+  test ! -e "evaluation/$target/repository"
+  git bundle list-heads "targets/$target/source.bundle" >/dev/null
+done
+git clone -- targets/target1/source.bundle evaluation/target1/repository
+git clone -- targets/target2/source.bundle evaluation/target2/repository
+
+docker build --platform linux/amd64 -t diffsheriff:local -f docker/Dockerfile .
+docker run --rm --entrypoint /bin/sh diffsheriff:local \
+  -c 'test -x /usr/bin/llvm-symbolizer'
+
+mkdir -p .diffsheriff/ci .diffsheriff/retained-regressions
+diffsheriff --config evaluation/target1/correct.yaml \
+  --regressions-from .diffsheriff/retained-regressions \
+  --export-regressions .diffsheriff/retained-regressions \
+  --output-json .diffsheriff/ci/report.json \
+  --artifacts .diffsheriff/ci/runs
+echo "exit code: $?"
+```
+
+The last command's exit code is the validation result; keep
+`.diffsheriff/ci/report.json` and `.diffsheriff/ci/runs/` with it. To run all six
+comparisons with the same evidence checks, use
+`bash scripts/run_matrix.sh` as described in [evaluation.md](evaluation.md).
+`bash scripts/run_matrix.sh` refuses to start when the bundles, the cloned
+repositories, the image, or the symbolizer are missing, so a partial checkout cannot
+be mistaken for a failed patch.
 
 ## Regressions and retained evidence
 

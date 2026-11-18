@@ -32,8 +32,8 @@ execution:
   pids_limit: 128
   output_limit_bytes: 1048576
   environment_variables:
-    ASAN_OPTIONS: detect_leaks=0:abort_on_error=1:symbolize=1
-    UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1
+    ASAN_OPTIONS: detect_leaks=0:abort_on_error=1:symbolize=1:external_symbolizer_path=/usr/bin/llvm-symbolizer
+    UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1:external_symbolizer_path=/usr/bin/llvm-symbolizer
 # Optional reduction limits; null disables an individual limit.
 minimization:
   max_granularity: 16

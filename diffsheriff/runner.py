@@ -11,6 +11,31 @@ import threading
 import time
 import uuid
 
+DEFAULT_SYMBOLIZER_PATH = "/usr/bin/llvm-symbolizer"
+SYMBOLIZER_ENV_KEYS = ("ASAN_OPTIONS", "UBSAN_OPTIONS", "LSAN_OPTIONS")
+
+
+def symbolizer_environment(env_vars=None):
+    """Supply the image's external symbolizer when sanitizer options omit one.
+
+    Symbolized stack frames are required to establish a source signature, so a
+    missing symbolizer silently degrades triage to `unknown` functions. Configs
+    should set `external_symbolizer_path` explicitly; this default keeps replays
+    of bundles recorded before that option existed, and operator-supplied
+    sanitizer options, usable instead of failing with an unidentifiable frame.
+    """
+    resolved = dict(env_vars or {})
+    for key in SYMBOLIZER_ENV_KEYS:
+        options = resolved.get(key)
+        if not isinstance(options, str) or not options.strip():
+            continue
+        entries = [entry for entry in options.split(":") if entry]
+        if any(entry.startswith("external_symbolizer_path=") for entry in entries):
+            continue
+        entries.append("external_symbolizer_path=" + DEFAULT_SYMBOLIZER_PATH)
+        resolved[key] = ":".join(entries)
+    return resolved
+
 
 @dataclass
 class ExecutionResult:
@@ -109,7 +134,7 @@ def execute_target(
     """Local primitive for trusted tests; the validation pipeline uses Docker."""
     args = [str(binary_path), *(fixed_args or [])]
     env = os.environ.copy()
-    env.update(env_vars or {})
+    env.update(symbolizer_environment(env_vars))
     with tempfile.TemporaryDirectory() as directory:
         stdin = None
         if input_method == "stdin":
@@ -194,7 +219,9 @@ def run_container(
         if "," in str(input_file):
             raise ValueError("Docker mount paths cannot contain commas")
         args.extend(["--mount", f"type=bind,src={input_file},dst=/input,readonly"])
-    for key, value in sorted(settings.environment_variables.items()):
+    for key, value in sorted(
+        symbolizer_environment(settings.environment_variables).items()
+    ):
         args.extend(["--env", f"{key}={value}"])
     if payload is not None:
         args.append("-i")

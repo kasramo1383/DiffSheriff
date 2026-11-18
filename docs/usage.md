@@ -62,7 +62,18 @@ Schema version `2.0` replaces the original scaffold schema; old files fail with 
   be full commit hashes. The checkout, including uncommitted files, is untouched.
 - `target.baseline_signature` specifies `error_type`, repository-relative `file`,
   `function`, and baseline `line`. Match the actual symbolized diagnostic. Compile
-  diagnostic builds with `-g -fno-omit-frame-pointer` and sanitizer support.
+  diagnostic builds with `-g -fno-omit-frame-pointer` and sanitizer support, and give
+  the sanitizer runtime an external symbolizer:
+  `ASAN_OPTIONS=...:symbolize=1:external_symbolizer_path=/usr/bin/llvm-symbolizer` and
+  `UBSAN_OPTIONS=...:external_symbolizer_path=/usr/bin/llvm-symbolizer`. Every shipped
+  configuration sets both. The runner appends that path when sanitizer options omit
+  it (so replaying an older reproducer bundle still resolves functions), but an
+  explicit value is preferred because it is recorded with the run. Without a
+  symbolizer, Clang prints `WARNING: invalid path to external symbolizer!`, frames
+  stay as `module+offset`, the parsed function is `unknown`, and no function-level
+  signature can be established. The retained triage record exposes
+  `symbolizer_failed` and `unsymbolized_frames` so this cause is visible in the JSON
+  instead of appearing as an unexplained inconclusive result.
 - Build commands are trusted shell commands executed inside disposable containers.
   Paths are relative to the source root. Dependencies must already be in the image
   or vendored: builds have no network. Symlinks/submodules are rejected.

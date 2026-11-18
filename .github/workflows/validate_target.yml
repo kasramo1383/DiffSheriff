@@ -42,6 +42,12 @@ jobs:
               echo "Refusing to overwrite existing target source: $destination" >&2
               exit 1
             fi
+            # list-heads needs no repository, so both bundles are checked
+            # before either destination exists.
+            if ! git bundle list-heads "$bundle" >/dev/null 2>&1; then
+              echo "Not a usable Git bundle: $bundle" >&2
+              exit 1
+            fi
           done
           for target in target1 target2; do
             destination="evaluation/$target/repository"
@@ -49,6 +55,12 @@ jobs:
           done
       - run: python -m pip install .
       - run: docker build -t diffsheriff:local -f docker/Dockerfile .
+      - name: Verify external symbolizer in the runtime image
+        run: |
+          # Without it Clang cannot symbolize sanitizer frames, so the
+          # designated baseline signature can never be established.
+          docker run --rm --entrypoint /bin/sh diffsheriff:local \
+            -c 'test -x /usr/bin/llvm-symbolizer'
       - name: Restore previously generated regressions
         uses: actions/cache/restore@v4
         with:

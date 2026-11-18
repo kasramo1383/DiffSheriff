@@ -4,7 +4,11 @@ from pathlib import Path
 import os
 import sys
 
-from diffsheriff.runner import execute_target
+from diffsheriff.runner import (
+    DEFAULT_SYMBOLIZER_PATH,
+    execute_target,
+    symbolizer_environment,
+)
 
 
 def test_custom_environment_does_not_remove_parent_environment():
@@ -64,3 +68,29 @@ def test_file_input_and_argv_utf8(tmp_path, monkeypatch):
     )
     assert result.stdout.strip() == "content"
     assert not list(tmp_path.iterdir())
+
+
+def test_symbolizer_path_is_supplied_when_sanitizer_options_omit_it():
+    env = symbolizer_environment({"ASAN_OPTIONS": "abort_on_error=1:symbolize=1"})
+    assert env["ASAN_OPTIONS"] == (
+        "abort_on_error=1:symbolize=1:"
+        "external_symbolizer_path=" + DEFAULT_SYMBOLIZER_PATH
+    )
+
+
+def test_explicit_symbolizer_path_is_not_duplicated():
+    configured = "symbolize=1:external_symbolizer_path=/opt/llvm/bin/llvm-symbolizer"
+    env = symbolizer_environment(
+        {"ASAN_OPTIONS": configured, "UBSAN_OPTIONS": "print_stacktrace=1"}
+    )
+    assert env["ASAN_OPTIONS"] == configured
+    assert env["UBSAN_OPTIONS"].endswith(
+        "external_symbolizer_path=" + DEFAULT_SYMBOLIZER_PATH
+    )
+
+
+def test_unrelated_environment_is_untouched():
+    assert symbolizer_environment({}) == {}
+    assert symbolizer_environment(None) == {}
+    env = symbolizer_environment({"UNRELATED": "value", "ASAN_OPTIONS": ""})
+    assert env == {"UNRELATED": "value", "ASAN_OPTIONS": ""}
