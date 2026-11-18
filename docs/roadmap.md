@@ -31,6 +31,27 @@ Do not remove existing useful tests or features merely because they exceed the m
 Do not add new work for these optional choices. Historical checkpoints preserve what
 was implemented and tested; they do not create new assignment requirements.
 
+## Resolved and recorded in the current history
+
+The implementation and evidence gaps that were safe to close without a target-acceptance
+campaign are now recorded as completed:
+
+- Sanitizer symbolization, stack triage, and the related runner configuration are in
+  place and covered by focused tests (`8c18782`).
+- The reproducible six-row matrix runner and evidence verifier are delivered
+  (`86890a9`), and the partial Target 1 results are retained with honest
+  `inconclusive_report` labels rather than being presented as accepted findings
+  (`b9d33f4`, `578cc14`).
+- Bundle-backed source preparation, clean-checkout dependency handling, and the
+  retained generic delivery evidence are documented (`4e7db03` and later history).
+- The bounded zlib and PNG contracts, corpus review, native build/hardening checks,
+  generated-regression enrollment/replay behavior, and exit-priority checks are
+  implemented and covered by their F01-F07 and F11 checkpoints.
+
+These resolutions establish reusable implementation and preparation behavior. They do
+not convert partial target reports into accepted comparisons, and they do not satisfy
+the instructor-guided manual gate below.
+
 ## Requirement-to-implementation check
 
 | PDF requirement | Current assessment and necessary remainder |
@@ -53,12 +74,25 @@ full delivered reports/reproducer runs; they remain unverified rather than dispr
 ## Remaining fixes and acceptance checks
 
 The course team waived instructor approval; no approval request remains. The remaining
-technical work is not only a final matrix run: resolve F08 correlation and the Target 1
-valid-input expectation conflict first, set a usable minimization budget, then complete
-and review all six target comparisons. Demonstrate selected-target regression
-re-enrollment/replay, the target CI gate (F10), and clean-checkout delivery/replay (F12).
-Generic F06/F08/F10/F11 checks are recorded separately from those target-specific
-acceptance results.
+technical work is target acceptance: resolve F08 correlation and the Target 1
+valid-input expectation conflict, set a usable minimization budget, and then complete
+the instructor-guided manual gate below. Generic F06/F08/F10/F11 checks are recorded
+separately from those target-specific acceptance results.
+
+## Manual completion gate reserved for instructor guidance
+
+The following item is intentionally left for manual execution and review under the
+instructor's guidance:
+
+> Run and review all six real-target comparisons, then check clean-checkout delivery
+> and the target CI gate.
+
+That manual gate includes the missing Target 1 regression and Target 2
+correct/incomplete/regression rows, review of `analysis_complete` and both independent
+statuses, correlation and replay/minimization evidence, generated-regression enrollment,
+target-specific clean-checkout replay, and the actual target CI exit gate. No target run,
+target artifact, clean-checkout acceptance claim, or target CI result is being changed
+by this roadmap update.
 
 ### F01 - Justify the bounded zlib functional contract
 
