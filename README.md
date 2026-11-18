@@ -4,9 +4,8 @@ DiffSheriff is a defensive patch-validation and functional-regression tool for a
 
 The CLI compares exact source commits in isolated containers and retains its evidence.
 It fails closed when the designated baseline flaw, independent expected behavior, or
-mandatory checks cannot be established. It does not provide exploit tooling; the course's
-incomplete-patch alternative-input case is limited to approved local targets and safe
-test inputs. Verification limits and staged acceptance work are recorded in
+mandatory checks cannot be established. It does not provide exploit tooling; the course's incomplete-patch alternative-input
+case is limited to the documented local target scope and safe test inputs. Verification limits and staged acceptance work are recorded in
 [the live roadmap](docs/roadmap.md).
 
 ## Authority and derived documentation
@@ -18,7 +17,7 @@ The Markdown files in `docs/` are maintained working notes:
 - [Requirements digest](docs/specification.md) is a traceable English summary of the PDF. If it conflicts with the PDF, the PDF controls.
 - [Architecture](docs/architecture.md) distinguishes implemented modules from planned integration.
 - [Roadmap](docs/roadmap.md) lists acceptance gates, not claims of completion.
-- [Target scenarios](docs/target_scenarios.md) records what must be approved before target work begins.
+- [Target scenarios](docs/target_scenarios.md) records target scope, provenance, and the course team's approval waiver.
 - [Reference comparison](docs/reference_comparison.md) records a historical DNS-P1 comparison; current acceptance belongs in the roadmap.
 - [Defense preparation](docs/defense_guide.md) gives each engineering role a code/evidence study path.
 
@@ -55,7 +54,8 @@ their assigned subsystem in detail.
 | Engineer 3 - Reproduction and regression | Mohammadreza Javadi | 402105868 | Stability replay, input minimization, reproducer bundles, and generated regression tests |
 | Engineer 4 - Integration and targets | Kasra Montazeri | 402106575 | Pipeline orchestration, CLI and reports, target scenarios, end-to-end tests, and delivery integration |
 
-Use the single [agent handoff prompt](docs/agent_handoff_prompt.md) when continuing
+The existing [agent handoff prompt](docs/agent_handoff_prompt.md) is a historical snapshot,
+not current task guidance; use the roadmap for current gaps. No new handoff is maintained.
 with another coding agent. Before handoff, it updates the
 live roadmap so the first unfinished action and any real blocker are explicit. The
 project does not use an issue board, sprint process, or per-task activity log. CI/CD

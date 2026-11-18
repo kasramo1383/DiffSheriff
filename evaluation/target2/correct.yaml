@@ -42,6 +42,6 @@ test_suites:
   boundary_directory: suites/boundary
   malicious_directory: suites/invalid
   expectations: suites/expected.json
-  provenance: Reviewed native-format PNG completion/rejection fixtures in docs/target_scenarios.md; instructor approval pending
+  provenance: Reviewed native-format PNG completion/rejection fixtures in docs/target_scenarios.md; instructor approval waived by the course team
   regression_directory: generated-regressions
   independent_reference_command: []

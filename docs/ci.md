@@ -1,10 +1,10 @@
 # Patch validation in CI
 
 The [target workflow](../.github/workflows/validate_target.yml) runs the real CLI.
-Its config must already identify an authorized local target, independently defined
+Its config must already identify a configured local target, independently defined
 expectations, and full baseline/patch Git commit hashes. The example schema is not
 a runnable course target. See [target_scenarios.md](target_scenarios.md) for target
-provenance and the status of instructor approval.
+provenance and the course team's instructor-approval waiver.
 
 Run **Validate target patch** manually in GitHub Actions with the config's path,
 or set the repository variable `DIFFSHERIFF_TARGET_CONFIG` to enable it on the
@@ -140,7 +140,7 @@ its independent expectation are retained separately. Diagnostic reproduction alo
 cannot complete the full regression check: missing expected behavior makes analysis
 inconclusive, including on the first run that creates the reduced case.
 
-To complete that check, supply an approved independent reference command or replace
+To complete that check, supply a reviewed independent reference command or replace
 the null expectation with an independently established `exit_code`, `stdout`, and
 `stderr` mapping in the local manifest, set `check: full`, and explicitly review its
 boolean `valid_input`. Do not copy the patched program's output.

@@ -1,22 +1,24 @@
 # Evaluation: what the team must do
 
 Use this procedure after resolving the acceptance gaps in [the roadmap](roadmap.md).
-The assessment needs **two approved independent C/C++ targets**, at
-least one a real non-toy project/library. Each needs a baseline and three patch
-versions: correct, incomplete, and functional regression. That is **six comparisons**,
-not one demonstration. Use only the approved local input scope; no exploit tooling is
-needed. Approval and source facts belong in [target_scenarios.md](target_scenarios.md).
+The assessment needs **two independent C/C++ targets**, at least one a real non-toy
+project/library. Instructor approval was waived by the course team. Each target
+needs a baseline and three patch versions: correct, incomplete, and functional regression.
+That is **six comparisons**, not one demonstration. Use only the documented local input
+scope; no exploit tooling is needed. The waiver and source facts belong in
+[target_scenarios.md](target_scenarios.md).
 
 ## 1. Prepare the assets once
 
 For each `target1` and `target2`:
 
-- Record instructor approval, source/license provenance, four full Git commit hashes,
-  and independent expected behavior. An incomplete patch must leave the same flaw
-  reachable through a different approved input; a regression patch must break a valid
-  input that the baseline passes. No invented outcomes or patched-output oracle.
+- Record source/license provenance, four full Git commit hashes, and independently
+  justified expected behavior. No approval-pending requirement belongs in active target
+  records. An incomplete patch must leave the same flaw reachable through a different
+  in-scope input; a regression patch must break a valid input that the baseline passes.
+  No invented outcomes or patched-output oracle.
 - Preserve the source history in `targets/targetN/source.bundle` using
-  `git -C PATH_TO_APPROVED_REPO bundle create ABSOLUTE_OUTPUT_PATH --all`.
+  `git -C PATH_TO_TARGET_REPO bundle create ABSOLUTE_OUTPUT_PATH --all`.
   Include required license notices. Make sure all four commits have refs in that
   repository before bundling. The source commits must contain any required drivers
   and regular vendored dependencies; unsupported symlinks/submodules must be resolved
@@ -25,7 +27,7 @@ For each `target1` and `target2`:
   `configs/example_target.yaml`. Within a target, change **only `target.patch_ref`**
   between those three configs. Use `repository_path: repository`, the full baseline
   hash, its designated observed sanitizer signature, build commands/binary paths,
-  and the approved input interface/settings.
+  and the documented input interface/settings.
 - Put the same valid/boundary/invalid input files, `expected.json`, provenance, and
   shared `regression_directory` beside those configs. Define expected exit/stdout/
   stderr and validity independently. A reviewed fixed manifest can suffice. Use an
@@ -54,7 +56,7 @@ docker run --rm --entrypoint /bin/sh diffsheriff:local \
 bash verify.sh
 ```
 
-Use an image with the approved targets' declared build dependencies. The PDF requires
+Use an image with the selected targets' declared build dependencies. The PDF requires
 release hardening inspection and downgrade warnings, not every protection enabled.
 The selected configs use neutral absolute minima; retain their actual observations. Clone the source
 bundles into a fresh checkout; do not overwrite existing source worktrees. Keep the
@@ -155,6 +157,7 @@ required. Each student then
 prepares and completes their own defense using [the study guide](defense_guide.md).
 
 This procedure supplies evidence for the rubric; it cannot guarantee the instructor's
-score or replace approval, unseen evaluation, genuine participation, or individual
-defense. The validator audit and tests are recorded in the
+score or replace unseen evaluation, genuine participation, or individual defense.
+Instructor approval was waived by the course team. The validator audit and tests are
+recorded in the
 [code-audit checkpoint](../artifacts/checkpoints/code-audit/README.md).

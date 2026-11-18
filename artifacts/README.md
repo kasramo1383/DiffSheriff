@@ -1,11 +1,20 @@
 # Retained evidence
 
 These are retained verification records. Current acceptance and remaining work belong
-in [the roadmap](../docs/roadmap.md). The retained [`target1/correct` report](evaluation/target1/correct/report.json)
-records an inconclusive attempt (exit 40). Its companion run directory is
-`evaluation/target1/correct/runs/run-gx6_3cwa/`. Five comparisons remain unrecorded.
-Generated regressions under
-`evaluation/` do not replace that matrix.
+in [the roadmap](../docs/roadmap.md). The current `artifacts/evaluation/matrix.tsv` has
+two rows, both marked `inconclusive_report`: Target 1 correct (exit 40) and incomplete
+(exit 10). The correct report points to `evaluation/target1/correct/runs/run-76j2clt5/`;
+`run-gx6_3cwa/` is an earlier, separate historical attempt. The incomplete report points
+to `evaluation/target1/incomplete/runs/run-y7lh43z5/`. Neither report has
+`analysis_complete: true`.
+
+Target 1 regression has a retained console log and partial run directory, but no
+finalized report or matrix row. All three Target 2 variants have no report, log, or
+matrix row. Thus only two of six comparisons have report rows, one more attempt is
+partial, and three variants have not been run. See F09 in the roadmap for exact
+report statuses and unresolved reasons. The historical run JSONs preserve their
+recorded configuration snapshots; current configs separately record the course team's
+approval waiver. Generated regressions under `evaluation/` do not replace the matrix.
 
 | Record | Purpose |
 | --- | --- |

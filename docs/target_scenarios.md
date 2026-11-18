@@ -1,10 +1,10 @@
 # Target source and scenario record
 
 [The roadmap](roadmap.md) owns acceptance status and requirement gaps. This record
-owns target identities, construction and input locations. Instructor approval was waived by the course team.
-has not been supplied. The bounded zlib completion/status contract is documented
-below; the native-format PNG completion/rejection contract is recorded at the end.
-Neither is instructor-approved.
+owns target identities, construction and input locations. The course team waived
+instructor approval for all project steps; no approval evidence is required. That waiver
+does not mean the course team independently reviewed or endorsed these contracts. The
+bounded zlib completion/status contract is documented below; the native-format PNG completion/rejection contract is recorded at the end.
 
 ## Source identities
 
@@ -179,7 +179,7 @@ and `lseek` in the legacy gzip sources. No source or bundle commits were changed
 The [bounded native verification](../artifacts/checkpoints/zlib-contract-ci/README.md)
 records successful completion on baseline/correct and failure of the documented
 large-input regression, including the existing reduced case. It is not the full
-security matrix and does not establish instructor approval.
+security matrix and does not establish target acceptance.
 
 
 ## Native-format PNG completion/rejection contract
