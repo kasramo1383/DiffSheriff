@@ -1,10 +1,10 @@
 # Retained evidence
 
 These are retained verification records. Current acceptance and remaining work belong
-in [the roadmap](../docs/roadmap.md). One `target1/correct` evaluation attempt is
-retained under `evaluation/`; its report returned exit 40 (INCONCLUSIVE) and it is not
-an accepted comparison. The Strix campaign stopped before the other five comparisons,
-so the complete six-comparison matrix is still missing. Generated regressions under
+in [the roadmap](../docs/roadmap.md). The retained [`target1/correct` report](evaluation/target1/correct/report.json)
+records an inconclusive attempt (exit 40). Its companion run directory is
+`evaluation/target1/correct/runs/run-gx6_3cwa/`. Five comparisons remain unrecorded.
+Generated regressions under
 `evaluation/` do not replace that matrix.
 
 | Record | Purpose |

@@ -28,12 +28,11 @@ Target 1 bundle was built and executed directly on native Linux x86_64:
 - The `65537 -> exit 2` behavior exists only in `evaluation/target1/reference.py`; the
   target driver itself exits 0 at 65537. It is not target coverage.
 
-**Resolution.** The assignment (p. 2) requires the tool to run valid, boundary and
-invalid input suites on both versions; it does not require a target whose declared
-interface accepts every byte string to supply a distinct invalid payload. Target 1
-therefore adds no invalid payload and keeps its `invalid/` triggers labelled valid. The
-invalid category is exercised by the tool's mandatory valid/boundary/malicious suites and
-supplied with genuine rejected payloads by Target 2 (`boundary/empty.png` and the two
-indexed `malicious/*.png`, all exit 2). No corpus or config file was changed.
+**Interpretation pending approval.** The independent compression contract supports
+the validity of in-scope Target 1 byte streams. The native release probe records exit
+behavior and supplies no instrumented evidence. Target 1 has no case marked invalid.
+Target 2 supplies rejected payloads, including the empty input and two indexed PNG
+fixtures. Whether the assignment requires each target to supply invalid inputs is
+tracked in the [roadmap](../../../docs/roadmap.md#external-requirements).
 
 See `probe.txt` for the raw transcript.
