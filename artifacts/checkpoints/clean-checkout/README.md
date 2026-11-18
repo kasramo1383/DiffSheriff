@@ -37,5 +37,19 @@ of OS packages.
   code and the JSON remained at the workflow output path. This verifies the
   local shell gate. Hosted artifact upload was outside the check.
 
+## Actual CLI in the local CI shell
+
+A separate [functional round trip](harmless-ci-roundtrip.json) used the
+installed wheel and the exact `Run patch validation` shell block. The source
+fixture was the harmless echo program with one ordinary output byte changed
+from `x` to `X`. Its independent expectation was byte-for-byte echo. The first
+run returned 20 and exported two functional manifests. A second checkout with
+ordinary echo restored imported both manifests, replayed them three times per
+version in both build modes, and passed all functional comparisons. Export
+preserved the cache bytes. The combined result stayed 40: a harmless program
+has no designated security finding, and the fixture flags omitted a required
+stack canary. An absent configuration returned 30 and retained its JSON.
+This exercises the real local shell gate for those outcomes.
+
 Course target comparisons and later-run acceptance with the delivered targets
 remain open in the [roadmap](../../../docs/roadmap.md).

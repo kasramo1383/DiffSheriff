@@ -170,7 +170,9 @@ PNG no longer enrolls the three obsolete-baseline cases or invents expectations 
 unknown bytes; new-baseline generated regressions still need F09 demonstration.
 Export refresh now retires stale files for the configured baseline. Local transfer
 and CLI tests cover empty exports, shared payloads, and preservation on validation
-errors. These checks do not establish selected-target later-run acceptance.
+errors. The [harmless CLI round trip](../artifacts/checkpoints/clean-checkout/README.md#actual-cli-in-the-local-ci-shell)
+also generated, exported, imported, and reran two functional cases. Selected-target
+later-run acceptance is still open.
 
 - **Depends on:** F03 and any changed baseline refs.
 - **Fix:** Review the seven generated cases against their actual bytes and independent
@@ -217,8 +219,8 @@ report its supported level instead of expanding the assignment.
 paths and destinations before it clones either. Fresh-runner tests resolve the configured
 commits; synthetic bundles verify that a missing second bundle or occupied or symlinked
 second destination leaves the first destination untouched. The [clean checkout checkpoint](../artifacts/checkpoints/clean-checkout/README.md)
-records a passing local shell gate against synthetic exit codes and JSON output.
-End-to-end selected-target CI acceptance remains open.
+records local shell gating with both synthetic exit codes and actual CLI results
+from the harmless fixture. End-to-end selected-target CI acceptance remains open.
 
 - **Fix:** Prepare bundle-backed source repositories before the existing workflow
   invokes the CLI. Retain its actual exit gating and JSON. Do not add another service,

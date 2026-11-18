@@ -1,0 +1,51 @@
+{
+  "scope": "Harmless functional fixture using the installed CLI and local CI shell step; not hosted or course-target acceptance",
+  "source_revision": "4e7db036d3f4a4f3356e925a48a45a4681220ad9",
+  "wheel_sha256": "2ba5d6967eb9a7ae0ef57e30d359ea2c462d4d8130c5fed95a7fff71f97b7a22",
+  "runtime_image": "sha256:a4faa1c2964bb5a923694f11c9a8fdecab7ad333297da3f0ca7a5bec18bada54",
+  "workflow_sha256": "c28f76344d67e6f6499cbfe3c2ea72bcfe3a06333a2633a35c970c6dcde1cf98",
+  "changed_output": {
+    "exit_code": 20,
+    "functional_status": "FAIL",
+    "security_status": "INCONCLUSIVE",
+    "functional_passed": 2,
+    "functional_failed": 2,
+    "total_tests_run": 36,
+    "analysis_incomplete_reasons": [
+      "hardening_warning",
+      "baseline_identity_unestablished"
+    ],
+    "generated_functional_manifests": 2,
+    "json_retained": true
+  },
+  "restored_output": {
+    "exit_code": 40,
+    "functional_status": "PASS",
+    "security_status": "INCONCLUSIVE",
+    "functional_passed": 8,
+    "functional_failed": 0,
+    "total_tests_run": 60,
+    "analysis_incomplete_reasons": [
+      "hardening_warning",
+      "baseline_identity_unestablished"
+    ],
+    "regression_case_ids": [
+      "regression/a3713ae5ed5d7406e57b674c2f01746cde3c9f4a413d650278691e87e13edc97",
+      "regression/e739564ea8696d982f00e70a867516bfa2705fe064690f1580213fac47429476"
+    ],
+    "build_modes": [
+      "release",
+      "sanitized"
+    ],
+    "regression_replays_per_version_and_mode": 3,
+    "retained_cache_unchanged": true,
+    "json_retained": true
+  },
+  "missing_configuration": {
+    "step_exit": 30,
+    "analysis_incomplete_reasons": [
+      "setup_failed"
+    ],
+    "json_retained": true
+  }
+}
