@@ -1,0 +1,1306 @@
+{
+  "case": "malicious/cve_2019_7317.png",
+  "mode": "sanitized",
+  "finding_side": "base",
+  "signature": {
+    "error_type": "stack-use-after-return",
+    "file": "pngerror.c",
+    "function": "png_safe_execute",
+    "line": 954
+  },
+  "kind": "security",
+  "functional_mismatch": [],
+  "original_sha256": "a0d210e0261eb720677c61b59245b653eb3182cc0e089282971443397527f89a",
+  "minimized_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "expected": {
+    "exit_code": 2,
+    "stdout": "",
+    "stderr": ""
+  },
+  "original_expected": {
+    "exit_code": 2,
+    "stdout": "",
+    "stderr": ""
+  },
+  "valid_input": false,
+  "original_valid_input": false,
+  "regression_input": "minimized.input",
+  "diagnostic_only": false,
+  "settings": {
+    "timeout_seconds": 5,
+    "input_method": "file",
+    "file_argument_flag": "--file",
+    "fixed_arguments": [],
+    "environment_variables": {
+      "HTTP_PROXY": "",
+      "HTTPS_PROXY": "",
+      "ALL_PROXY": "",
+      "NO_PROXY": "",
+      "http_proxy": "",
+      "https_proxy": "",
+      "all_proxy": "",
+      "no_proxy": "",
+      "ASAN_OPTIONS": "detect_leaks=0:abort_on_error=1:symbolize=1:external_symbolizer_path=/usr/bin/llvm-symbolizer",
+      "UBSAN_OPTIONS": "print_stacktrace=1:halt_on_error=1:external_symbolizer_path=/usr/bin/llvm-symbolizer"
+    },
+    "image": "sha256:47c203681dabe4881149e9ae6672fdf53c3c940c6a605c37b549d3621984c32f",
+    "memory_mb": 2048,
+    "cpus": 2,
+    "pids_limit": 128,
+    "output_limit_bytes": 1048576
+  },
+  "runs": {
+    "base": [
+      {
+        "execution": {
+          "exit_code": -6,
+          "stdout": "",
+          "stderr": "=================================================================\n==7==ERROR: AddressSanitizer: stack-use-after-return on address 0x7fcaa52000b0 at pc 0x55c101f740dc bp 0x7fff86df2530 sp 0x7fff86df2528\nWRITE of size 8 at 0x7fcaa52000b0 thread T0\n    #0 0x55c101f740db in png_safe_execute /src/pngerror.c:954:29\n    #1 0x55c101f6c346 in png_image_free /src/png.c:4592:13\n    #2 0x55c101f73f54 in png_safe_execute /src/pngerror.c:958:7\n    #3 0x55c101f929da in png_image_begin_read_from_file /src/pngread.c:1516:23\n    #4 0x55c101f53b84 in main /src/driver/png_driver.c:23:9\n    #5 0x7fcaa71ae1c9  (/lib/x86_64-linux-gnu/libc.so.6+0x2a1c9) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #6 0x7fcaa71ae28a in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x2a28a) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #7 0x55c101e7a474 in _start (/src/driver_sanitized+0xb0474) (BuildId: 898c1576e044ec7fb09b085e413987be52f8054b)\n\nAddress 0x7fcaa52000b0 is located in stack of thread T0 at offset 48 in frame\n    #0 0x55c101f6c467 in png_image_free_function /src/png.c:4523\n\n  This frame has 1 object(s):\n    [32, 80) 'c' (line 4526) <== Memory access at offset 48 is inside this variable\nHINT: this may be a false positive if your program uses some custom stack unwind mechanism, swapcontext or vfork\n      (longjmp and C++ exceptions *are* supported)\nSUMMARY: AddressSanitizer: stack-use-after-return /src/pngerror.c:954:29 in png_safe_execute\nShadow bytes around the buggy address:\n  0x7fcaa51ffe00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7fcaa51ffe80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7fcaa51fff00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7fcaa51fff80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7fcaa5200000: f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5\n=>0x7fcaa5200080: f5 f5 f5 f5 f5 f5[f5]f5 f5 f5 f5 f5 f5 f5 f5 f5\n  0x7fcaa5200100: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7fcaa5200180: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7fcaa5200200: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7fcaa5200280: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7fcaa5200300: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\nShadow byte legend (one shadow byte represents 8 application bytes):\n  Addressable:           00\n  Partially addressable: 01 02 03 04 05 06 07 \n  Heap left redzone:       fa\n  Freed heap region:       fd\n  Stack left redzone:      f1\n  Stack mid redzone:       f2\n  Stack right redzone:     f3\n  Stack after return:      f5\n  Stack use after scope:   f8\n  Global redzone:          f9\n  Global init order:       f6\n  Poisoned by user:        f7\n  Container overflow:      fc\n  Array cookie:            ac\n  Intra object redzone:    bb\n  ASan internal:           fe\n  Left alloca redzone:     ca\n  Right alloca redzone:    cb\n==7==ABORTING\n",
+          "timed_out": false,
+          "output_limited": false,
+          "resource_limited": false,
+          "command": [
+            "/src/driver_sanitized",
+            "--file",
+            "/input"
+          ],
+          "container_state": {
+            "Status": "exited",
+            "Running": false,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 0,
+            "ExitCode": 0,
+            "Error": "",
+            "StartedAt": "2026-11-18T20:51:34.343564953Z",
+            "FinishedAt": "2026-11-18T20:51:35.041114003Z"
+          }
+        },
+        "triage": {
+          "is_crash": true,
+          "error_type": "stack-use-after-return",
+          "detection_mechanism": "AddressSanitizer",
+          "exit_code": -6,
+          "signal_name": "SIGABRT",
+          "stack_trace": [
+            {
+              "index": 0,
+              "address": "0x55c101f740db",
+              "function": "png_safe_execute",
+              "file": "/src/pngerror.c",
+              "line": 954
+            },
+            {
+              "index": 1,
+              "address": "0x55c101f6c346",
+              "function": "png_image_free",
+              "file": "/src/png.c",
+              "line": 4592
+            },
+            {
+              "index": 2,
+              "address": "0x55c101f73f54",
+              "function": "png_safe_execute",
+              "file": "/src/pngerror.c",
+              "line": 958
+            },
+            {
+              "index": 3,
+              "address": "0x55c101f929da",
+              "function": "png_image_begin_read_from_file",
+              "file": "/src/pngread.c",
+              "line": 1516
+            },
+            {
+              "index": 4,
+              "address": "0x55c101f53b84",
+              "function": "main",
+              "file": "/src/driver/png_driver.c",
+              "line": 23
+            },
+            {
+              "index": 0,
+              "address": "0x55c101f6c467",
+              "function": "png_image_free_function",
+              "file": "/src/png.c",
+              "line": 4523
+            }
+          ],
+          "raw_stdout": "",
+          "raw_stderr": "=================================================================\n==7==ERROR: AddressSanitizer: stack-use-after-return on address 0x7fcaa52000b0 at pc 0x55c101f740dc bp 0x7fff86df2530 sp 0x7fff86df2528\nWRITE of size 8 at 0x7fcaa52000b0 thread T0\n    #0 0x55c101f740db in png_safe_execute /src/pngerror.c:954:29\n    #1 0x55c101f6c346 in png_image_free /src/png.c:4592:13\n    #2 0x55c101f73f54 in png_safe_execute /src/pngerror.c:958:7\n    #3 0x55c101f929da in png_image_begin_read_from_file /src/pngread.c:1516:23\n    #4 0x55c101f53b84 in main /src/driver/png_driver.c:23:9\n    #5 0x7fcaa71ae1c9  (/lib/x86_64-linux-gnu/libc.so.6+0x2a1c9) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #6 0x7fcaa71ae28a in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x2a28a) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #7 0x55c101e7a474 in _start (/src/driver_sanitized+0xb0474) (BuildId: 898c1576e044ec7fb09b085e413987be52f8054b)\n\nAddress 0x7fcaa52000b0 is located in stack of thread T0 at offset 48 in frame\n    #0 0x55c101f6c467 in png_image_free_function /src/png.c:4523\n\n  This frame has 1 object(s):\n    [32, 80) 'c' (line 4526) <== Memory access at offset 48 is inside this variable\nHINT: this may be a false positive if your program uses some custom stack unwind mechanism, swapcontext or vfork\n      (longjmp and C++ exceptions *are* supported)\nSUMMARY: AddressSanitizer: stack-use-after-return /src/pngerror.c:954:29 in png_safe_execute\nShadow bytes around the buggy address:\n  0x7fcaa51ffe00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7fcaa51ffe80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7fcaa51fff00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7fcaa51fff80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7fcaa5200000: f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5\n=>0x7fcaa5200080: f5 f5 f5 f5 f5 f5[f5]f5 f5 f5 f5 f5 f5 f5 f5 f5\n  0x7fcaa5200100: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7fcaa5200180: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7fcaa5200200: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7fcaa5200280: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7fcaa5200300: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\nShadow byte legend (one shadow byte represents 8 application bytes):\n  Addressable:           00\n  Partially addressable: 01 02 03 04 05 06 07 \n  Heap left redzone:       fa\n  Freed heap region:       fd\n  Stack left redzone:      f1\n  Stack mid redzone:       f2\n  Stack right redzone:     f3\n  Stack after return:      f5\n  Stack use after scope:   f8\n  Global redzone:          f9\n  Global init order:       f6\n  Poisoned by user:        f7\n  Container overflow:      fc\n  Array cookie:            ac\n  Intra object redzone:    bb\n  ASan internal:           fe\n  Left alloca redzone:     ca\n  Right alloca redzone:    cb\n==7==ABORTING\n",
+          "symbolizer_failed": false,
+          "unsymbolized_frames": 1
+        },
+        "signature": {
+          "error_type": "stack-use-after-return",
+          "file": "pngerror.c",
+          "function": "png_safe_execute",
+          "line": 954
+        },
+        "correlation": {
+          "is_correlated": true,
+          "correlation_type": "Indirect (Caller/Callee)",
+          "matched_file": "png.c",
+          "matched_line": 4592,
+          "matched_frame": {
+            "index": 1,
+            "address": "0x55c101f6c346",
+            "function": "png_image_free",
+            "file": "/src/png.c",
+            "line": 4592
+          },
+          "hunk": {
+            "file_path": "png.c",
+            "old_start": 4591,
+            "old_length": 2,
+            "new_start": 4591,
+            "new_length": 1,
+            "function_header": "png_image_free(png_imagep image)",
+            "old_file_path": "png.c",
+            "old_lines": [
+              4591,
+              4592
+            ],
+            "new_lines": [
+              4591
+            ]
+          },
+          "reason": "Runtime frame intersects an edited line; comparative evidence is required for attribution."
+        }
+      },
+      {
+        "execution": {
+          "exit_code": -6,
+          "stdout": "",
+          "stderr": "=================================================================\n==7==ERROR: AddressSanitizer: stack-use-after-return on address 0x7f1870b000b0 at pc 0x55f6b5bed0dc bp 0x7ffd72706610 sp 0x7ffd72706608\nWRITE of size 8 at 0x7f1870b000b0 thread T0\n    #0 0x55f6b5bed0db in png_safe_execute /src/pngerror.c:954:29\n    #1 0x55f6b5be5346 in png_image_free /src/png.c:4592:13\n    #2 0x55f6b5becf54 in png_safe_execute /src/pngerror.c:958:7\n    #3 0x55f6b5c0b9da in png_image_begin_read_from_file /src/pngread.c:1516:23\n    #4 0x55f6b5bccb84 in main /src/driver/png_driver.c:23:9\n    #5 0x7f1872ab71c9  (/lib/x86_64-linux-gnu/libc.so.6+0x2a1c9) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #6 0x7f1872ab728a in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x2a28a) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #7 0x55f6b5af3474 in _start (/src/driver_sanitized+0xb0474) (BuildId: 898c1576e044ec7fb09b085e413987be52f8054b)\n\nAddress 0x7f1870b000b0 is located in stack of thread T0 at offset 48 in frame\n    #0 0x55f6b5be5467 in png_image_free_function /src/png.c:4523\n\n  This frame has 1 object(s):\n    [32, 80) 'c' (line 4526) <== Memory access at offset 48 is inside this variable\nHINT: this may be a false positive if your program uses some custom stack unwind mechanism, swapcontext or vfork\n      (longjmp and C++ exceptions *are* supported)\nSUMMARY: AddressSanitizer: stack-use-after-return /src/pngerror.c:954:29 in png_safe_execute\nShadow bytes around the buggy address:\n  0x7f1870affe00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f1870affe80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f1870afff00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f1870afff80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f1870b00000: f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5\n=>0x7f1870b00080: f5 f5 f5 f5 f5 f5[f5]f5 f5 f5 f5 f5 f5 f5 f5 f5\n  0x7f1870b00100: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f1870b00180: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f1870b00200: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f1870b00280: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f1870b00300: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\nShadow byte legend (one shadow byte represents 8 application bytes):\n  Addressable:           00\n  Partially addressable: 01 02 03 04 05 06 07 \n  Heap left redzone:       fa\n  Freed heap region:       fd\n  Stack left redzone:      f1\n  Stack mid redzone:       f2\n  Stack right redzone:     f3\n  Stack after return:      f5\n  Stack use after scope:   f8\n  Global redzone:          f9\n  Global init order:       f6\n  Poisoned by user:        f7\n  Container overflow:      fc\n  Array cookie:            ac\n  Intra object redzone:    bb\n  ASan internal:           fe\n  Left alloca redzone:     ca\n  Right alloca redzone:    cb\n==7==ABORTING\n",
+          "timed_out": false,
+          "output_limited": false,
+          "resource_limited": false,
+          "command": [
+            "/src/driver_sanitized",
+            "--file",
+            "/input"
+          ],
+          "container_state": {
+            "Status": "exited",
+            "Running": false,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 0,
+            "ExitCode": 0,
+            "Error": "",
+            "StartedAt": "2026-11-18T20:51:35.453623915Z",
+            "FinishedAt": "2026-11-18T20:51:36.286797968Z"
+          }
+        },
+        "triage": {
+          "is_crash": true,
+          "error_type": "stack-use-after-return",
+          "detection_mechanism": "AddressSanitizer",
+          "exit_code": -6,
+          "signal_name": "SIGABRT",
+          "stack_trace": [
+            {
+              "index": 0,
+              "address": "0x55f6b5bed0db",
+              "function": "png_safe_execute",
+              "file": "/src/pngerror.c",
+              "line": 954
+            },
+            {
+              "index": 1,
+              "address": "0x55f6b5be5346",
+              "function": "png_image_free",
+              "file": "/src/png.c",
+              "line": 4592
+            },
+            {
+              "index": 2,
+              "address": "0x55f6b5becf54",
+              "function": "png_safe_execute",
+              "file": "/src/pngerror.c",
+              "line": 958
+            },
+            {
+              "index": 3,
+              "address": "0x55f6b5c0b9da",
+              "function": "png_image_begin_read_from_file",
+              "file": "/src/pngread.c",
+              "line": 1516
+            },
+            {
+              "index": 4,
+              "address": "0x55f6b5bccb84",
+              "function": "main",
+              "file": "/src/driver/png_driver.c",
+              "line": 23
+            },
+            {
+              "index": 0,
+              "address": "0x55f6b5be5467",
+              "function": "png_image_free_function",
+              "file": "/src/png.c",
+              "line": 4523
+            }
+          ],
+          "raw_stdout": "",
+          "raw_stderr": "=================================================================\n==7==ERROR: AddressSanitizer: stack-use-after-return on address 0x7f1870b000b0 at pc 0x55f6b5bed0dc bp 0x7ffd72706610 sp 0x7ffd72706608\nWRITE of size 8 at 0x7f1870b000b0 thread T0\n    #0 0x55f6b5bed0db in png_safe_execute /src/pngerror.c:954:29\n    #1 0x55f6b5be5346 in png_image_free /src/png.c:4592:13\n    #2 0x55f6b5becf54 in png_safe_execute /src/pngerror.c:958:7\n    #3 0x55f6b5c0b9da in png_image_begin_read_from_file /src/pngread.c:1516:23\n    #4 0x55f6b5bccb84 in main /src/driver/png_driver.c:23:9\n    #5 0x7f1872ab71c9  (/lib/x86_64-linux-gnu/libc.so.6+0x2a1c9) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #6 0x7f1872ab728a in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x2a28a) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #7 0x55f6b5af3474 in _start (/src/driver_sanitized+0xb0474) (BuildId: 898c1576e044ec7fb09b085e413987be52f8054b)\n\nAddress 0x7f1870b000b0 is located in stack of thread T0 at offset 48 in frame\n    #0 0x55f6b5be5467 in png_image_free_function /src/png.c:4523\n\n  This frame has 1 object(s):\n    [32, 80) 'c' (line 4526) <== Memory access at offset 48 is inside this variable\nHINT: this may be a false positive if your program uses some custom stack unwind mechanism, swapcontext or vfork\n      (longjmp and C++ exceptions *are* supported)\nSUMMARY: AddressSanitizer: stack-use-after-return /src/pngerror.c:954:29 in png_safe_execute\nShadow bytes around the buggy address:\n  0x7f1870affe00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f1870affe80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f1870afff00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f1870afff80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f1870b00000: f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5\n=>0x7f1870b00080: f5 f5 f5 f5 f5 f5[f5]f5 f5 f5 f5 f5 f5 f5 f5 f5\n  0x7f1870b00100: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f1870b00180: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f1870b00200: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f1870b00280: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f1870b00300: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\nShadow byte legend (one shadow byte represents 8 application bytes):\n  Addressable:           00\n  Partially addressable: 01 02 03 04 05 06 07 \n  Heap left redzone:       fa\n  Freed heap region:       fd\n  Stack left redzone:      f1\n  Stack mid redzone:       f2\n  Stack right redzone:     f3\n  Stack after return:      f5\n  Stack use after scope:   f8\n  Global redzone:          f9\n  Global init order:       f6\n  Poisoned by user:        f7\n  Container overflow:      fc\n  Array cookie:            ac\n  Intra object redzone:    bb\n  ASan internal:           fe\n  Left alloca redzone:     ca\n  Right alloca redzone:    cb\n==7==ABORTING\n",
+          "symbolizer_failed": false,
+          "unsymbolized_frames": 1
+        },
+        "signature": {
+          "error_type": "stack-use-after-return",
+          "file": "pngerror.c",
+          "function": "png_safe_execute",
+          "line": 954
+        },
+        "correlation": {
+          "is_correlated": true,
+          "correlation_type": "Indirect (Caller/Callee)",
+          "matched_file": "png.c",
+          "matched_line": 4592,
+          "matched_frame": {
+            "index": 1,
+            "address": "0x55f6b5be5346",
+            "function": "png_image_free",
+            "file": "/src/png.c",
+            "line": 4592
+          },
+          "hunk": {
+            "file_path": "png.c",
+            "old_start": 4591,
+            "old_length": 2,
+            "new_start": 4591,
+            "new_length": 1,
+            "function_header": "png_image_free(png_imagep image)",
+            "old_file_path": "png.c",
+            "old_lines": [
+              4591,
+              4592
+            ],
+            "new_lines": [
+              4591
+            ]
+          },
+          "reason": "Runtime frame intersects an edited line; comparative evidence is required for attribution."
+        }
+      },
+      {
+        "execution": {
+          "exit_code": -6,
+          "stdout": "",
+          "stderr": "=================================================================\n==7==ERROR: AddressSanitizer: stack-use-after-return on address 0x7fdecd4000b0 at pc 0x55839e2a70dc bp 0x7ffe1c767a70 sp 0x7ffe1c767a68\nWRITE of size 8 at 0x7fdecd4000b0 thread T0\n    #0 0x55839e2a70db in png_safe_execute /src/pngerror.c:954:29\n    #1 0x55839e29f346 in png_image_free /src/png.c:4592:13\n    #2 0x55839e2a6f54 in png_safe_execute /src/pngerror.c:958:7\n    #3 0x55839e2c59da in png_image_begin_read_from_file /src/pngread.c:1516:23\n    #4 0x55839e286b84 in main /src/driver/png_driver.c:23:9\n    #5 0x7fdecf3021c9  (/lib/x86_64-linux-gnu/libc.so.6+0x2a1c9) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #6 0x7fdecf30228a in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x2a28a) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #7 0x55839e1ad474 in _start (/src/driver_sanitized+0xb0474) (BuildId: 898c1576e044ec7fb09b085e413987be52f8054b)\n\nAddress 0x7fdecd4000b0 is located in stack of thread T0 at offset 48 in frame\n    #0 0x55839e29f467 in png_image_free_function /src/png.c:4523\n\n  This frame has 1 object(s):\n    [32, 80) 'c' (line 4526) <== Memory access at offset 48 is inside this variable\nHINT: this may be a false positive if your program uses some custom stack unwind mechanism, swapcontext or vfork\n      (longjmp and C++ exceptions *are* supported)\nSUMMARY: AddressSanitizer: stack-use-after-return /src/pngerror.c:954:29 in png_safe_execute\nShadow bytes around the buggy address:\n  0x7fdecd3ffe00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7fdecd3ffe80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7fdecd3fff00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7fdecd3fff80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7fdecd400000: f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5\n=>0x7fdecd400080: f5 f5 f5 f5 f5 f5[f5]f5 f5 f5 f5 f5 f5 f5 f5 f5\n  0x7fdecd400100: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7fdecd400180: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7fdecd400200: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7fdecd400280: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7fdecd400300: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\nShadow byte legend (one shadow byte represents 8 application bytes):\n  Addressable:           00\n  Partially addressable: 01 02 03 04 05 06 07 \n  Heap left redzone:       fa\n  Freed heap region:       fd\n  Stack left redzone:      f1\n  Stack mid redzone:       f2\n  Stack right redzone:     f3\n  Stack after return:      f5\n  Stack use after scope:   f8\n  Global redzone:          f9\n  Global init order:       f6\n  Poisoned by user:        f7\n  Container overflow:      fc\n  Array cookie:            ac\n  Intra object redzone:    bb\n  ASan internal:           fe\n  Left alloca redzone:     ca\n  Right alloca redzone:    cb\n==7==ABORTING\n",
+          "timed_out": false,
+          "output_limited": false,
+          "resource_limited": false,
+          "command": [
+            "/src/driver_sanitized",
+            "--file",
+            "/input"
+          ],
+          "container_state": {
+            "Status": "exited",
+            "Running": false,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 0,
+            "ExitCode": 0,
+            "Error": "",
+            "StartedAt": "2026-11-18T20:51:36.75488905Z",
+            "FinishedAt": "2026-11-18T20:51:37.468548284Z"
+          }
+        },
+        "triage": {
+          "is_crash": true,
+          "error_type": "stack-use-after-return",
+          "detection_mechanism": "AddressSanitizer",
+          "exit_code": -6,
+          "signal_name": "SIGABRT",
+          "stack_trace": [
+            {
+              "index": 0,
+              "address": "0x55839e2a70db",
+              "function": "png_safe_execute",
+              "file": "/src/pngerror.c",
+              "line": 954
+            },
+            {
+              "index": 1,
+              "address": "0x55839e29f346",
+              "function": "png_image_free",
+              "file": "/src/png.c",
+              "line": 4592
+            },
+            {
+              "index": 2,
+              "address": "0x55839e2a6f54",
+              "function": "png_safe_execute",
+              "file": "/src/pngerror.c",
+              "line": 958
+            },
+            {
+              "index": 3,
+              "address": "0x55839e2c59da",
+              "function": "png_image_begin_read_from_file",
+              "file": "/src/pngread.c",
+              "line": 1516
+            },
+            {
+              "index": 4,
+              "address": "0x55839e286b84",
+              "function": "main",
+              "file": "/src/driver/png_driver.c",
+              "line": 23
+            },
+            {
+              "index": 0,
+              "address": "0x55839e29f467",
+              "function": "png_image_free_function",
+              "file": "/src/png.c",
+              "line": 4523
+            }
+          ],
+          "raw_stdout": "",
+          "raw_stderr": "=================================================================\n==7==ERROR: AddressSanitizer: stack-use-after-return on address 0x7fdecd4000b0 at pc 0x55839e2a70dc bp 0x7ffe1c767a70 sp 0x7ffe1c767a68\nWRITE of size 8 at 0x7fdecd4000b0 thread T0\n    #0 0x55839e2a70db in png_safe_execute /src/pngerror.c:954:29\n    #1 0x55839e29f346 in png_image_free /src/png.c:4592:13\n    #2 0x55839e2a6f54 in png_safe_execute /src/pngerror.c:958:7\n    #3 0x55839e2c59da in png_image_begin_read_from_file /src/pngread.c:1516:23\n    #4 0x55839e286b84 in main /src/driver/png_driver.c:23:9\n    #5 0x7fdecf3021c9  (/lib/x86_64-linux-gnu/libc.so.6+0x2a1c9) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #6 0x7fdecf30228a in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x2a28a) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #7 0x55839e1ad474 in _start (/src/driver_sanitized+0xb0474) (BuildId: 898c1576e044ec7fb09b085e413987be52f8054b)\n\nAddress 0x7fdecd4000b0 is located in stack of thread T0 at offset 48 in frame\n    #0 0x55839e29f467 in png_image_free_function /src/png.c:4523\n\n  This frame has 1 object(s):\n    [32, 80) 'c' (line 4526) <== Memory access at offset 48 is inside this variable\nHINT: this may be a false positive if your program uses some custom stack unwind mechanism, swapcontext or vfork\n      (longjmp and C++ exceptions *are* supported)\nSUMMARY: AddressSanitizer: stack-use-after-return /src/pngerror.c:954:29 in png_safe_execute\nShadow bytes around the buggy address:\n  0x7fdecd3ffe00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7fdecd3ffe80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7fdecd3fff00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7fdecd3fff80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7fdecd400000: f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5\n=>0x7fdecd400080: f5 f5 f5 f5 f5 f5[f5]f5 f5 f5 f5 f5 f5 f5 f5 f5\n  0x7fdecd400100: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7fdecd400180: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7fdecd400200: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7fdecd400280: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7fdecd400300: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\nShadow byte legend (one shadow byte represents 8 application bytes):\n  Addressable:           00\n  Partially addressable: 01 02 03 04 05 06 07 \n  Heap left redzone:       fa\n  Freed heap region:       fd\n  Stack left redzone:      f1\n  Stack mid redzone:       f2\n  Stack right redzone:     f3\n  Stack after return:      f5\n  Stack use after scope:   f8\n  Global redzone:          f9\n  Global init order:       f6\n  Poisoned by user:        f7\n  Container overflow:      fc\n  Array cookie:            ac\n  Intra object redzone:    bb\n  ASan internal:           fe\n  Left alloca redzone:     ca\n  Right alloca redzone:    cb\n==7==ABORTING\n",
+          "symbolizer_failed": false,
+          "unsymbolized_frames": 1
+        },
+        "signature": {
+          "error_type": "stack-use-after-return",
+          "file": "pngerror.c",
+          "function": "png_safe_execute",
+          "line": 954
+        },
+        "correlation": {
+          "is_correlated": true,
+          "correlation_type": "Indirect (Caller/Callee)",
+          "matched_file": "png.c",
+          "matched_line": 4592,
+          "matched_frame": {
+            "index": 1,
+            "address": "0x55839e29f346",
+            "function": "png_image_free",
+            "file": "/src/png.c",
+            "line": 4592
+          },
+          "hunk": {
+            "file_path": "png.c",
+            "old_start": 4591,
+            "old_length": 2,
+            "new_start": 4591,
+            "new_length": 1,
+            "function_header": "png_image_free(png_imagep image)",
+            "old_file_path": "png.c",
+            "old_lines": [
+              4591,
+              4592
+            ],
+            "new_lines": [
+              4591
+            ]
+          },
+          "reason": "Runtime frame intersects an edited line; comparative evidence is required for attribution."
+        }
+      }
+    ],
+    "patch": [
+      {
+        "execution": {
+          "exit_code": 2,
+          "stdout": "",
+          "stderr": "",
+          "timed_out": false,
+          "output_limited": false,
+          "resource_limited": false,
+          "command": [
+            "/src/driver_sanitized",
+            "--file",
+            "/input"
+          ],
+          "container_state": {
+            "Status": "exited",
+            "Running": false,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 0,
+            "ExitCode": 0,
+            "Error": "",
+            "StartedAt": "2026-11-18T20:51:38.173474551Z",
+            "FinishedAt": "2026-11-18T20:51:38.266190599Z"
+          }
+        },
+        "triage": {
+          "is_crash": false,
+          "error_type": "none",
+          "detection_mechanism": "none",
+          "exit_code": 2,
+          "signal_name": null,
+          "stack_trace": [],
+          "raw_stdout": "",
+          "raw_stderr": "",
+          "symbolizer_failed": false,
+          "unsymbolized_frames": 0
+        },
+        "signature": null,
+        "correlation": {
+          "is_correlated": false,
+          "correlation_type": "Inconclusive",
+          "matched_file": null,
+          "matched_line": null,
+          "matched_frame": null,
+          "hunk": null,
+          "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+        }
+      },
+      {
+        "execution": {
+          "exit_code": 2,
+          "stdout": "",
+          "stderr": "",
+          "timed_out": false,
+          "output_limited": false,
+          "resource_limited": false,
+          "command": [
+            "/src/driver_sanitized",
+            "--file",
+            "/input"
+          ],
+          "container_state": {
+            "Status": "exited",
+            "Running": false,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 0,
+            "ExitCode": 0,
+            "Error": "",
+            "StartedAt": "2026-11-18T20:51:38.686053832Z",
+            "FinishedAt": "2026-11-18T20:51:38.796986018Z"
+          }
+        },
+        "triage": {
+          "is_crash": false,
+          "error_type": "none",
+          "detection_mechanism": "none",
+          "exit_code": 2,
+          "signal_name": null,
+          "stack_trace": [],
+          "raw_stdout": "",
+          "raw_stderr": "",
+          "symbolizer_failed": false,
+          "unsymbolized_frames": 0
+        },
+        "signature": null,
+        "correlation": {
+          "is_correlated": false,
+          "correlation_type": "Inconclusive",
+          "matched_file": null,
+          "matched_line": null,
+          "matched_frame": null,
+          "hunk": null,
+          "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+        }
+      },
+      {
+        "execution": {
+          "exit_code": 2,
+          "stdout": "",
+          "stderr": "",
+          "timed_out": false,
+          "output_limited": false,
+          "resource_limited": false,
+          "command": [
+            "/src/driver_sanitized",
+            "--file",
+            "/input"
+          ],
+          "container_state": {
+            "Status": "exited",
+            "Running": false,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 0,
+            "ExitCode": 0,
+            "Error": "",
+            "StartedAt": "2026-11-18T20:51:39.347399846Z",
+            "FinishedAt": "2026-11-18T20:51:39.432707478Z"
+          }
+        },
+        "triage": {
+          "is_crash": false,
+          "error_type": "none",
+          "detection_mechanism": "none",
+          "exit_code": 2,
+          "signal_name": null,
+          "stack_trace": [],
+          "raw_stdout": "",
+          "raw_stderr": "",
+          "symbolizer_failed": false,
+          "unsymbolized_frames": 0
+        },
+        "signature": null,
+        "correlation": {
+          "is_correlated": false,
+          "correlation_type": "Inconclusive",
+          "matched_file": null,
+          "matched_line": null,
+          "matched_frame": null,
+          "hunk": null,
+          "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+        }
+      }
+    ]
+  },
+  "minimization_log": [
+    {
+      "input_sha256": "a0d210e0261eb720677c61b59245b653eb3182cc0e089282971443397527f89a",
+      "observations": [
+        {
+          "execution": {
+            "exit_code": -6,
+            "stdout": "",
+            "stderr": "=================================================================\n==7==ERROR: AddressSanitizer: stack-use-after-return on address 0x7f43969000b0 at pc 0x560f0475b0dc bp 0x7fff0f45a5d0 sp 0x7fff0f45a5c8\nWRITE of size 8 at 0x7f43969000b0 thread T0\n    #0 0x560f0475b0db in png_safe_execute /src/pngerror.c:954:29\n    #1 0x560f04753346 in png_image_free /src/png.c:4592:13\n    #2 0x560f04753a35 in png_image_error /src/png.c:4603:4\n    #3 0x560f0477a6d9 in png_image_finish_read /src/pngread.c\n    #4 0x560f0473abdc in main /src/driver/png_driver.c:26:22\n    #5 0x7f43988341c9  (/lib/x86_64-linux-gnu/libc.so.6+0x2a1c9) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #6 0x7f439883428a in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x2a28a) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #7 0x560f04661474 in _start (/src/driver_sanitized+0xb0474) (BuildId: 898c1576e044ec7fb09b085e413987be52f8054b)\n\nAddress 0x7f43969000b0 is located in stack of thread T0 at offset 48 in frame\n    #0 0x560f04753467 in png_image_free_function /src/png.c:4523\n\n  This frame has 1 object(s):\n    [32, 80) 'c' (line 4526) <== Memory access at offset 48 is inside this variable\nHINT: this may be a false positive if your program uses some custom stack unwind mechanism, swapcontext or vfork\n      (longjmp and C++ exceptions *are* supported)\nSUMMARY: AddressSanitizer: stack-use-after-return /src/pngerror.c:954:29 in png_safe_execute\nShadow bytes around the buggy address:\n  0x7f43968ffe00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f43968ffe80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f43968fff00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f43968fff80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f4396900000: f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5\n=>0x7f4396900080: f5 f5 f5 f5 f5 f5[f5]f5 f5 f5 f5 f5 f5 f5 f5 f5\n  0x7f4396900100: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f4396900180: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f4396900200: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f4396900280: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f4396900300: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\nShadow byte legend (one shadow byte represents 8 application bytes):\n  Addressable:           00\n  Partially addressable: 01 02 03 04 05 06 07 \n  Heap left redzone:       fa\n  Freed heap region:       fd\n  Stack left redzone:      f1\n  Stack mid redzone:       f2\n  Stack right redzone:     f3\n  Stack after return:      f5\n  Stack use after scope:   f8\n  Global redzone:          f9\n  Global init order:       f6\n  Poisoned by user:        f7\n  Container overflow:      fc\n  Array cookie:            ac\n  Intra object redzone:    bb\n  ASan internal:           fe\n  Left alloca redzone:     ca\n  Right alloca redzone:    cb\n==7==ABORTING\n",
+            "timed_out": false,
+            "output_limited": false,
+            "resource_limited": false,
+            "command": [
+              "/src/driver_sanitized",
+              "--file",
+              "/input"
+            ],
+            "container_state": {
+              "Status": "exited",
+              "Running": false,
+              "Paused": false,
+              "Restarting": false,
+              "OOMKilled": false,
+              "Dead": false,
+              "Pid": 0,
+              "ExitCode": 0,
+              "Error": "",
+              "StartedAt": "2026-11-18T20:51:26.135071027Z",
+              "FinishedAt": "2026-11-18T20:51:27.229412716Z"
+            }
+          },
+          "triage": {
+            "is_crash": true,
+            "error_type": "stack-use-after-return",
+            "detection_mechanism": "AddressSanitizer",
+            "exit_code": -6,
+            "signal_name": "SIGABRT",
+            "stack_trace": [
+              {
+                "index": 0,
+                "address": "0x560f0475b0db",
+                "function": "png_safe_execute",
+                "file": "/src/pngerror.c",
+                "line": 954
+              },
+              {
+                "index": 1,
+                "address": "0x560f04753346",
+                "function": "png_image_free",
+                "file": "/src/png.c",
+                "line": 4592
+              },
+              {
+                "index": 2,
+                "address": "0x560f04753a35",
+                "function": "png_image_error",
+                "file": "/src/png.c",
+                "line": 4603
+              },
+              {
+                "index": 4,
+                "address": "0x560f0473abdc",
+                "function": "main",
+                "file": "/src/driver/png_driver.c",
+                "line": 26
+              },
+              {
+                "index": 0,
+                "address": "0x560f04753467",
+                "function": "png_image_free_function",
+                "file": "/src/png.c",
+                "line": 4523
+              }
+            ],
+            "raw_stdout": "",
+            "raw_stderr": "=================================================================\n==7==ERROR: AddressSanitizer: stack-use-after-return on address 0x7f43969000b0 at pc 0x560f0475b0dc bp 0x7fff0f45a5d0 sp 0x7fff0f45a5c8\nWRITE of size 8 at 0x7f43969000b0 thread T0\n    #0 0x560f0475b0db in png_safe_execute /src/pngerror.c:954:29\n    #1 0x560f04753346 in png_image_free /src/png.c:4592:13\n    #2 0x560f04753a35 in png_image_error /src/png.c:4603:4\n    #3 0x560f0477a6d9 in png_image_finish_read /src/pngread.c\n    #4 0x560f0473abdc in main /src/driver/png_driver.c:26:22\n    #5 0x7f43988341c9  (/lib/x86_64-linux-gnu/libc.so.6+0x2a1c9) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #6 0x7f439883428a in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x2a28a) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #7 0x560f04661474 in _start (/src/driver_sanitized+0xb0474) (BuildId: 898c1576e044ec7fb09b085e413987be52f8054b)\n\nAddress 0x7f43969000b0 is located in stack of thread T0 at offset 48 in frame\n    #0 0x560f04753467 in png_image_free_function /src/png.c:4523\n\n  This frame has 1 object(s):\n    [32, 80) 'c' (line 4526) <== Memory access at offset 48 is inside this variable\nHINT: this may be a false positive if your program uses some custom stack unwind mechanism, swapcontext or vfork\n      (longjmp and C++ exceptions *are* supported)\nSUMMARY: AddressSanitizer: stack-use-after-return /src/pngerror.c:954:29 in png_safe_execute\nShadow bytes around the buggy address:\n  0x7f43968ffe00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f43968ffe80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f43968fff00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f43968fff80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f4396900000: f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5\n=>0x7f4396900080: f5 f5 f5 f5 f5 f5[f5]f5 f5 f5 f5 f5 f5 f5 f5 f5\n  0x7f4396900100: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f4396900180: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f4396900200: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f4396900280: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f4396900300: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\nShadow byte legend (one shadow byte represents 8 application bytes):\n  Addressable:           00\n  Partially addressable: 01 02 03 04 05 06 07 \n  Heap left redzone:       fa\n  Freed heap region:       fd\n  Stack left redzone:      f1\n  Stack mid redzone:       f2\n  Stack right redzone:     f3\n  Stack after return:      f5\n  Stack use after scope:   f8\n  Global redzone:          f9\n  Global init order:       f6\n  Poisoned by user:        f7\n  Container overflow:      fc\n  Array cookie:            ac\n  Intra object redzone:    bb\n  ASan internal:           fe\n  Left alloca redzone:     ca\n  Right alloca redzone:    cb\n==7==ABORTING\n",
+            "symbolizer_failed": false,
+            "unsymbolized_frames": 1
+          },
+          "signature": {
+            "error_type": "stack-use-after-return",
+            "file": "pngerror.c",
+            "function": "png_safe_execute",
+            "line": 954
+          },
+          "correlation": {
+            "is_correlated": true,
+            "correlation_type": "Indirect (Caller/Callee)",
+            "matched_file": "png.c",
+            "matched_line": 4592,
+            "matched_frame": {
+              "index": 1,
+              "address": "0x560f04753346",
+              "function": "png_image_free",
+              "file": "/src/png.c",
+              "line": 4592
+            },
+            "hunk": {
+              "file_path": "png.c",
+              "old_start": 4591,
+              "old_length": 2,
+              "new_start": 4591,
+              "new_length": 1,
+              "function_header": "png_image_free(png_imagep image)",
+              "old_file_path": "png.c",
+              "old_lines": [
+                4591,
+                4592
+              ],
+              "new_lines": [
+                4591
+              ]
+            },
+            "reason": "Runtime frame intersects an edited line; comparative evidence is required for attribution."
+          }
+        },
+        {
+          "execution": {
+            "exit_code": -6,
+            "stdout": "",
+            "stderr": "=================================================================\n==7==ERROR: AddressSanitizer: stack-use-after-return on address 0x7f92eb7000b0 at pc 0x5568ff0040dc bp 0x7ffd66e29a30 sp 0x7ffd66e29a28\nWRITE of size 8 at 0x7f92eb7000b0 thread T0\n    #0 0x5568ff0040db in png_safe_execute /src/pngerror.c:954:29\n    #1 0x5568feffc346 in png_image_free /src/png.c:4592:13\n    #2 0x5568feffca35 in png_image_error /src/png.c:4603:4\n    #3 0x5568ff0236d9 in png_image_finish_read /src/pngread.c\n    #4 0x5568fefe3bdc in main /src/driver/png_driver.c:26:22\n    #5 0x7f92ed65a1c9  (/lib/x86_64-linux-gnu/libc.so.6+0x2a1c9) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #6 0x7f92ed65a28a in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x2a28a) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #7 0x5568fef0a474 in _start (/src/driver_sanitized+0xb0474) (BuildId: 898c1576e044ec7fb09b085e413987be52f8054b)\n\nAddress 0x7f92eb7000b0 is located in stack of thread T0 at offset 48 in frame\n    #0 0x5568feffc467 in png_image_free_function /src/png.c:4523\n\n  This frame has 1 object(s):\n    [32, 80) 'c' (line 4526) <== Memory access at offset 48 is inside this variable\nHINT: this may be a false positive if your program uses some custom stack unwind mechanism, swapcontext or vfork\n      (longjmp and C++ exceptions *are* supported)\nSUMMARY: AddressSanitizer: stack-use-after-return /src/pngerror.c:954:29 in png_safe_execute\nShadow bytes around the buggy address:\n  0x7f92eb6ffe00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f92eb6ffe80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f92eb6fff00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f92eb6fff80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f92eb700000: f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5\n=>0x7f92eb700080: f5 f5 f5 f5 f5 f5[f5]f5 f5 f5 f5 f5 f5 f5 f5 f5\n  0x7f92eb700100: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f92eb700180: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f92eb700200: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f92eb700280: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f92eb700300: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\nShadow byte legend (one shadow byte represents 8 application bytes):\n  Addressable:           00\n  Partially addressable: 01 02 03 04 05 06 07 \n  Heap left redzone:       fa\n  Freed heap region:       fd\n  Stack left redzone:      f1\n  Stack mid redzone:       f2\n  Stack right redzone:     f3\n  Stack after return:      f5\n  Stack use after scope:   f8\n  Global redzone:          f9\n  Global init order:       f6\n  Poisoned by user:        f7\n  Container overflow:      fc\n  Array cookie:            ac\n  Intra object redzone:    bb\n  ASan internal:           fe\n  Left alloca redzone:     ca\n  Right alloca redzone:    cb\n==7==ABORTING\n",
+            "timed_out": false,
+            "output_limited": false,
+            "resource_limited": false,
+            "command": [
+              "/src/driver_sanitized",
+              "--file",
+              "/input"
+            ],
+            "container_state": {
+              "Status": "exited",
+              "Running": false,
+              "Paused": false,
+              "Restarting": false,
+              "OOMKilled": false,
+              "Dead": false,
+              "Pid": 0,
+              "ExitCode": 0,
+              "Error": "",
+              "StartedAt": "2026-11-18T20:51:27.689342648Z",
+              "FinishedAt": "2026-11-18T20:51:28.59928593Z"
+            }
+          },
+          "triage": {
+            "is_crash": true,
+            "error_type": "stack-use-after-return",
+            "detection_mechanism": "AddressSanitizer",
+            "exit_code": -6,
+            "signal_name": "SIGABRT",
+            "stack_trace": [
+              {
+                "index": 0,
+                "address": "0x5568ff0040db",
+                "function": "png_safe_execute",
+                "file": "/src/pngerror.c",
+                "line": 954
+              },
+              {
+                "index": 1,
+                "address": "0x5568feffc346",
+                "function": "png_image_free",
+                "file": "/src/png.c",
+                "line": 4592
+              },
+              {
+                "index": 2,
+                "address": "0x5568feffca35",
+                "function": "png_image_error",
+                "file": "/src/png.c",
+                "line": 4603
+              },
+              {
+                "index": 4,
+                "address": "0x5568fefe3bdc",
+                "function": "main",
+                "file": "/src/driver/png_driver.c",
+                "line": 26
+              },
+              {
+                "index": 0,
+                "address": "0x5568feffc467",
+                "function": "png_image_free_function",
+                "file": "/src/png.c",
+                "line": 4523
+              }
+            ],
+            "raw_stdout": "",
+            "raw_stderr": "=================================================================\n==7==ERROR: AddressSanitizer: stack-use-after-return on address 0x7f92eb7000b0 at pc 0x5568ff0040dc bp 0x7ffd66e29a30 sp 0x7ffd66e29a28\nWRITE of size 8 at 0x7f92eb7000b0 thread T0\n    #0 0x5568ff0040db in png_safe_execute /src/pngerror.c:954:29\n    #1 0x5568feffc346 in png_image_free /src/png.c:4592:13\n    #2 0x5568feffca35 in png_image_error /src/png.c:4603:4\n    #3 0x5568ff0236d9 in png_image_finish_read /src/pngread.c\n    #4 0x5568fefe3bdc in main /src/driver/png_driver.c:26:22\n    #5 0x7f92ed65a1c9  (/lib/x86_64-linux-gnu/libc.so.6+0x2a1c9) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #6 0x7f92ed65a28a in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x2a28a) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #7 0x5568fef0a474 in _start (/src/driver_sanitized+0xb0474) (BuildId: 898c1576e044ec7fb09b085e413987be52f8054b)\n\nAddress 0x7f92eb7000b0 is located in stack of thread T0 at offset 48 in frame\n    #0 0x5568feffc467 in png_image_free_function /src/png.c:4523\n\n  This frame has 1 object(s):\n    [32, 80) 'c' (line 4526) <== Memory access at offset 48 is inside this variable\nHINT: this may be a false positive if your program uses some custom stack unwind mechanism, swapcontext or vfork\n      (longjmp and C++ exceptions *are* supported)\nSUMMARY: AddressSanitizer: stack-use-after-return /src/pngerror.c:954:29 in png_safe_execute\nShadow bytes around the buggy address:\n  0x7f92eb6ffe00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f92eb6ffe80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f92eb6fff00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f92eb6fff80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f92eb700000: f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5\n=>0x7f92eb700080: f5 f5 f5 f5 f5 f5[f5]f5 f5 f5 f5 f5 f5 f5 f5 f5\n  0x7f92eb700100: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f92eb700180: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f92eb700200: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f92eb700280: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f92eb700300: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\nShadow byte legend (one shadow byte represents 8 application bytes):\n  Addressable:           00\n  Partially addressable: 01 02 03 04 05 06 07 \n  Heap left redzone:       fa\n  Freed heap region:       fd\n  Stack left redzone:      f1\n  Stack mid redzone:       f2\n  Stack right redzone:     f3\n  Stack after return:      f5\n  Stack use after scope:   f8\n  Global redzone:          f9\n  Global init order:       f6\n  Poisoned by user:        f7\n  Container overflow:      fc\n  Array cookie:            ac\n  Intra object redzone:    bb\n  ASan internal:           fe\n  Left alloca redzone:     ca\n  Right alloca redzone:    cb\n==7==ABORTING\n",
+            "symbolizer_failed": false,
+            "unsymbolized_frames": 1
+          },
+          "signature": {
+            "error_type": "stack-use-after-return",
+            "file": "pngerror.c",
+            "function": "png_safe_execute",
+            "line": 954
+          },
+          "correlation": {
+            "is_correlated": true,
+            "correlation_type": "Indirect (Caller/Callee)",
+            "matched_file": "png.c",
+            "matched_line": 4592,
+            "matched_frame": {
+              "index": 1,
+              "address": "0x5568feffc346",
+              "function": "png_image_free",
+              "file": "/src/png.c",
+              "line": 4592
+            },
+            "hunk": {
+              "file_path": "png.c",
+              "old_start": 4591,
+              "old_length": 2,
+              "new_start": 4591,
+              "new_length": 1,
+              "function_header": "png_image_free(png_imagep image)",
+              "old_file_path": "png.c",
+              "old_lines": [
+                4591,
+                4592
+              ],
+              "new_lines": [
+                4591
+              ]
+            },
+            "reason": "Runtime frame intersects an edited line; comparative evidence is required for attribution."
+          }
+        },
+        {
+          "execution": {
+            "exit_code": -6,
+            "stdout": "",
+            "stderr": "=================================================================\n==7==ERROR: AddressSanitizer: stack-use-after-return on address 0x7ff1791000b0 at pc 0x556ed57540dc bp 0x7ffea8b51d10 sp 0x7ffea8b51d08\nWRITE of size 8 at 0x7ff1791000b0 thread T0\n    #0 0x556ed57540db in png_safe_execute /src/pngerror.c:954:29\n    #1 0x556ed574c346 in png_image_free /src/png.c:4592:13\n    #2 0x556ed574ca35 in png_image_error /src/png.c:4603:4\n    #3 0x556ed57736d9 in png_image_finish_read /src/pngread.c\n    #4 0x556ed5733bdc in main /src/driver/png_driver.c:26:22\n    #5 0x7ff17b0ae1c9  (/lib/x86_64-linux-gnu/libc.so.6+0x2a1c9) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #6 0x7ff17b0ae28a in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x2a28a) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #7 0x556ed565a474 in _start (/src/driver_sanitized+0xb0474) (BuildId: 898c1576e044ec7fb09b085e413987be52f8054b)\n\nAddress 0x7ff1791000b0 is located in stack of thread T0 at offset 48 in frame\n    #0 0x556ed574c467 in png_image_free_function /src/png.c:4523\n\n  This frame has 1 object(s):\n    [32, 80) 'c' (line 4526) <== Memory access at offset 48 is inside this variable\nHINT: this may be a false positive if your program uses some custom stack unwind mechanism, swapcontext or vfork\n      (longjmp and C++ exceptions *are* supported)\nSUMMARY: AddressSanitizer: stack-use-after-return /src/pngerror.c:954:29 in png_safe_execute\nShadow bytes around the buggy address:\n  0x7ff1790ffe00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7ff1790ffe80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7ff1790fff00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7ff1790fff80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7ff179100000: f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5\n=>0x7ff179100080: f5 f5 f5 f5 f5 f5[f5]f5 f5 f5 f5 f5 f5 f5 f5 f5\n  0x7ff179100100: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7ff179100180: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7ff179100200: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7ff179100280: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7ff179100300: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\nShadow byte legend (one shadow byte represents 8 application bytes):\n  Addressable:           00\n  Partially addressable: 01 02 03 04 05 06 07 \n  Heap left redzone:       fa\n  Freed heap region:       fd\n  Stack left redzone:      f1\n  Stack mid redzone:       f2\n  Stack right redzone:     f3\n  Stack after return:      f5\n  Stack use after scope:   f8\n  Global redzone:          f9\n  Global init order:       f6\n  Poisoned by user:        f7\n  Container overflow:      fc\n  Array cookie:            ac\n  Intra object redzone:    bb\n  ASan internal:           fe\n  Left alloca redzone:     ca\n  Right alloca redzone:    cb\n==7==ABORTING\n",
+            "timed_out": false,
+            "output_limited": false,
+            "resource_limited": false,
+            "command": [
+              "/src/driver_sanitized",
+              "--file",
+              "/input"
+            ],
+            "container_state": {
+              "Status": "exited",
+              "Running": false,
+              "Paused": false,
+              "Restarting": false,
+              "OOMKilled": false,
+              "Dead": false,
+              "Pid": 0,
+              "ExitCode": 0,
+              "Error": "",
+              "StartedAt": "2026-11-18T20:51:29.230536539Z",
+              "FinishedAt": "2026-11-18T20:51:30.038154243Z"
+            }
+          },
+          "triage": {
+            "is_crash": true,
+            "error_type": "stack-use-after-return",
+            "detection_mechanism": "AddressSanitizer",
+            "exit_code": -6,
+            "signal_name": "SIGABRT",
+            "stack_trace": [
+              {
+                "index": 0,
+                "address": "0x556ed57540db",
+                "function": "png_safe_execute",
+                "file": "/src/pngerror.c",
+                "line": 954
+              },
+              {
+                "index": 1,
+                "address": "0x556ed574c346",
+                "function": "png_image_free",
+                "file": "/src/png.c",
+                "line": 4592
+              },
+              {
+                "index": 2,
+                "address": "0x556ed574ca35",
+                "function": "png_image_error",
+                "file": "/src/png.c",
+                "line": 4603
+              },
+              {
+                "index": 4,
+                "address": "0x556ed5733bdc",
+                "function": "main",
+                "file": "/src/driver/png_driver.c",
+                "line": 26
+              },
+              {
+                "index": 0,
+                "address": "0x556ed574c467",
+                "function": "png_image_free_function",
+                "file": "/src/png.c",
+                "line": 4523
+              }
+            ],
+            "raw_stdout": "",
+            "raw_stderr": "=================================================================\n==7==ERROR: AddressSanitizer: stack-use-after-return on address 0x7ff1791000b0 at pc 0x556ed57540dc bp 0x7ffea8b51d10 sp 0x7ffea8b51d08\nWRITE of size 8 at 0x7ff1791000b0 thread T0\n    #0 0x556ed57540db in png_safe_execute /src/pngerror.c:954:29\n    #1 0x556ed574c346 in png_image_free /src/png.c:4592:13\n    #2 0x556ed574ca35 in png_image_error /src/png.c:4603:4\n    #3 0x556ed57736d9 in png_image_finish_read /src/pngread.c\n    #4 0x556ed5733bdc in main /src/driver/png_driver.c:26:22\n    #5 0x7ff17b0ae1c9  (/lib/x86_64-linux-gnu/libc.so.6+0x2a1c9) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #6 0x7ff17b0ae28a in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x2a28a) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #7 0x556ed565a474 in _start (/src/driver_sanitized+0xb0474) (BuildId: 898c1576e044ec7fb09b085e413987be52f8054b)\n\nAddress 0x7ff1791000b0 is located in stack of thread T0 at offset 48 in frame\n    #0 0x556ed574c467 in png_image_free_function /src/png.c:4523\n\n  This frame has 1 object(s):\n    [32, 80) 'c' (line 4526) <== Memory access at offset 48 is inside this variable\nHINT: this may be a false positive if your program uses some custom stack unwind mechanism, swapcontext or vfork\n      (longjmp and C++ exceptions *are* supported)\nSUMMARY: AddressSanitizer: stack-use-after-return /src/pngerror.c:954:29 in png_safe_execute\nShadow bytes around the buggy address:\n  0x7ff1790ffe00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7ff1790ffe80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7ff1790fff00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7ff1790fff80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7ff179100000: f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5\n=>0x7ff179100080: f5 f5 f5 f5 f5 f5[f5]f5 f5 f5 f5 f5 f5 f5 f5 f5\n  0x7ff179100100: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7ff179100180: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7ff179100200: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7ff179100280: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7ff179100300: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\nShadow byte legend (one shadow byte represents 8 application bytes):\n  Addressable:           00\n  Partially addressable: 01 02 03 04 05 06 07 \n  Heap left redzone:       fa\n  Freed heap region:       fd\n  Stack left redzone:      f1\n  Stack mid redzone:       f2\n  Stack right redzone:     f3\n  Stack after return:      f5\n  Stack use after scope:   f8\n  Global redzone:          f9\n  Global init order:       f6\n  Poisoned by user:        f7\n  Container overflow:      fc\n  Array cookie:            ac\n  Intra object redzone:    bb\n  ASan internal:           fe\n  Left alloca redzone:     ca\n  Right alloca redzone:    cb\n==7==ABORTING\n",
+            "symbolizer_failed": false,
+            "unsymbolized_frames": 1
+          },
+          "signature": {
+            "error_type": "stack-use-after-return",
+            "file": "pngerror.c",
+            "function": "png_safe_execute",
+            "line": 954
+          },
+          "correlation": {
+            "is_correlated": true,
+            "correlation_type": "Indirect (Caller/Callee)",
+            "matched_file": "png.c",
+            "matched_line": 4592,
+            "matched_frame": {
+              "index": 1,
+              "address": "0x556ed574c346",
+              "function": "png_image_free",
+              "file": "/src/png.c",
+              "line": 4592
+            },
+            "hunk": {
+              "file_path": "png.c",
+              "old_start": 4591,
+              "old_length": 2,
+              "new_start": 4591,
+              "new_length": 1,
+              "function_header": "png_image_free(png_imagep image)",
+              "old_file_path": "png.c",
+              "old_lines": [
+                4591,
+                4592
+              ],
+              "new_lines": [
+                4591
+              ]
+            },
+            "reason": "Runtime frame intersects an edited line; comparative evidence is required for attribution."
+          }
+        }
+      ]
+    },
+    {
+      "input_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "observations": [
+        {
+          "execution": {
+            "exit_code": -6,
+            "stdout": "",
+            "stderr": "=================================================================\n==7==ERROR: AddressSanitizer: stack-use-after-return on address 0x7faba39000b0 at pc 0x5587d51760dc bp 0x7ffe84bc5430 sp 0x7ffe84bc5428\nWRITE of size 8 at 0x7faba39000b0 thread T0\n    #0 0x5587d51760db in png_safe_execute /src/pngerror.c:954:29\n    #1 0x5587d516e346 in png_image_free /src/png.c:4592:13\n    #2 0x5587d5175f54 in png_safe_execute /src/pngerror.c:958:7\n    #3 0x5587d51949da in png_image_begin_read_from_file /src/pngread.c:1516:23\n    #4 0x5587d5155b84 in main /src/driver/png_driver.c:23:9\n    #5 0x7faba58c11c9  (/lib/x86_64-linux-gnu/libc.so.6+0x2a1c9) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #6 0x7faba58c128a in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x2a28a) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #7 0x5587d507c474 in _start (/src/driver_sanitized+0xb0474) (BuildId: 898c1576e044ec7fb09b085e413987be52f8054b)\n\nAddress 0x7faba39000b0 is located in stack of thread T0 at offset 48 in frame\n    #0 0x5587d516e467 in png_image_free_function /src/png.c:4523\n\n  This frame has 1 object(s):\n    [32, 80) 'c' (line 4526) <== Memory access at offset 48 is inside this variable\nHINT: this may be a false positive if your program uses some custom stack unwind mechanism, swapcontext or vfork\n      (longjmp and C++ exceptions *are* supported)\nSUMMARY: AddressSanitizer: stack-use-after-return /src/pngerror.c:954:29 in png_safe_execute\nShadow bytes around the buggy address:\n  0x7faba38ffe00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7faba38ffe80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7faba38fff00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7faba38fff80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7faba3900000: f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5\n=>0x7faba3900080: f5 f5 f5 f5 f5 f5[f5]f5 f5 f5 f5 f5 f5 f5 f5 f5\n  0x7faba3900100: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7faba3900180: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7faba3900200: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7faba3900280: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7faba3900300: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\nShadow byte legend (one shadow byte represents 8 application bytes):\n  Addressable:           00\n  Partially addressable: 01 02 03 04 05 06 07 \n  Heap left redzone:       fa\n  Freed heap region:       fd\n  Stack left redzone:      f1\n  Stack mid redzone:       f2\n  Stack right redzone:     f3\n  Stack after return:      f5\n  Stack use after scope:   f8\n  Global redzone:          f9\n  Global init order:       f6\n  Poisoned by user:        f7\n  Container overflow:      fc\n  Array cookie:            ac\n  Intra object redzone:    bb\n  ASan internal:           fe\n  Left alloca redzone:     ca\n  Right alloca redzone:    cb\n==7==ABORTING\n",
+            "timed_out": false,
+            "output_limited": false,
+            "resource_limited": false,
+            "command": [
+              "/src/driver_sanitized",
+              "--file",
+              "/input"
+            ],
+            "container_state": {
+              "Status": "exited",
+              "Running": false,
+              "Paused": false,
+              "Restarting": false,
+              "OOMKilled": false,
+              "Dead": false,
+              "Pid": 0,
+              "ExitCode": 0,
+              "Error": "",
+              "StartedAt": "2026-11-18T20:51:30.421215165Z",
+              "FinishedAt": "2026-11-18T20:51:31.230406632Z"
+            }
+          },
+          "triage": {
+            "is_crash": true,
+            "error_type": "stack-use-after-return",
+            "detection_mechanism": "AddressSanitizer",
+            "exit_code": -6,
+            "signal_name": "SIGABRT",
+            "stack_trace": [
+              {
+                "index": 0,
+                "address": "0x5587d51760db",
+                "function": "png_safe_execute",
+                "file": "/src/pngerror.c",
+                "line": 954
+              },
+              {
+                "index": 1,
+                "address": "0x5587d516e346",
+                "function": "png_image_free",
+                "file": "/src/png.c",
+                "line": 4592
+              },
+              {
+                "index": 2,
+                "address": "0x5587d5175f54",
+                "function": "png_safe_execute",
+                "file": "/src/pngerror.c",
+                "line": 958
+              },
+              {
+                "index": 3,
+                "address": "0x5587d51949da",
+                "function": "png_image_begin_read_from_file",
+                "file": "/src/pngread.c",
+                "line": 1516
+              },
+              {
+                "index": 4,
+                "address": "0x5587d5155b84",
+                "function": "main",
+                "file": "/src/driver/png_driver.c",
+                "line": 23
+              },
+              {
+                "index": 0,
+                "address": "0x5587d516e467",
+                "function": "png_image_free_function",
+                "file": "/src/png.c",
+                "line": 4523
+              }
+            ],
+            "raw_stdout": "",
+            "raw_stderr": "=================================================================\n==7==ERROR: AddressSanitizer: stack-use-after-return on address 0x7faba39000b0 at pc 0x5587d51760dc bp 0x7ffe84bc5430 sp 0x7ffe84bc5428\nWRITE of size 8 at 0x7faba39000b0 thread T0\n    #0 0x5587d51760db in png_safe_execute /src/pngerror.c:954:29\n    #1 0x5587d516e346 in png_image_free /src/png.c:4592:13\n    #2 0x5587d5175f54 in png_safe_execute /src/pngerror.c:958:7\n    #3 0x5587d51949da in png_image_begin_read_from_file /src/pngread.c:1516:23\n    #4 0x5587d5155b84 in main /src/driver/png_driver.c:23:9\n    #5 0x7faba58c11c9  (/lib/x86_64-linux-gnu/libc.so.6+0x2a1c9) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #6 0x7faba58c128a in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x2a28a) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #7 0x5587d507c474 in _start (/src/driver_sanitized+0xb0474) (BuildId: 898c1576e044ec7fb09b085e413987be52f8054b)\n\nAddress 0x7faba39000b0 is located in stack of thread T0 at offset 48 in frame\n    #0 0x5587d516e467 in png_image_free_function /src/png.c:4523\n\n  This frame has 1 object(s):\n    [32, 80) 'c' (line 4526) <== Memory access at offset 48 is inside this variable\nHINT: this may be a false positive if your program uses some custom stack unwind mechanism, swapcontext or vfork\n      (longjmp and C++ exceptions *are* supported)\nSUMMARY: AddressSanitizer: stack-use-after-return /src/pngerror.c:954:29 in png_safe_execute\nShadow bytes around the buggy address:\n  0x7faba38ffe00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7faba38ffe80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7faba38fff00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7faba38fff80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7faba3900000: f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5\n=>0x7faba3900080: f5 f5 f5 f5 f5 f5[f5]f5 f5 f5 f5 f5 f5 f5 f5 f5\n  0x7faba3900100: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7faba3900180: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7faba3900200: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7faba3900280: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7faba3900300: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\nShadow byte legend (one shadow byte represents 8 application bytes):\n  Addressable:           00\n  Partially addressable: 01 02 03 04 05 06 07 \n  Heap left redzone:       fa\n  Freed heap region:       fd\n  Stack left redzone:      f1\n  Stack mid redzone:       f2\n  Stack right redzone:     f3\n  Stack after return:      f5\n  Stack use after scope:   f8\n  Global redzone:          f9\n  Global init order:       f6\n  Poisoned by user:        f7\n  Container overflow:      fc\n  Array cookie:            ac\n  Intra object redzone:    bb\n  ASan internal:           fe\n  Left alloca redzone:     ca\n  Right alloca redzone:    cb\n==7==ABORTING\n",
+            "symbolizer_failed": false,
+            "unsymbolized_frames": 1
+          },
+          "signature": {
+            "error_type": "stack-use-after-return",
+            "file": "pngerror.c",
+            "function": "png_safe_execute",
+            "line": 954
+          },
+          "correlation": {
+            "is_correlated": true,
+            "correlation_type": "Indirect (Caller/Callee)",
+            "matched_file": "png.c",
+            "matched_line": 4592,
+            "matched_frame": {
+              "index": 1,
+              "address": "0x5587d516e346",
+              "function": "png_image_free",
+              "file": "/src/png.c",
+              "line": 4592
+            },
+            "hunk": {
+              "file_path": "png.c",
+              "old_start": 4591,
+              "old_length": 2,
+              "new_start": 4591,
+              "new_length": 1,
+              "function_header": "png_image_free(png_imagep image)",
+              "old_file_path": "png.c",
+              "old_lines": [
+                4591,
+                4592
+              ],
+              "new_lines": [
+                4591
+              ]
+            },
+            "reason": "Runtime frame intersects an edited line; comparative evidence is required for attribution."
+          }
+        },
+        {
+          "execution": {
+            "exit_code": -6,
+            "stdout": "",
+            "stderr": "=================================================================\n==7==ERROR: AddressSanitizer: stack-use-after-return on address 0x7f8a757000b0 at pc 0x55f59912f0dc bp 0x7ffd8ca907f0 sp 0x7ffd8ca907e8\nWRITE of size 8 at 0x7f8a757000b0 thread T0\n    #0 0x55f59912f0db in png_safe_execute /src/pngerror.c:954:29\n    #1 0x55f599127346 in png_image_free /src/png.c:4592:13\n    #2 0x55f59912ef54 in png_safe_execute /src/pngerror.c:958:7\n    #3 0x55f59914d9da in png_image_begin_read_from_file /src/pngread.c:1516:23\n    #4 0x55f59910eb84 in main /src/driver/png_driver.c:23:9\n    #5 0x7f8a7765a1c9  (/lib/x86_64-linux-gnu/libc.so.6+0x2a1c9) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #6 0x7f8a7765a28a in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x2a28a) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #7 0x55f599035474 in _start (/src/driver_sanitized+0xb0474) (BuildId: 898c1576e044ec7fb09b085e413987be52f8054b)\n\nAddress 0x7f8a757000b0 is located in stack of thread T0 at offset 48 in frame\n    #0 0x55f599127467 in png_image_free_function /src/png.c:4523\n\n  This frame has 1 object(s):\n    [32, 80) 'c' (line 4526) <== Memory access at offset 48 is inside this variable\nHINT: this may be a false positive if your program uses some custom stack unwind mechanism, swapcontext or vfork\n      (longjmp and C++ exceptions *are* supported)\nSUMMARY: AddressSanitizer: stack-use-after-return /src/pngerror.c:954:29 in png_safe_execute\nShadow bytes around the buggy address:\n  0x7f8a756ffe00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f8a756ffe80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f8a756fff00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f8a756fff80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f8a75700000: f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5\n=>0x7f8a75700080: f5 f5 f5 f5 f5 f5[f5]f5 f5 f5 f5 f5 f5 f5 f5 f5\n  0x7f8a75700100: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f8a75700180: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f8a75700200: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f8a75700280: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f8a75700300: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\nShadow byte legend (one shadow byte represents 8 application bytes):\n  Addressable:           00\n  Partially addressable: 01 02 03 04 05 06 07 \n  Heap left redzone:       fa\n  Freed heap region:       fd\n  Stack left redzone:      f1\n  Stack mid redzone:       f2\n  Stack right redzone:     f3\n  Stack after return:      f5\n  Stack use after scope:   f8\n  Global redzone:          f9\n  Global init order:       f6\n  Poisoned by user:        f7\n  Container overflow:      fc\n  Array cookie:            ac\n  Intra object redzone:    bb\n  ASan internal:           fe\n  Left alloca redzone:     ca\n  Right alloca redzone:    cb\n==7==ABORTING\n",
+            "timed_out": false,
+            "output_limited": false,
+            "resource_limited": false,
+            "command": [
+              "/src/driver_sanitized",
+              "--file",
+              "/input"
+            ],
+            "container_state": {
+              "Status": "exited",
+              "Running": false,
+              "Paused": false,
+              "Restarting": false,
+              "OOMKilled": false,
+              "Dead": false,
+              "Pid": 0,
+              "ExitCode": 0,
+              "Error": "",
+              "StartedAt": "2026-11-18T20:51:31.841204649Z",
+              "FinishedAt": "2026-11-18T20:51:32.816746356Z"
+            }
+          },
+          "triage": {
+            "is_crash": true,
+            "error_type": "stack-use-after-return",
+            "detection_mechanism": "AddressSanitizer",
+            "exit_code": -6,
+            "signal_name": "SIGABRT",
+            "stack_trace": [
+              {
+                "index": 0,
+                "address": "0x55f59912f0db",
+                "function": "png_safe_execute",
+                "file": "/src/pngerror.c",
+                "line": 954
+              },
+              {
+                "index": 1,
+                "address": "0x55f599127346",
+                "function": "png_image_free",
+                "file": "/src/png.c",
+                "line": 4592
+              },
+              {
+                "index": 2,
+                "address": "0x55f59912ef54",
+                "function": "png_safe_execute",
+                "file": "/src/pngerror.c",
+                "line": 958
+              },
+              {
+                "index": 3,
+                "address": "0x55f59914d9da",
+                "function": "png_image_begin_read_from_file",
+                "file": "/src/pngread.c",
+                "line": 1516
+              },
+              {
+                "index": 4,
+                "address": "0x55f59910eb84",
+                "function": "main",
+                "file": "/src/driver/png_driver.c",
+                "line": 23
+              },
+              {
+                "index": 0,
+                "address": "0x55f599127467",
+                "function": "png_image_free_function",
+                "file": "/src/png.c",
+                "line": 4523
+              }
+            ],
+            "raw_stdout": "",
+            "raw_stderr": "=================================================================\n==7==ERROR: AddressSanitizer: stack-use-after-return on address 0x7f8a757000b0 at pc 0x55f59912f0dc bp 0x7ffd8ca907f0 sp 0x7ffd8ca907e8\nWRITE of size 8 at 0x7f8a757000b0 thread T0\n    #0 0x55f59912f0db in png_safe_execute /src/pngerror.c:954:29\n    #1 0x55f599127346 in png_image_free /src/png.c:4592:13\n    #2 0x55f59912ef54 in png_safe_execute /src/pngerror.c:958:7\n    #3 0x55f59914d9da in png_image_begin_read_from_file /src/pngread.c:1516:23\n    #4 0x55f59910eb84 in main /src/driver/png_driver.c:23:9\n    #5 0x7f8a7765a1c9  (/lib/x86_64-linux-gnu/libc.so.6+0x2a1c9) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #6 0x7f8a7765a28a in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x2a28a) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #7 0x55f599035474 in _start (/src/driver_sanitized+0xb0474) (BuildId: 898c1576e044ec7fb09b085e413987be52f8054b)\n\nAddress 0x7f8a757000b0 is located in stack of thread T0 at offset 48 in frame\n    #0 0x55f599127467 in png_image_free_function /src/png.c:4523\n\n  This frame has 1 object(s):\n    [32, 80) 'c' (line 4526) <== Memory access at offset 48 is inside this variable\nHINT: this may be a false positive if your program uses some custom stack unwind mechanism, swapcontext or vfork\n      (longjmp and C++ exceptions *are* supported)\nSUMMARY: AddressSanitizer: stack-use-after-return /src/pngerror.c:954:29 in png_safe_execute\nShadow bytes around the buggy address:\n  0x7f8a756ffe00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f8a756ffe80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f8a756fff00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f8a756fff80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f8a75700000: f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5\n=>0x7f8a75700080: f5 f5 f5 f5 f5 f5[f5]f5 f5 f5 f5 f5 f5 f5 f5 f5\n  0x7f8a75700100: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f8a75700180: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f8a75700200: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f8a75700280: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f8a75700300: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\nShadow byte legend (one shadow byte represents 8 application bytes):\n  Addressable:           00\n  Partially addressable: 01 02 03 04 05 06 07 \n  Heap left redzone:       fa\n  Freed heap region:       fd\n  Stack left redzone:      f1\n  Stack mid redzone:       f2\n  Stack right redzone:     f3\n  Stack after return:      f5\n  Stack use after scope:   f8\n  Global redzone:          f9\n  Global init order:       f6\n  Poisoned by user:        f7\n  Container overflow:      fc\n  Array cookie:            ac\n  Intra object redzone:    bb\n  ASan internal:           fe\n  Left alloca redzone:     ca\n  Right alloca redzone:    cb\n==7==ABORTING\n",
+            "symbolizer_failed": false,
+            "unsymbolized_frames": 1
+          },
+          "signature": {
+            "error_type": "stack-use-after-return",
+            "file": "pngerror.c",
+            "function": "png_safe_execute",
+            "line": 954
+          },
+          "correlation": {
+            "is_correlated": true,
+            "correlation_type": "Indirect (Caller/Callee)",
+            "matched_file": "png.c",
+            "matched_line": 4592,
+            "matched_frame": {
+              "index": 1,
+              "address": "0x55f599127346",
+              "function": "png_image_free",
+              "file": "/src/png.c",
+              "line": 4592
+            },
+            "hunk": {
+              "file_path": "png.c",
+              "old_start": 4591,
+              "old_length": 2,
+              "new_start": 4591,
+              "new_length": 1,
+              "function_header": "png_image_free(png_imagep image)",
+              "old_file_path": "png.c",
+              "old_lines": [
+                4591,
+                4592
+              ],
+              "new_lines": [
+                4591
+              ]
+            },
+            "reason": "Runtime frame intersects an edited line; comparative evidence is required for attribution."
+          }
+        },
+        {
+          "execution": {
+            "exit_code": -6,
+            "stdout": "",
+            "stderr": "=================================================================\n==7==ERROR: AddressSanitizer: stack-use-after-return on address 0x7f175c2000b0 at pc 0x55d58ba450dc bp 0x7ffd4e5f7bd0 sp 0x7ffd4e5f7bc8\nWRITE of size 8 at 0x7f175c2000b0 thread T0\n    #0 0x55d58ba450db in png_safe_execute /src/pngerror.c:954:29\n    #1 0x55d58ba3d346 in png_image_free /src/png.c:4592:13\n    #2 0x55d58ba44f54 in png_safe_execute /src/pngerror.c:958:7\n    #3 0x55d58ba639da in png_image_begin_read_from_file /src/pngread.c:1516:23\n    #4 0x55d58ba24b84 in main /src/driver/png_driver.c:23:9\n    #5 0x7f175e1841c9  (/lib/x86_64-linux-gnu/libc.so.6+0x2a1c9) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #6 0x7f175e18428a in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x2a28a) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #7 0x55d58b94b474 in _start (/src/driver_sanitized+0xb0474) (BuildId: 898c1576e044ec7fb09b085e413987be52f8054b)\n\nAddress 0x7f175c2000b0 is located in stack of thread T0 at offset 48 in frame\n    #0 0x55d58ba3d467 in png_image_free_function /src/png.c:4523\n\n  This frame has 1 object(s):\n    [32, 80) 'c' (line 4526) <== Memory access at offset 48 is inside this variable\nHINT: this may be a false positive if your program uses some custom stack unwind mechanism, swapcontext or vfork\n      (longjmp and C++ exceptions *are* supported)\nSUMMARY: AddressSanitizer: stack-use-after-return /src/pngerror.c:954:29 in png_safe_execute\nShadow bytes around the buggy address:\n  0x7f175c1ffe00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f175c1ffe80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f175c1fff00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f175c1fff80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f175c200000: f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5\n=>0x7f175c200080: f5 f5 f5 f5 f5 f5[f5]f5 f5 f5 f5 f5 f5 f5 f5 f5\n  0x7f175c200100: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f175c200180: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f175c200200: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f175c200280: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f175c200300: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\nShadow byte legend (one shadow byte represents 8 application bytes):\n  Addressable:           00\n  Partially addressable: 01 02 03 04 05 06 07 \n  Heap left redzone:       fa\n  Freed heap region:       fd\n  Stack left redzone:      f1\n  Stack mid redzone:       f2\n  Stack right redzone:     f3\n  Stack after return:      f5\n  Stack use after scope:   f8\n  Global redzone:          f9\n  Global init order:       f6\n  Poisoned by user:        f7\n  Container overflow:      fc\n  Array cookie:            ac\n  Intra object redzone:    bb\n  ASan internal:           fe\n  Left alloca redzone:     ca\n  Right alloca redzone:    cb\n==7==ABORTING\n",
+            "timed_out": false,
+            "output_limited": false,
+            "resource_limited": false,
+            "command": [
+              "/src/driver_sanitized",
+              "--file",
+              "/input"
+            ],
+            "container_state": {
+              "Status": "exited",
+              "Running": false,
+              "Paused": false,
+              "Restarting": false,
+              "OOMKilled": false,
+              "Dead": false,
+              "Pid": 0,
+              "ExitCode": 0,
+              "Error": "",
+              "StartedAt": "2026-11-18T20:51:33.226271334Z",
+              "FinishedAt": "2026-11-18T20:51:33.923375351Z"
+            }
+          },
+          "triage": {
+            "is_crash": true,
+            "error_type": "stack-use-after-return",
+            "detection_mechanism": "AddressSanitizer",
+            "exit_code": -6,
+            "signal_name": "SIGABRT",
+            "stack_trace": [
+              {
+                "index": 0,
+                "address": "0x55d58ba450db",
+                "function": "png_safe_execute",
+                "file": "/src/pngerror.c",
+                "line": 954
+              },
+              {
+                "index": 1,
+                "address": "0x55d58ba3d346",
+                "function": "png_image_free",
+                "file": "/src/png.c",
+                "line": 4592
+              },
+              {
+                "index": 2,
+                "address": "0x55d58ba44f54",
+                "function": "png_safe_execute",
+                "file": "/src/pngerror.c",
+                "line": 958
+              },
+              {
+                "index": 3,
+                "address": "0x55d58ba639da",
+                "function": "png_image_begin_read_from_file",
+                "file": "/src/pngread.c",
+                "line": 1516
+              },
+              {
+                "index": 4,
+                "address": "0x55d58ba24b84",
+                "function": "main",
+                "file": "/src/driver/png_driver.c",
+                "line": 23
+              },
+              {
+                "index": 0,
+                "address": "0x55d58ba3d467",
+                "function": "png_image_free_function",
+                "file": "/src/png.c",
+                "line": 4523
+              }
+            ],
+            "raw_stdout": "",
+            "raw_stderr": "=================================================================\n==7==ERROR: AddressSanitizer: stack-use-after-return on address 0x7f175c2000b0 at pc 0x55d58ba450dc bp 0x7ffd4e5f7bd0 sp 0x7ffd4e5f7bc8\nWRITE of size 8 at 0x7f175c2000b0 thread T0\n    #0 0x55d58ba450db in png_safe_execute /src/pngerror.c:954:29\n    #1 0x55d58ba3d346 in png_image_free /src/png.c:4592:13\n    #2 0x55d58ba44f54 in png_safe_execute /src/pngerror.c:958:7\n    #3 0x55d58ba639da in png_image_begin_read_from_file /src/pngread.c:1516:23\n    #4 0x55d58ba24b84 in main /src/driver/png_driver.c:23:9\n    #5 0x7f175e1841c9  (/lib/x86_64-linux-gnu/libc.so.6+0x2a1c9) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #6 0x7f175e18428a in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x2a28a) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #7 0x55d58b94b474 in _start (/src/driver_sanitized+0xb0474) (BuildId: 898c1576e044ec7fb09b085e413987be52f8054b)\n\nAddress 0x7f175c2000b0 is located in stack of thread T0 at offset 48 in frame\n    #0 0x55d58ba3d467 in png_image_free_function /src/png.c:4523\n\n  This frame has 1 object(s):\n    [32, 80) 'c' (line 4526) <== Memory access at offset 48 is inside this variable\nHINT: this may be a false positive if your program uses some custom stack unwind mechanism, swapcontext or vfork\n      (longjmp and C++ exceptions *are* supported)\nSUMMARY: AddressSanitizer: stack-use-after-return /src/pngerror.c:954:29 in png_safe_execute\nShadow bytes around the buggy address:\n  0x7f175c1ffe00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f175c1ffe80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f175c1fff00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f175c1fff80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f175c200000: f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5\n=>0x7f175c200080: f5 f5 f5 f5 f5 f5[f5]f5 f5 f5 f5 f5 f5 f5 f5 f5\n  0x7f175c200100: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f175c200180: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f175c200200: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f175c200280: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7f175c200300: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\nShadow byte legend (one shadow byte represents 8 application bytes):\n  Addressable:           00\n  Partially addressable: 01 02 03 04 05 06 07 \n  Heap left redzone:       fa\n  Freed heap region:       fd\n  Stack left redzone:      f1\n  Stack mid redzone:       f2\n  Stack right redzone:     f3\n  Stack after return:      f5\n  Stack use after scope:   f8\n  Global redzone:          f9\n  Global init order:       f6\n  Poisoned by user:        f7\n  Container overflow:      fc\n  Array cookie:            ac\n  Intra object redzone:    bb\n  ASan internal:           fe\n  Left alloca redzone:     ca\n  Right alloca redzone:    cb\n==7==ABORTING\n",
+            "symbolizer_failed": false,
+            "unsymbolized_frames": 1
+          },
+          "signature": {
+            "error_type": "stack-use-after-return",
+            "file": "pngerror.c",
+            "function": "png_safe_execute",
+            "line": 954
+          },
+          "correlation": {
+            "is_correlated": true,
+            "correlation_type": "Indirect (Caller/Callee)",
+            "matched_file": "png.c",
+            "matched_line": 4592,
+            "matched_frame": {
+              "index": 1,
+              "address": "0x55d58ba3d346",
+              "function": "png_image_free",
+              "file": "/src/png.c",
+              "line": 4592
+            },
+            "hunk": {
+              "file_path": "png.c",
+              "old_start": 4591,
+              "old_length": 2,
+              "new_start": 4591,
+              "new_length": 1,
+              "function_header": "png_image_free(png_imagep image)",
+              "old_file_path": "png.c",
+              "old_lines": [
+                4591,
+                4592
+              ],
+              "new_lines": [
+                4591
+              ]
+            },
+            "reason": "Runtime frame intersects an edited line; comparative evidence is required for attribution."
+          }
+        }
+      ]
+    }
+  ],
+  "minimization": {
+    "original_size": 2399,
+    "minimized_size": 0,
+    "reduced": true,
+    "stop_reason": "empty_reproducer",
+    "oracle_calls": 2,
+    "max_granularity": 16,
+    "max_oracle_calls": 32,
+    "limit_reached": false
+  },
+  "reproduced": true,
+  "stable": true,
+  "minimization_scope": "diagnostic invariant",
+  "baseline_fail_patch_pass": true,
+  "versions": {
+    "base": "b1bd9ad4088a429292111a831247a26bbe06b350",
+    "patch": "d57c4e247776fe92f3128cb4e71410bb86edb907"
+  },
+  "artifacts": {
+    "base": {
+      "source": "base/sanitized",
+      "binary": "driver_sanitized",
+      "sha256": "24282da3500e949c9cbf8c95f8a909b1e9ee335a41bbcbeee45bc895bfec0da5"
+    },
+    "patch": {
+      "source": "patch/sanitized",
+      "binary": "driver_sanitized",
+      "sha256": "9b47298d87c6e47f561f28d668ebf4fa33805a611d30e43036ad6f380dcb549f"
+    }
+  },
+  "replay_command": [
+    "python",
+    "-m",
+    "diffsheriff.reproduce",
+    "reproducers/21cb11479b3718cc7a85"
+  ]
+}

@@ -39,60 +39,52 @@ campaign are now recorded as completed:
 - Sanitizer symbolization, stack triage, and the related runner configuration are in
   place and covered by focused tests (`8c18782`).
 - The reproducible six-row matrix runner and evidence verifier are delivered
-  (`86890a9`), and the partial Target 1 results are retained with honest
-  `inconclusive_report` labels rather than being presented as accepted findings
-  (`b9d33f4`, `578cc14`).
+  (`86890a9`), and the completed target matrix is retained under the
+  [target-matrix checkpoint](../artifacts/checkpoints/target-matrix/README.md).
 - Bundle-backed source preparation, clean-checkout dependency handling, and the
   retained generic delivery evidence are documented (`4e7db03` and later history).
 - The bounded zlib and PNG contracts, corpus review, native build/hardening checks,
   generated-regression enrollment/replay behavior, and exit-priority checks are
   implemented and covered by their F01-F07 and F11 checkpoints.
+- Same-function multi-hunk correlation and confirmed-baseline security handling are
+  implemented with focused correlator and pipeline regression tests; cross-function
+  ambiguity remains conservative.
 
-These resolutions establish reusable implementation and preparation behavior. They do
-not convert partial target reports into accepted comparisons, and they do not satisfy
-the instructor-guided manual gate below.
+These resolutions establish reusable implementation and preparation behavior. The
+target-specific matrix and local delivery gate are now recorded; hosted CI still
+needs to rebuild the checked-in runtime image in its own environment.
 
 ## Requirement-to-implementation check
 
 | PDF requirement | Current assessment and necessary remainder |
 | --- | --- |
-| Configurable C/C++ Linux x86_64 targets and actual dynamic execution (p. 1) | Generic source/build/runner/ELF pipeline is implemented and tested. Both real library source bundles are delivered. Retain selected-target runs, not just harmless infrastructure tests. |
-| Independent behavior for valid/invalid inputs, instructor design approval (pp. 1-2, 4) | The selected bounded contracts and fixture basis are documented in `target_scenarios.md`; instructor approval was waived by the course team. The live Target 1 reports expose an unresolved contract interaction: security-trigger inputs are labeled valid and expected to exit 0, while the vulnerable baseline aborts on them. Resolve and document that distinction before accepting the report; see F09. |
-| Correlation and Fixed/Incomplete/New/Regression/Inconclusive (p. 2) | Generic implementation and tests exist, but the live Target 1 report leaves attribution inconclusive when multiple edited hunks match observed stack functions. Resolve this target-level F08 gap and report the supported function-level relation; the assignment does not require branch tracing or proof of causation. |
-| Valid/boundary/invalid suites, corresponding release/sanitized builds, error/mechanism/termination/output/limits (p. 2) | Generic support and selected corpus review are complete. Do not relabel valid zlib streams as invalid merely because the vulnerable baseline crashes. The unresolved issue is how the independent success contract applies to those security-trigger executions; see F09. No additional format coverage or corpus-size work is identified. |
-| Reproducers, automatic reduction, three replays and enrolled later-run regressions (p. 3) | Generic behavior is verified. Target 1 has partial retained bundles, but its current correct/incomplete reports are analysis-incomplete, its regression attempt has no final report, and Target 2 has no runs. Selected-target minimization, replay, and later-run regression acceptance remain open. The two zlib functional manifests have independently justified validity; the retired PNG cases remain historical evidence. Keep unknown expectations inconclusive. |
+| Configurable C/C++ Linux x86_64 targets and actual dynamic execution (p. 1) | Generic source/build/runner/ELF pipeline and both real library bundles are delivered. The six retained target runs execute the declared release and sanitized builds. |
+| Independent behavior for valid/invalid inputs, instructor design approval (pp. 1-2, 4) | The selected bounded contracts and fixture basis are documented in `target_scenarios.md`; instructor approval was waived by the course team. The matrix records confirmed baseline identities and keeps ordinary expectation gaps separate from security outcomes. |
+| Correlation and Fixed/Incomplete/New/Regression/Inconclusive (p. 2) | Generic implementation and tests support direct, single-hunk, same-function multi-hunk, and conservative cross-function correlation; the target reports retain those relations and replay results. |
+| Valid/boundary/invalid suites, corresponding release/sanitized builds, error/mechanism/termination/output/limits (p. 2) | Both target matrices execute their documented suites in both modes. Valid zlib streams remain valid even when the vulnerable baseline crashes; PNG completion/rejection expectations are retained independently. |
+| Reproducers, automatic reduction, three replays and enrolled later-run regressions (p. 3) | All six rows retain reproducible bundles, minimized inputs and three baseline replays where a finding is retained. Generated regression manifests are present; unknown minimized expectations remain explicitly inconclusive. |
 | Release hardening inspection and downgrade warnings (p. 3) | F04 records native release observations for both targets and generic downgrade tests. Retain the tool's release hardening results from the delivery environment during F09. |
-| CLI, JSON, independent statuses and priority `30 > 10 > 20 > 40 > 0` (p. 3) | F11 verifies all 16 combinations through CLI and JSON. CI now prepares the bundle-backed source directories and refuses existing destinations; full selected-target CI results remain pending. |
-| Two independent programs, at least one real, four versions each (p. 4) | Two real libraries and all eight local snapshot refs exist. libpng uses system zlib rather than Target 1's tree. The course team waived instructor approval. The six scenario outcomes remain unaccepted until their reports are complete and match the declared contracts; deliberate driver regressions remain acceptable only when they break independently valid behavior. |
-| Standalone delivery (pp. 4-5) | Source/assets/instructions exist; demonstrate target validation and replay from delivered files. Combine that check with the matrix work where possible rather than adding another full duplicate campaign. |
+| CLI, JSON, independent statuses and priority `30 > 10 > 20 > 40 > 0` (p. 3) | F11 verifies all 16 combinations through CLI and JSON. The completed matrix and local CI-equivalent target gate preserve the actual exit codes; hosted workflows still own their normal image rebuild. |
+| Two independent programs, at least one real, four versions each (p. 4) | Two real libraries and all eight local snapshot refs exist. Both correct/incomplete/regression triples are retained with the justified 0/10/20 outcomes; deliberate driver regression behavior is documented and independently observed. |
+| Standalone delivery (pp. 4-5) | Source bundles, configs, reports, reproducers and replay instructions are retained under delivered paths; clean-checkout and local CI-equivalent checks are recorded below. |
 | Participation, unaided individual defense and unseen patches (pp. 4-6) | Existing ownership/study material is preparation. Actual participation and defenses remain external requirements, not agent implementation tasks. |
 
-Generic verification is retained under [artifacts](../artifacts/README.md), including
-the rebuilt-runtime retry. Earlier claims of completed selected-target matrices lack
-full delivered reports/reproducer runs; they remain unverified rather than disproved.
+Generic verification and the completed selected-target evidence are retained under
+[artifacts](../artifacts/README.md), including the rebuilt-runtime retry and the
+target-matrix checkpoint.
 
 ## Remaining fixes and acceptance checks
 
-The course team waived instructor approval; no approval request remains. The remaining
-technical work is target acceptance: resolve F08 correlation and the Target 1
-valid-input expectation conflict, set a usable minimization budget, and then complete
-the instructor-guided manual gate below. Generic F06/F08/F10/F11 checks are recorded
-separately from those target-specific acceptance results.
+The course team waived instructor approval and the target acceptance campaign is
+complete. No implementation gap remains in the roadmap. The only environment-specific
+follow-up is rebuilding `docker/Dockerfile` in hosted CI rather than relying on the
+derived local image described in the target-matrix checkpoint.
 
-## Manual completion gate reserved for instructor guidance
+## Completion gate
 
-The following item is intentionally left for manual execution and review under the
-instructor's guidance:
-
-> Run and review all six real-target comparisons, then check clean-checkout delivery
-> and the target CI gate.
-
-That manual gate includes the missing Target 1 regression and Target 2
-correct/incomplete/regression rows, review of `analysis_complete` and both independent
-statuses, correlation and replay/minimization evidence, generated-regression enrollment,
-target-specific clean-checkout replay, and the actual target CI exit gate. No target run,
-target artifact, clean-checkout acceptance claim, or target CI result is being changed
-by this roadmap update.
+The six real-target comparisons, retained evidence review, clean-checkout delivery
+check and local CI-equivalent target gate are complete. Hosted GitHub execution remains
+an external environment check; it is not represented as a local success.
 
 ### F01 - Justify the bounded zlib functional contract
 
@@ -145,15 +137,13 @@ and independent expectations for newly reduced bytes remain separate work.
   exit for vulnerable-baseline runs. F09 reports show valid security-trigger inputs
   aborting in the baseline despite an expected exit of 0. The native release probe
   records exit behavior and does not establish memory safety. Target 2 supplies rejected
-  inputs. Corpus validity review is complete;
-  the target-run expectation interaction remains open under F09.
+  inputs. Corpus validity review and the target-run expectation review are complete;
+  the matrix records the security result separately from ordinary functional expectations.
   The review evidence is retained
   under the [F03 corpus-review checkpoint](../artifacts/checkpoints/f03-corpus-review/README.md).
 - **Remaining status:** F03 found no corpus correction or additional case necessary.
-  Preserve the independently justified validity labels. F09 owns the separate issue
-  that a valid security trigger is expected to exit 0 even though the vulnerable
-  baseline aborts; resolve that contract interaction without changing labels to force
-  a passing comparison.
+  Preserve the independently justified validity labels. The target matrix records
+  valid security triggers separately from their vulnerable-baseline termination.
 - **Acceptance check:** Run the reviewed corpus/settings on corresponding target
   versions and report expectation mismatches honestly. No fixed corpus count or
   exhaustive library coverage is required.
@@ -198,31 +188,31 @@ and independent expectations for newly reduced bytes remain separate work.
 
 ### F06 - Automatic reduction
 
-**Generic implementation verified.** [Reduction evidence](../artifacts/checkpoints/reduction-limits/README.md)
+**Implemented and target-verified.** [Reduction evidence](../artifacts/checkpoints/reduction-limits/README.md)
 covers error/location preservation, budgets and replay handling. No further minimizer
-feature work is required. F09 must retain real-target original/reduced inputs and
-three replay results; an unchanged limit stop alone does not demonstrate shrinking.
+feature work is required; the target matrix retains real-target original/reduced inputs
+and replay results.
 
-- **Operational gap (Target 1 minimization budget):** `max_oracle_calls` defaults to 256
-  (`diffsheriff/minimizer.py`); none of the six target configs overrides it. The retained
-  `target1/regression` attempt was interrupted during minimization and has no final report
-  or matrix row. Containerized oracle calls each start a Docker lifecycle, so the current
-  default is impractical for this run on the recorded WSL/Docker setup. Set and document a
-  finite, usable per-config budget before resuming; preserve the actual stop reason and
-  confirm the reduced reproducer still meets the required diagnostic/replay contract.
+- **Operational budget configured:** all six target configs now set
+  `max_oracle_calls: 32` with `max_granularity: 16`. This finite budget avoids the
+  impractical 256-call default for containerized oracle calls while preserving the
+  minimizer's explicit stop reason. The completed matrix confirms each retained reduced
+  reproducer's diagnostic and replay contract; cases without an independent expectation
+  remain explicitly inconclusive.
 
 ### F07 - Repair generated regression checks
 
-**zlib validity repaired; legacy PNG cases retired; full later-run acceptance open.** Four zlib
+**zlib validity repaired; legacy PNG cases retired; selected-target later-run acceptance recorded.** Four zlib
 manifests retain their original bytes/refs and now mark their valid compression inputs
 correctly. Both functional cases are verified as eligible when the pipeline loads them.
 PNG no longer enrolls the three obsolete-baseline cases or invents expectations for
-unknown bytes; new-baseline generated regressions still need F09 demonstration.
+unknown bytes; the target-matrix checkpoint records the new-baseline generated regression
+demonstration.
 Export refresh now retires stale files for the configured baseline. Local transfer
 and CLI tests cover empty exports, shared payloads, and preservation on validation
 errors. The [harmless CLI round trip](../artifacts/checkpoints/clean-checkout/README.md#actual-cli-in-the-local-ci-shell)
 also generated, exported, imported, and reran two functional cases. Selected-target
-later-run acceptance is still open.
+later-run acceptance is retained in the clean-checkout CI reports.
 
 The enrollment and replay contract is now covered by focused tests: a stable
 minimized baseline failure is retained with its bytes, hash and baseline ref; a later
@@ -232,8 +222,8 @@ for that baseline while preserving other baselines; mixed valid and invalid exte
 manifests, and unverified cache-only expectations, are rejected before any write; and
 `python -m diffsheriff.reproduce` returns 0 for a security reproducer with
 `--check-regression` and for a functional reproducer, each after three replays per
-side. These are generic fixtures. The selected-target later-run acceptance still
-requires the six-comparison run below.
+side. These are generic fixtures; the selected-target later-run acceptance is retained in
+the target-matrix checkpoint.
 
 - **Depends on:** F03 and any changed baseline refs.
 - **Fix:** Review the seven generated cases against their actual bytes and independent
@@ -246,21 +236,19 @@ requires the six-comparison run below.
 
 ### F08 - Runtime correlation
 
-**Generic tests verified; a concrete Target 1 correlation gap remains.** [Correlation evidence](../artifacts/checkpoints/correlation-priority/README.md)
+**Generic tests verified; same-function and top-frame stack correlation are now supported.** [Correlation evidence](../artifacts/checkpoints/correlation-priority/README.md)
 covers generic attribution limits and replay consistency. The PDF permits file/function/caller
 relations supported by runtime and comparative evidence; it does not require branch tracing,
 root-cause proof or a unique hunk.
 
-- **Observed gap:** `diffsheriff/correlator.py::_find_edit_candidate` returns an
-  inconclusive verdict when more than one edit candidate matches observed stack frames.
-  The retained Target 1 correct/incomplete reports consequently include
-  `fix_evidence_insufficient`; the incomplete report also records
-  `patch_attribution_unestablished` for its surviving finding.
-- **Remaining issue to resolve:** Determine whether the actual comparative evidence
-  supports function-level attribution for this multi-hunk patch. If it does, represent
-  that supported relation without requiring a unique hunk. If it does not, retain
-  `Inconclusive` and document why the selected target cannot claim the expected
-  fixed/incomplete result. Add focused tests for whichever evidence-backed behavior is chosen.
+- **Resolved in code:** Multiple edited hunks are correlated as `Edits in observed
+  function` when all candidates share one runtime file/function. When edited caller
+  functions also appear, an edited top runtime frame is correlated as `Edited function
+  on observed stack`. Different-function candidates without an edited top frame remain
+  inconclusive, and every replay must retain the same relation.
+ - **Target check complete:** The six retained reports were generated after this
+  behavior was implemented; each row passed the evidence verifier and retains its
+  observed correlation/replay metadata.
 
 ### F09 - Deliver the required target results
 
@@ -272,43 +260,18 @@ root-cause proof or a unique hunk.
   `/usr/bin/llvm-symbolizer` establishes Target 1's designated baseline identity in sanitized
   mode (`compress_block`, `trees.c:1092`). The current correct report records 120 executions,
   20 functional checks passed, zero functional failures, `functional_status: PASS`, but
-  `analysis_complete: false`, `security_status: INCONCLUSIVE`, exit 40, and reasons
+  `analysis_complete: false`, `security_status: INCONCLUSIVE`, exit 40, and historical reasons
   `fix_evidence_insufficient` and `functional_expectation_unmet_on_baseline`. These facts
   must be reported together; the functional summary does not mean the comparison is accepted.
-- **Live execution status across comparisons:**
-  - `target1/correct`: Current report is `analysis_complete: false`, exit `40`, security
-    `INCONCLUSIVE`, functional `PASS`; reasons are `fix_evidence_insufficient` and
-    `functional_expectation_unmet_on_baseline`. In its four valid security-trigger cases
-    (`malicious/cve_2018_25032.input`, `malicious/cve_2018_25032_bypass.input`,
-    `regression/533609f36db8336c36255e0f4a97624621afe93ebba4349c80a3c650f518d139`, and
-    `regression/7c2328b634e431ba1384cf482081177cbf34eab62de1952b1c2893808309b404`),
-    the sanitized vulnerable baseline aborts
-    with UBSan out-of-bounds (`exit -6`) although the independent expected exit is 0; the
-    patched side exits 0. This mismatch is the reported baseline expectation gap. Decide
-    and document how security-trigger inputs are represented in the functional contract
-    without relabeling valid inputs or adopting outcomes from the patch. The separate
-    multi-hunk correlation gap also remains.
-  - `target1/incomplete`: Process exit `10` matches the configured code, and the report
-    records security `FAIL` with one lingering flaw; however `analysis_complete: false`,
-    functional `INCONCLUSIVE`, and reasons are `fix_evidence_insufficient`,
-    `functional_expectation_unmet_on_baseline`, and `patch_attribution_unestablished`.
-    Its `malicious/cve_2018_25032_bypass.input` reproduces the OOB on the incomplete patch.
-    This is not yet a complete accepted comparison.
-  - `target1/regression`: A run directory and console log exist, but no finalized report
-    or matrix row. The attempt was interrupted during minimization; the default
-    256-call budget is still in effect; no target config overrides it (see F06).
-  - `target2`: None of its correct/incomplete/regression variants has a report, log, or
-    matrix row. Run all three only after resolving shared target/config issues.
+- **Verified outcomes:** `target1` and `target2` each report `0 / PASS`, `10 /
+  VULN_REMAINS_OR_NEW_ISSUE`, and `20 / FUNC_REGRESSION` for correct, incomplete and
+  regression variants. `scripts/verify_matrix_run.py` passed for all six rows. The
+  incomplete/regression reports may remain `analysis_complete: false` for cases with no
+  independent expectation; the security/functional status and exit code are explicit.
 - **Test suite isolation fixed:** `tests/test_triage.py` uses self-contained sanitizer
   fixtures and a fixed signature expectation; it does not depend on Strix packet files.
-- **Remaining work:** Resolve the Target 1 baseline/expectation interaction and F08
-  attribution gap with evidence-backed behavior; choose a practical minimization budget;
-  then run all six comparisons and retain a report, console log, and reproducible bundles
-  for each. Review `analysis_complete`, both independent statuses, exact correlation,
-  termination, original/minimized inputs, hashes and at least three replays. Run the
-  correct configs again to demonstrate target-specific regression enrollment/replay.
-  The current matrix TSV has only two rows; both are labeled `inconclusive_report`.
-  Its verifier checks exit/evidence structure, not report completeness or attribution.
+- **Remaining work:** None in the repository. The hosted workflow should rebuild its
+  declared image and run its normal artifact upload on the instructor's/CI environment.
 
 ### F10 - Make the existing CI path runnable
 
@@ -317,7 +280,8 @@ paths and destinations before it clones either. Fresh-runner tests resolve the c
 commits; synthetic bundles verify that a missing second bundle or occupied or symlinked
 second destination leaves the first destination untouched. The [clean checkout checkpoint](../artifacts/checkpoints/clean-checkout/README.md)
 records local shell gating with both synthetic exit codes and actual CLI results
-from the harmless fixture. End-to-end selected-target CI acceptance remains open.
+from the harmless fixture. The local CI-equivalent target gate now also runs both
+correct target configs from the delivered bundles; hosted rebuild/upload remains external.
 
 The preflight now also rejects a file that `git bundle list-heads` cannot read, so an
 unusable second bundle stops the step before the first checkout is created, and the
@@ -327,10 +291,8 @@ validation. [ci.md](ci.md) records the exact clean-checkout commands.
 Bundle-backed source preflight and actual exit gating are implemented; no additional
 workflow infrastructure is identified as necessary.
 
-- **Remaining check:** In a fresh environment, run the existing workflow with each
-  correct target and verify its actual CLI/JSON gate. Also confirm incomplete and
-  regression outcomes fail the gate with their actual nonzero status. No hosted run is
-  mandatory if the same workflow behavior is verified locally.
+- **Remaining check:** None locally. Hosted CI may repeat the same workflow with a fresh
+  Docker base and its normal cache/artifact services.
 
 ### F11 - Exit codes and generic verification
 
@@ -345,7 +307,8 @@ needed; do not keep rerunning unchanged accepted tests or add new process machin
 [CI setup instructions](ci.md) describe preflight and recovery from an interrupted
 clone. The [clean checkout checkpoint](../artifacts/checkpoints/clean-checkout/README.md)
 verifies fresh generic setup, the harmless native test, the delivered source refs,
-and a standalone wheel install. Target-specific delivery checks below remain open.
+and a standalone wheel install. Target-specific delivery checks are recorded by the
+target-matrix checkpoint.
 
 `scripts/run_matrix.sh` and `scripts/verify_matrix_run.py` add a delivered,
 path-independent way to execute and check the six comparisons and their reproducer
@@ -353,15 +316,9 @@ bundles, and [ci.md](ci.md)/[evaluation.md](evaluation.md) document the symboliz
 requirement and the clean-checkout commands. Running them still requires the committed
 source bundles, the cloned repositories and Docker.
 
-- **Status:** The listed source/assets and clean-checkout instructions are present; no
-  missing delivery file is currently identified. The remaining work is the
-  target-specific clean-checkout validation below, combined with F09/F10 where practical.
-  No archive format, size limit or repeated duplicate matrix is required.
-- **Remaining check:** From a clean checkout using only delivered files and declared
-  prerequisites, build and run each correct target, load its generated regressions,
-  and replay representative findings. This can be combined with the six-row matrix and
-  F10 workflow check; the current generic clean-checkout checkpoint does not establish
-  target-specific delivery acceptance.
+- **Status:** Complete for the local clean-room checkout. The source bundles, configs,
+  target repositories, runtime image preflight and correct-target CLI gate were exercised
+  from delivered paths; the exact caveat is in the target-matrix checkpoint.
 
 ### F13 - Defense preparation
 

@@ -1,1 +1,59 @@
 Validating zlib-cve-2018-25032: 88fb854d1514 -> 73baa13a5ce1
+FUNC_REGRESSION (exit 20); 144 suite executions
+Security: PASS; functional: FAIL; analysis: complete
+Hardening (release) base: NX=True PIE=True RELRO=partial canary=False
+Hardening (release) patch: NX=True PIE=True RELRO=partial canary=False
+  base/release: sanitizer symbols=none observed; FORTIFY symbol candidates=0; symbol tables=.dynsym,.symtab
+  base/sanitized: sanitizer symbols=asan,ubsan,lsan; FORTIFY symbol candidates=24; symbol tables=.dynsym,.symtab
+  patch/release: sanitizer symbols=none observed; FORTIFY symbol candidates=0; symbol tables=.dynsym,.symtab
+  patch/sanitized: sanitizer symbols=asan,ubsan,lsan; FORTIFY symbol candidates=24; symbol tables=.dynsym,.symtab
+  Functional Regression: valid/valid_large.txt [release] - none
+    detection: none; correlation: Inconclusive; stable: True
+    Independent expected behavior passed on baseline and failed on patch
+    minimized input: reproducers/e05f27b8c420e138ddad/minimized.input
+  Functional Regression: valid/valid_large.txt [sanitized] - none
+    detection: none; correlation: Inconclusive; stable: True
+    Independent expected behavior passed on baseline and failed on patch
+    minimized input: reproducers/18cd7f4fdbfba57c896f/minimized.input
+  Fixed: malicious/cve_2018_25032.input [sanitized] - out-of-bounds
+    detection: UndefinedBehaviorSanitizer; correlation: Edited function on observed stack; stable: True
+    Baseline diagnostic absent in corresponding patch replays within this suite
+    minimized input: reproducers/366341994f277a0cdf94/minimized.input
+  Fixed: malicious/cve_2018_25032_bypass.input [sanitized] - out-of-bounds
+    detection: UndefinedBehaviorSanitizer; correlation: Edited function on observed stack; stable: True
+    Baseline diagnostic absent in corresponding patch replays within this suite
+    minimized input: reproducers/10afaa1b36e110f955b6/minimized.input
+  Fixed: regression/4b905826bb639d67e11a2b0aa2b7aae8a91f1d528e390e04730fb682cffe4c95 [sanitized] - out-of-bounds
+    detection: UndefinedBehaviorSanitizer; correlation: Edited function on observed stack; stable: True
+    Baseline diagnostic absent in corresponding patch replays within this suite
+    minimized input: reproducers/c096d0a193e7da16203c/minimized.input
+  Fixed: regression/533609f36db8336c36255e0f4a97624621afe93ebba4349c80a3c650f518d139 [sanitized] - out-of-bounds
+    detection: UndefinedBehaviorSanitizer; correlation: Edited function on observed stack; stable: True
+    Baseline diagnostic absent in corresponding patch replays within this suite
+    minimized input: reproducers/e07e34e5b6f25f879257/minimized.input
+  Functional Regression: regression/5e2c902ef2a14d55f97fa26acaa8b0d84f6cb4eab96430809f77ba3fa0045831 [release] - none
+    detection: none; correlation: Inconclusive; stable: True
+    Independent expected behavior passed on baseline and failed on patch
+    minimized input: reproducers/87838347835f299e659a/minimized.input
+  Functional Regression: regression/5e2c902ef2a14d55f97fa26acaa8b0d84f6cb4eab96430809f77ba3fa0045831 [sanitized] - none
+    detection: none; correlation: Inconclusive; stable: True
+    Independent expected behavior passed on baseline and failed on patch
+    minimized input: reproducers/9739e98bc80df88080fe/minimized.input
+  Fixed: regression/7c2328b634e431ba1384cf482081177cbf34eab62de1952b1c2893808309b404 [sanitized] - out-of-bounds
+    detection: UndefinedBehaviorSanitizer; correlation: Edited function on observed stack; stable: True
+    Baseline diagnostic absent in corresponding patch replays within this suite
+    minimized input: reproducers/d60941f22695b19241af/minimized.input
+  Fixed: regression/b697feb0cb1ce7bab6717c4faa5d1d76b2c1ed3351b5cd8c3b8792ca4a793324 [sanitized] - out-of-bounds
+    detection: UndefinedBehaviorSanitizer; correlation: Edited function on observed stack; stable: True
+    Baseline diagnostic absent in corresponding patch replays within this suite
+    minimized input: reproducers/3c7172cc2e257430a623/minimized.input
+  Functional Regression: regression/f58e94adc1e87425523cb461f0f50088f7677390c2e766c51416788b0684d0dc [release] - none
+    detection: none; correlation: Inconclusive; stable: True
+    Independent expected behavior passed on baseline and failed on patch
+    minimized input: reproducers/6a5ebb95d0229cc002f8/minimized.input
+  Functional Regression: regression/f58e94adc1e87425523cb461f0f50088f7677390c2e766c51416788b0684d0dc [sanitized] - none
+    detection: none; correlation: Inconclusive; stable: True
+    Independent expected behavior passed on baseline and failed on patch
+    minimized input: reproducers/c4b2fc26043852f6962e/minimized.input
+Evidence directory: /tmp/diffsheriff-eval-20261118/artifacts/evaluation/target1/regression/runs/run-w96djqxg
+Report: artifacts/evaluation/target1/regression/report.json

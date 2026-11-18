@@ -1,0 +1,1066 @@
+{
+  "case": "malicious/cve_2018_25032.input",
+  "mode": "sanitized",
+  "finding_side": "base",
+  "signature": {
+    "error_type": "out-of-bounds",
+    "file": "trees.c",
+    "function": "compress_block",
+    "line": 1092
+  },
+  "kind": "security",
+  "functional_mismatch": [],
+  "original_sha256": "3b27a98edd2f3f580033f9add11d3469d7808c969a1128ee00c18ac7a12cef57",
+  "minimized_sha256": "053f04cef03673a9efb7dbee3777259807b22963861997210b8e2573991a7ad0",
+  "expected": {
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "original_expected": {
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "valid_input": true,
+  "original_valid_input": true,
+  "regression_input": "minimized.input",
+  "diagnostic_only": false,
+  "settings": {
+    "timeout_seconds": 5,
+    "input_method": "file",
+    "file_argument_flag": "--file",
+    "fixed_arguments": [],
+    "environment_variables": {
+      "HTTP_PROXY": "",
+      "HTTPS_PROXY": "",
+      "ALL_PROXY": "",
+      "NO_PROXY": "",
+      "http_proxy": "",
+      "https_proxy": "",
+      "all_proxy": "",
+      "no_proxy": "",
+      "ASAN_OPTIONS": "detect_leaks=0:abort_on_error=1:symbolize=1:external_symbolizer_path=/usr/bin/llvm-symbolizer",
+      "UBSAN_OPTIONS": "print_stacktrace=1:halt_on_error=1:external_symbolizer_path=/usr/bin/llvm-symbolizer"
+    },
+    "image": "sha256:a82a5b7e8a58caea82cc8fa066b656fc96c9b4ec4f4b8a9f4fe11d080e8f65c1",
+    "memory_mb": 2048,
+    "cpus": 2,
+    "pids_limit": 128,
+    "output_limit_bytes": 1048576
+  },
+  "runs": {
+    "base": [
+      {
+        "execution": {
+          "exit_code": -6,
+          "stdout": "",
+          "stderr": "trees.c:1092:20: runtime error: index 687 out of bounds for type 'const uch[512]' (aka 'const unsigned char[512]')\n    #0 0x55c34dcaea1f in compress_block /src/trees.c:1092:20\n    #1 0x55c34dca232e in _tr_flush_block /src/trees.c\n    #2 0x55c34dc53117 in deflate_slow /src/deflate.c:2056:9\n    #3 0x55c34dc3051e in deflate /src/deflate.c:1008:18\n    #4 0x55c34dc18c4b in main /src/driver/zlib_driver.c:74:11\n    #5 0x7f37d28f21c9  (/lib/x86_64-linux-gnu/libc.so.6+0x2a1c9) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #6 0x7f37d28f228a in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x2a28a) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #7 0x55c34db3f3a4 in _start (/src/driver_sanitized+0x883a4) (BuildId: 4936b354b5163f2967de3965d57a241d180e7e61)\n\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior trees.c:1092:20 \n",
+          "timed_out": false,
+          "output_limited": false,
+          "resource_limited": false,
+          "command": [
+            "/src/driver_sanitized",
+            "--file",
+            "/input"
+          ],
+          "container_state": {
+            "Status": "exited",
+            "Running": false,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 0,
+            "ExitCode": 0,
+            "Error": "",
+            "StartedAt": "2026-11-18T20:36:03.675677863Z",
+            "FinishedAt": "2026-11-18T20:36:04.67785814Z"
+          }
+        },
+        "triage": {
+          "is_crash": true,
+          "error_type": "out-of-bounds",
+          "detection_mechanism": "UndefinedBehaviorSanitizer",
+          "exit_code": -6,
+          "signal_name": "SIGABRT",
+          "stack_trace": [
+            {
+              "index": 0,
+              "address": "0x55c34dcaea1f",
+              "function": "compress_block",
+              "file": "/src/trees.c",
+              "line": 1092
+            },
+            {
+              "index": 2,
+              "address": "0x55c34dc53117",
+              "function": "deflate_slow",
+              "file": "/src/deflate.c",
+              "line": 2056
+            },
+            {
+              "index": 3,
+              "address": "0x55c34dc3051e",
+              "function": "deflate",
+              "file": "/src/deflate.c",
+              "line": 1008
+            },
+            {
+              "index": 4,
+              "address": "0x55c34dc18c4b",
+              "function": "main",
+              "file": "/src/driver/zlib_driver.c",
+              "line": 74
+            }
+          ],
+          "raw_stdout": "",
+          "raw_stderr": "trees.c:1092:20: runtime error: index 687 out of bounds for type 'const uch[512]' (aka 'const unsigned char[512]')\n    #0 0x55c34dcaea1f in compress_block /src/trees.c:1092:20\n    #1 0x55c34dca232e in _tr_flush_block /src/trees.c\n    #2 0x55c34dc53117 in deflate_slow /src/deflate.c:2056:9\n    #3 0x55c34dc3051e in deflate /src/deflate.c:1008:18\n    #4 0x55c34dc18c4b in main /src/driver/zlib_driver.c:74:11\n    #5 0x7f37d28f21c9  (/lib/x86_64-linux-gnu/libc.so.6+0x2a1c9) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #6 0x7f37d28f228a in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x2a28a) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #7 0x55c34db3f3a4 in _start (/src/driver_sanitized+0x883a4) (BuildId: 4936b354b5163f2967de3965d57a241d180e7e61)\n\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior trees.c:1092:20 \n",
+          "symbolizer_failed": false,
+          "unsymbolized_frames": 1
+        },
+        "signature": {
+          "error_type": "out-of-bounds",
+          "file": "trees.c",
+          "function": "compress_block",
+          "line": 1092
+        },
+        "correlation": {
+          "is_correlated": true,
+          "correlation_type": "Edited function on observed stack",
+          "matched_file": "trees.c",
+          "matched_line": 1092,
+          "matched_frame": {
+            "index": 0,
+            "address": "0x55c34dcaea1f",
+            "function": "compress_block",
+            "file": "/src/trees.c",
+            "line": 1092
+          },
+          "hunk": null,
+          "reason": "The top runtime frame is an edited function; lower edited stack functions are callers, so this supports a stack-level relation without selecting a single hunk or claiming branch execution."
+        }
+      },
+      {
+        "execution": {
+          "exit_code": -6,
+          "stdout": "",
+          "stderr": "trees.c:1092:20: runtime error: index 687 out of bounds for type 'const uch[512]' (aka 'const unsigned char[512]')\n    #0 0x557dfb7e5a1f in compress_block /src/trees.c:1092:20\n    #1 0x557dfb7d932e in _tr_flush_block /src/trees.c\n    #2 0x557dfb78a117 in deflate_slow /src/deflate.c:2056:9\n    #3 0x557dfb76751e in deflate /src/deflate.c:1008:18\n    #4 0x557dfb74fc4b in main /src/driver/zlib_driver.c:74:11\n    #5 0x7f54be0851c9  (/lib/x86_64-linux-gnu/libc.so.6+0x2a1c9) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #6 0x7f54be08528a in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x2a28a) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #7 0x557dfb6763a4 in _start (/src/driver_sanitized+0x883a4) (BuildId: 4936b354b5163f2967de3965d57a241d180e7e61)\n\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior trees.c:1092:20 \n",
+          "timed_out": false,
+          "output_limited": false,
+          "resource_limited": false,
+          "command": [
+            "/src/driver_sanitized",
+            "--file",
+            "/input"
+          ],
+          "container_state": {
+            "Status": "exited",
+            "Running": false,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 0,
+            "ExitCode": 0,
+            "Error": "",
+            "StartedAt": "2026-11-18T20:36:05.094058016Z",
+            "FinishedAt": "2026-11-18T20:36:06.14460793Z"
+          }
+        },
+        "triage": {
+          "is_crash": true,
+          "error_type": "out-of-bounds",
+          "detection_mechanism": "UndefinedBehaviorSanitizer",
+          "exit_code": -6,
+          "signal_name": "SIGABRT",
+          "stack_trace": [
+            {
+              "index": 0,
+              "address": "0x557dfb7e5a1f",
+              "function": "compress_block",
+              "file": "/src/trees.c",
+              "line": 1092
+            },
+            {
+              "index": 2,
+              "address": "0x557dfb78a117",
+              "function": "deflate_slow",
+              "file": "/src/deflate.c",
+              "line": 2056
+            },
+            {
+              "index": 3,
+              "address": "0x557dfb76751e",
+              "function": "deflate",
+              "file": "/src/deflate.c",
+              "line": 1008
+            },
+            {
+              "index": 4,
+              "address": "0x557dfb74fc4b",
+              "function": "main",
+              "file": "/src/driver/zlib_driver.c",
+              "line": 74
+            }
+          ],
+          "raw_stdout": "",
+          "raw_stderr": "trees.c:1092:20: runtime error: index 687 out of bounds for type 'const uch[512]' (aka 'const unsigned char[512]')\n    #0 0x557dfb7e5a1f in compress_block /src/trees.c:1092:20\n    #1 0x557dfb7d932e in _tr_flush_block /src/trees.c\n    #2 0x557dfb78a117 in deflate_slow /src/deflate.c:2056:9\n    #3 0x557dfb76751e in deflate /src/deflate.c:1008:18\n    #4 0x557dfb74fc4b in main /src/driver/zlib_driver.c:74:11\n    #5 0x7f54be0851c9  (/lib/x86_64-linux-gnu/libc.so.6+0x2a1c9) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #6 0x7f54be08528a in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x2a28a) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #7 0x557dfb6763a4 in _start (/src/driver_sanitized+0x883a4) (BuildId: 4936b354b5163f2967de3965d57a241d180e7e61)\n\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior trees.c:1092:20 \n",
+          "symbolizer_failed": false,
+          "unsymbolized_frames": 1
+        },
+        "signature": {
+          "error_type": "out-of-bounds",
+          "file": "trees.c",
+          "function": "compress_block",
+          "line": 1092
+        },
+        "correlation": {
+          "is_correlated": true,
+          "correlation_type": "Edited function on observed stack",
+          "matched_file": "trees.c",
+          "matched_line": 1092,
+          "matched_frame": {
+            "index": 0,
+            "address": "0x557dfb7e5a1f",
+            "function": "compress_block",
+            "file": "/src/trees.c",
+            "line": 1092
+          },
+          "hunk": null,
+          "reason": "The top runtime frame is an edited function; lower edited stack functions are callers, so this supports a stack-level relation without selecting a single hunk or claiming branch execution."
+        }
+      },
+      {
+        "execution": {
+          "exit_code": -6,
+          "stdout": "",
+          "stderr": "trees.c:1092:20: runtime error: index 687 out of bounds for type 'const uch[512]' (aka 'const unsigned char[512]')\n    #0 0x555d940eba1f in compress_block /src/trees.c:1092:20\n    #1 0x555d940df32e in _tr_flush_block /src/trees.c\n    #2 0x555d94090117 in deflate_slow /src/deflate.c:2056:9\n    #3 0x555d9406d51e in deflate /src/deflate.c:1008:18\n    #4 0x555d94055c4b in main /src/driver/zlib_driver.c:74:11\n    #5 0x7ffa121e81c9  (/lib/x86_64-linux-gnu/libc.so.6+0x2a1c9) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #6 0x7ffa121e828a in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x2a28a) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #7 0x555d93f7c3a4 in _start (/src/driver_sanitized+0x883a4) (BuildId: 4936b354b5163f2967de3965d57a241d180e7e61)\n\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior trees.c:1092:20 \n",
+          "timed_out": false,
+          "output_limited": false,
+          "resource_limited": false,
+          "command": [
+            "/src/driver_sanitized",
+            "--file",
+            "/input"
+          ],
+          "container_state": {
+            "Status": "exited",
+            "Running": false,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 0,
+            "ExitCode": 0,
+            "Error": "",
+            "StartedAt": "2026-11-18T20:36:06.550392795Z",
+            "FinishedAt": "2026-11-18T20:36:07.61062199Z"
+          }
+        },
+        "triage": {
+          "is_crash": true,
+          "error_type": "out-of-bounds",
+          "detection_mechanism": "UndefinedBehaviorSanitizer",
+          "exit_code": -6,
+          "signal_name": "SIGABRT",
+          "stack_trace": [
+            {
+              "index": 0,
+              "address": "0x555d940eba1f",
+              "function": "compress_block",
+              "file": "/src/trees.c",
+              "line": 1092
+            },
+            {
+              "index": 2,
+              "address": "0x555d94090117",
+              "function": "deflate_slow",
+              "file": "/src/deflate.c",
+              "line": 2056
+            },
+            {
+              "index": 3,
+              "address": "0x555d9406d51e",
+              "function": "deflate",
+              "file": "/src/deflate.c",
+              "line": 1008
+            },
+            {
+              "index": 4,
+              "address": "0x555d94055c4b",
+              "function": "main",
+              "file": "/src/driver/zlib_driver.c",
+              "line": 74
+            }
+          ],
+          "raw_stdout": "",
+          "raw_stderr": "trees.c:1092:20: runtime error: index 687 out of bounds for type 'const uch[512]' (aka 'const unsigned char[512]')\n    #0 0x555d940eba1f in compress_block /src/trees.c:1092:20\n    #1 0x555d940df32e in _tr_flush_block /src/trees.c\n    #2 0x555d94090117 in deflate_slow /src/deflate.c:2056:9\n    #3 0x555d9406d51e in deflate /src/deflate.c:1008:18\n    #4 0x555d94055c4b in main /src/driver/zlib_driver.c:74:11\n    #5 0x7ffa121e81c9  (/lib/x86_64-linux-gnu/libc.so.6+0x2a1c9) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #6 0x7ffa121e828a in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x2a28a) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #7 0x555d93f7c3a4 in _start (/src/driver_sanitized+0x883a4) (BuildId: 4936b354b5163f2967de3965d57a241d180e7e61)\n\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior trees.c:1092:20 \n",
+          "symbolizer_failed": false,
+          "unsymbolized_frames": 1
+        },
+        "signature": {
+          "error_type": "out-of-bounds",
+          "file": "trees.c",
+          "function": "compress_block",
+          "line": 1092
+        },
+        "correlation": {
+          "is_correlated": true,
+          "correlation_type": "Edited function on observed stack",
+          "matched_file": "trees.c",
+          "matched_line": 1092,
+          "matched_frame": {
+            "index": 0,
+            "address": "0x555d940eba1f",
+            "function": "compress_block",
+            "file": "/src/trees.c",
+            "line": 1092
+          },
+          "hunk": null,
+          "reason": "The top runtime frame is an edited function; lower edited stack functions are callers, so this supports a stack-level relation without selecting a single hunk or claiming branch execution."
+        }
+      }
+    ],
+    "patch": [
+      {
+        "execution": {
+          "exit_code": 0,
+          "stdout": "",
+          "stderr": "",
+          "timed_out": false,
+          "output_limited": false,
+          "resource_limited": false,
+          "command": [
+            "/src/driver_sanitized",
+            "--file",
+            "/input"
+          ],
+          "container_state": {
+            "Status": "exited",
+            "Running": false,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 0,
+            "ExitCode": 0,
+            "Error": "",
+            "StartedAt": "2026-11-18T20:36:08.040554829Z",
+            "FinishedAt": "2026-11-18T20:36:08.134188695Z"
+          }
+        },
+        "triage": {
+          "is_crash": false,
+          "error_type": "none",
+          "detection_mechanism": "none",
+          "exit_code": 0,
+          "signal_name": null,
+          "stack_trace": [],
+          "raw_stdout": "",
+          "raw_stderr": "",
+          "symbolizer_failed": false,
+          "unsymbolized_frames": 0
+        },
+        "signature": null,
+        "correlation": {
+          "is_correlated": false,
+          "correlation_type": "Inconclusive",
+          "matched_file": null,
+          "matched_line": null,
+          "matched_frame": null,
+          "hunk": null,
+          "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+        }
+      },
+      {
+        "execution": {
+          "exit_code": 0,
+          "stdout": "",
+          "stderr": "",
+          "timed_out": false,
+          "output_limited": false,
+          "resource_limited": false,
+          "command": [
+            "/src/driver_sanitized",
+            "--file",
+            "/input"
+          ],
+          "container_state": {
+            "Status": "exited",
+            "Running": false,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 0,
+            "ExitCode": 0,
+            "Error": "",
+            "StartedAt": "2026-11-18T20:36:08.633492925Z",
+            "FinishedAt": "2026-11-18T20:36:08.730493858Z"
+          }
+        },
+        "triage": {
+          "is_crash": false,
+          "error_type": "none",
+          "detection_mechanism": "none",
+          "exit_code": 0,
+          "signal_name": null,
+          "stack_trace": [],
+          "raw_stdout": "",
+          "raw_stderr": "",
+          "symbolizer_failed": false,
+          "unsymbolized_frames": 0
+        },
+        "signature": null,
+        "correlation": {
+          "is_correlated": false,
+          "correlation_type": "Inconclusive",
+          "matched_file": null,
+          "matched_line": null,
+          "matched_frame": null,
+          "hunk": null,
+          "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+        }
+      },
+      {
+        "execution": {
+          "exit_code": 0,
+          "stdout": "",
+          "stderr": "",
+          "timed_out": false,
+          "output_limited": false,
+          "resource_limited": false,
+          "command": [
+            "/src/driver_sanitized",
+            "--file",
+            "/input"
+          ],
+          "container_state": {
+            "Status": "exited",
+            "Running": false,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 0,
+            "ExitCode": 0,
+            "Error": "",
+            "StartedAt": "2026-11-18T20:36:09.118798425Z",
+            "FinishedAt": "2026-11-18T20:36:09.211767726Z"
+          }
+        },
+        "triage": {
+          "is_crash": false,
+          "error_type": "none",
+          "detection_mechanism": "none",
+          "exit_code": 0,
+          "signal_name": null,
+          "stack_trace": [],
+          "raw_stdout": "",
+          "raw_stderr": "",
+          "symbolizer_failed": false,
+          "unsymbolized_frames": 0
+        },
+        "signature": null,
+        "correlation": {
+          "is_correlated": false,
+          "correlation_type": "Inconclusive",
+          "matched_file": null,
+          "matched_line": null,
+          "matched_frame": null,
+          "hunk": null,
+          "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+        }
+      }
+    ]
+  },
+  "minimization_log": [
+    {
+      "input_sha256": "3b27a98edd2f3f580033f9add11d3469d7808c969a1128ee00c18ac7a12cef57",
+      "observations": [
+        {
+          "execution": {
+            "exit_code": -6,
+            "stdout": "",
+            "stderr": "trees.c:1092:20: runtime error: index 734 out of bounds for type 'const uch[512]' (aka 'const unsigned char[512]')\n    #0 0x55556c789a1f in compress_block /src/trees.c:1092:20\n    #1 0x55556c77d32e in _tr_flush_block /src/trees.c\n    #2 0x55556c72a915 in deflate_slow /src/deflate.c:2024:25\n    #3 0x55556c70b51e in deflate /src/deflate.c:1008:18\n    #4 0x55556c6f3c4b in main /src/driver/zlib_driver.c:74:11\n    #5 0x7fce8b6351c9  (/lib/x86_64-linux-gnu/libc.so.6+0x2a1c9) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #6 0x7fce8b63528a in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x2a28a) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #7 0x55556c61a3a4 in _start (/src/driver_sanitized+0x883a4) (BuildId: 4936b354b5163f2967de3965d57a241d180e7e61)\n\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior trees.c:1092:20 \n",
+            "timed_out": false,
+            "output_limited": false,
+            "resource_limited": false,
+            "command": [
+              "/src/driver_sanitized",
+              "--file",
+              "/input"
+            ],
+            "container_state": {
+              "Status": "exited",
+              "Running": false,
+              "Paused": false,
+              "Restarting": false,
+              "OOMKilled": false,
+              "Dead": false,
+              "Pid": 0,
+              "ExitCode": 0,
+              "Error": "",
+              "StartedAt": "2026-11-18T20:35:40.40994317Z",
+              "FinishedAt": "2026-11-18T20:35:41.490739795Z"
+            }
+          },
+          "triage": {
+            "is_crash": true,
+            "error_type": "out-of-bounds",
+            "detection_mechanism": "UndefinedBehaviorSanitizer",
+            "exit_code": -6,
+            "signal_name": "SIGABRT",
+            "stack_trace": [
+              {
+                "index": 0,
+                "address": "0x55556c789a1f",
+                "function": "compress_block",
+                "file": "/src/trees.c",
+                "line": 1092
+              },
+              {
+                "index": 2,
+                "address": "0x55556c72a915",
+                "function": "deflate_slow",
+                "file": "/src/deflate.c",
+                "line": 2024
+              },
+              {
+                "index": 3,
+                "address": "0x55556c70b51e",
+                "function": "deflate",
+                "file": "/src/deflate.c",
+                "line": 1008
+              },
+              {
+                "index": 4,
+                "address": "0x55556c6f3c4b",
+                "function": "main",
+                "file": "/src/driver/zlib_driver.c",
+                "line": 74
+              }
+            ],
+            "raw_stdout": "",
+            "raw_stderr": "trees.c:1092:20: runtime error: index 734 out of bounds for type 'const uch[512]' (aka 'const unsigned char[512]')\n    #0 0x55556c789a1f in compress_block /src/trees.c:1092:20\n    #1 0x55556c77d32e in _tr_flush_block /src/trees.c\n    #2 0x55556c72a915 in deflate_slow /src/deflate.c:2024:25\n    #3 0x55556c70b51e in deflate /src/deflate.c:1008:18\n    #4 0x55556c6f3c4b in main /src/driver/zlib_driver.c:74:11\n    #5 0x7fce8b6351c9  (/lib/x86_64-linux-gnu/libc.so.6+0x2a1c9) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #6 0x7fce8b63528a in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x2a28a) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #7 0x55556c61a3a4 in _start (/src/driver_sanitized+0x883a4) (BuildId: 4936b354b5163f2967de3965d57a241d180e7e61)\n\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior trees.c:1092:20 \n",
+            "symbolizer_failed": false,
+            "unsymbolized_frames": 1
+          },
+          "signature": {
+            "error_type": "out-of-bounds",
+            "file": "trees.c",
+            "function": "compress_block",
+            "line": 1092
+          },
+          "correlation": {
+            "is_correlated": true,
+            "correlation_type": "Edited function on observed stack",
+            "matched_file": "trees.c",
+            "matched_line": 1092,
+            "matched_frame": {
+              "index": 0,
+              "address": "0x55556c789a1f",
+              "function": "compress_block",
+              "file": "/src/trees.c",
+              "line": 1092
+            },
+            "hunk": null,
+            "reason": "The top runtime frame is an edited function; lower edited stack functions are callers, so this supports a stack-level relation without selecting a single hunk or claiming branch execution."
+          }
+        },
+        {
+          "execution": {
+            "exit_code": -6,
+            "stdout": "",
+            "stderr": "trees.c:1092:20: runtime error: index 734 out of bounds for type 'const uch[512]' (aka 'const unsigned char[512]')\n    #0 0x556b6af4ca1f in compress_block /src/trees.c:1092:20\n    #1 0x556b6af4032e in _tr_flush_block /src/trees.c\n    #2 0x556b6aeed915 in deflate_slow /src/deflate.c:2024:25\n    #3 0x556b6aece51e in deflate /src/deflate.c:1008:18\n    #4 0x556b6aeb6c4b in main /src/driver/zlib_driver.c:74:11\n    #5 0x7f5078baa1c9  (/lib/x86_64-linux-gnu/libc.so.6+0x2a1c9) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #6 0x7f5078baa28a in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x2a28a) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #7 0x556b6addd3a4 in _start (/src/driver_sanitized+0x883a4) (BuildId: 4936b354b5163f2967de3965d57a241d180e7e61)\n\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior trees.c:1092:20 \n",
+            "timed_out": false,
+            "output_limited": false,
+            "resource_limited": false,
+            "command": [
+              "/src/driver_sanitized",
+              "--file",
+              "/input"
+            ],
+            "container_state": {
+              "Status": "exited",
+              "Running": false,
+              "Paused": false,
+              "Restarting": false,
+              "OOMKilled": false,
+              "Dead": false,
+              "Pid": 0,
+              "ExitCode": 0,
+              "Error": "",
+              "StartedAt": "2026-11-18T20:35:41.992892477Z",
+              "FinishedAt": "2026-11-18T20:35:42.881432032Z"
+            }
+          },
+          "triage": {
+            "is_crash": true,
+            "error_type": "out-of-bounds",
+            "detection_mechanism": "UndefinedBehaviorSanitizer",
+            "exit_code": -6,
+            "signal_name": "SIGABRT",
+            "stack_trace": [
+              {
+                "index": 0,
+                "address": "0x556b6af4ca1f",
+                "function": "compress_block",
+                "file": "/src/trees.c",
+                "line": 1092
+              },
+              {
+                "index": 2,
+                "address": "0x556b6aeed915",
+                "function": "deflate_slow",
+                "file": "/src/deflate.c",
+                "line": 2024
+              },
+              {
+                "index": 3,
+                "address": "0x556b6aece51e",
+                "function": "deflate",
+                "file": "/src/deflate.c",
+                "line": 1008
+              },
+              {
+                "index": 4,
+                "address": "0x556b6aeb6c4b",
+                "function": "main",
+                "file": "/src/driver/zlib_driver.c",
+                "line": 74
+              }
+            ],
+            "raw_stdout": "",
+            "raw_stderr": "trees.c:1092:20: runtime error: index 734 out of bounds for type 'const uch[512]' (aka 'const unsigned char[512]')\n    #0 0x556b6af4ca1f in compress_block /src/trees.c:1092:20\n    #1 0x556b6af4032e in _tr_flush_block /src/trees.c\n    #2 0x556b6aeed915 in deflate_slow /src/deflate.c:2024:25\n    #3 0x556b6aece51e in deflate /src/deflate.c:1008:18\n    #4 0x556b6aeb6c4b in main /src/driver/zlib_driver.c:74:11\n    #5 0x7f5078baa1c9  (/lib/x86_64-linux-gnu/libc.so.6+0x2a1c9) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #6 0x7f5078baa28a in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x2a28a) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #7 0x556b6addd3a4 in _start (/src/driver_sanitized+0x883a4) (BuildId: 4936b354b5163f2967de3965d57a241d180e7e61)\n\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior trees.c:1092:20 \n",
+            "symbolizer_failed": false,
+            "unsymbolized_frames": 1
+          },
+          "signature": {
+            "error_type": "out-of-bounds",
+            "file": "trees.c",
+            "function": "compress_block",
+            "line": 1092
+          },
+          "correlation": {
+            "is_correlated": true,
+            "correlation_type": "Edited function on observed stack",
+            "matched_file": "trees.c",
+            "matched_line": 1092,
+            "matched_frame": {
+              "index": 0,
+              "address": "0x556b6af4ca1f",
+              "function": "compress_block",
+              "file": "/src/trees.c",
+              "line": 1092
+            },
+            "hunk": null,
+            "reason": "The top runtime frame is an edited function; lower edited stack functions are callers, so this supports a stack-level relation without selecting a single hunk or claiming branch execution."
+          }
+        },
+        {
+          "execution": {
+            "exit_code": -6,
+            "stdout": "",
+            "stderr": "trees.c:1092:20: runtime error: index 734 out of bounds for type 'const uch[512]' (aka 'const unsigned char[512]')\n    #0 0x55599e9c2a1f in compress_block /src/trees.c:1092:20\n    #1 0x55599e9b632e in _tr_flush_block /src/trees.c\n    #2 0x55599e963915 in deflate_slow /src/deflate.c:2024:25\n    #3 0x55599e94451e in deflate /src/deflate.c:1008:18\n    #4 0x55599e92cc4b in main /src/driver/zlib_driver.c:74:11\n    #5 0x7f64134731c9  (/lib/x86_64-linux-gnu/libc.so.6+0x2a1c9) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #6 0x7f641347328a in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x2a28a) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #7 0x55599e8533a4 in _start (/src/driver_sanitized+0x883a4) (BuildId: 4936b354b5163f2967de3965d57a241d180e7e61)\n\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior trees.c:1092:20 \n",
+            "timed_out": false,
+            "output_limited": false,
+            "resource_limited": false,
+            "command": [
+              "/src/driver_sanitized",
+              "--file",
+              "/input"
+            ],
+            "container_state": {
+              "Status": "exited",
+              "Running": false,
+              "Paused": false,
+              "Restarting": false,
+              "OOMKilled": false,
+              "Dead": false,
+              "Pid": 0,
+              "ExitCode": 0,
+              "Error": "",
+              "StartedAt": "2026-11-18T20:35:43.372413291Z",
+              "FinishedAt": "2026-11-18T20:35:44.130940993Z"
+            }
+          },
+          "triage": {
+            "is_crash": true,
+            "error_type": "out-of-bounds",
+            "detection_mechanism": "UndefinedBehaviorSanitizer",
+            "exit_code": -6,
+            "signal_name": "SIGABRT",
+            "stack_trace": [
+              {
+                "index": 0,
+                "address": "0x55599e9c2a1f",
+                "function": "compress_block",
+                "file": "/src/trees.c",
+                "line": 1092
+              },
+              {
+                "index": 2,
+                "address": "0x55599e963915",
+                "function": "deflate_slow",
+                "file": "/src/deflate.c",
+                "line": 2024
+              },
+              {
+                "index": 3,
+                "address": "0x55599e94451e",
+                "function": "deflate",
+                "file": "/src/deflate.c",
+                "line": 1008
+              },
+              {
+                "index": 4,
+                "address": "0x55599e92cc4b",
+                "function": "main",
+                "file": "/src/driver/zlib_driver.c",
+                "line": 74
+              }
+            ],
+            "raw_stdout": "",
+            "raw_stderr": "trees.c:1092:20: runtime error: index 734 out of bounds for type 'const uch[512]' (aka 'const unsigned char[512]')\n    #0 0x55599e9c2a1f in compress_block /src/trees.c:1092:20\n    #1 0x55599e9b632e in _tr_flush_block /src/trees.c\n    #2 0x55599e963915 in deflate_slow /src/deflate.c:2024:25\n    #3 0x55599e94451e in deflate /src/deflate.c:1008:18\n    #4 0x55599e92cc4b in main /src/driver/zlib_driver.c:74:11\n    #5 0x7f64134731c9  (/lib/x86_64-linux-gnu/libc.so.6+0x2a1c9) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #6 0x7f641347328a in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x2a28a) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #7 0x55599e8533a4 in _start (/src/driver_sanitized+0x883a4) (BuildId: 4936b354b5163f2967de3965d57a241d180e7e61)\n\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior trees.c:1092:20 \n",
+            "symbolizer_failed": false,
+            "unsymbolized_frames": 1
+          },
+          "signature": {
+            "error_type": "out-of-bounds",
+            "file": "trees.c",
+            "function": "compress_block",
+            "line": 1092
+          },
+          "correlation": {
+            "is_correlated": true,
+            "correlation_type": "Edited function on observed stack",
+            "matched_file": "trees.c",
+            "matched_line": 1092,
+            "matched_frame": {
+              "index": 0,
+              "address": "0x55599e9c2a1f",
+              "function": "compress_block",
+              "file": "/src/trees.c",
+              "line": 1092
+            },
+            "hunk": null,
+            "reason": "The top runtime frame is an edited function; lower edited stack functions are callers, so this supports a stack-level relation without selecting a single hunk or claiming branch execution."
+          }
+        }
+      ]
+    },
+    {
+      "input_sha256": "053f04cef03673a9efb7dbee3777259807b22963861997210b8e2573991a7ad0",
+      "observations": [
+        {
+          "execution": {
+            "exit_code": -6,
+            "stdout": "",
+            "stderr": "trees.c:1092:20: runtime error: index 687 out of bounds for type 'const uch[512]' (aka 'const unsigned char[512]')\n    #0 0x55e2829e9a1f in compress_block /src/trees.c:1092:20\n    #1 0x55e2829dd32e in _tr_flush_block /src/trees.c\n    #2 0x55e28298e117 in deflate_slow /src/deflate.c:2056:9\n    #3 0x55e28296b51e in deflate /src/deflate.c:1008:18\n    #4 0x55e282953c4b in main /src/driver/zlib_driver.c:74:11\n    #5 0x7f8c14bb71c9  (/lib/x86_64-linux-gnu/libc.so.6+0x2a1c9) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #6 0x7f8c14bb728a in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x2a28a) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #7 0x55e28287a3a4 in _start (/src/driver_sanitized+0x883a4) (BuildId: 4936b354b5163f2967de3965d57a241d180e7e61)\n\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior trees.c:1092:20 \n",
+            "timed_out": false,
+            "output_limited": false,
+            "resource_limited": false,
+            "command": [
+              "/src/driver_sanitized",
+              "--file",
+              "/input"
+            ],
+            "container_state": {
+              "Status": "exited",
+              "Running": false,
+              "Paused": false,
+              "Restarting": false,
+              "OOMKilled": false,
+              "Dead": false,
+              "Pid": 0,
+              "ExitCode": 0,
+              "Error": "",
+              "StartedAt": "2026-11-18T20:35:57.029096287Z",
+              "FinishedAt": "2026-11-18T20:35:58.027537966Z"
+            }
+          },
+          "triage": {
+            "is_crash": true,
+            "error_type": "out-of-bounds",
+            "detection_mechanism": "UndefinedBehaviorSanitizer",
+            "exit_code": -6,
+            "signal_name": "SIGABRT",
+            "stack_trace": [
+              {
+                "index": 0,
+                "address": "0x55e2829e9a1f",
+                "function": "compress_block",
+                "file": "/src/trees.c",
+                "line": 1092
+              },
+              {
+                "index": 2,
+                "address": "0x55e28298e117",
+                "function": "deflate_slow",
+                "file": "/src/deflate.c",
+                "line": 2056
+              },
+              {
+                "index": 3,
+                "address": "0x55e28296b51e",
+                "function": "deflate",
+                "file": "/src/deflate.c",
+                "line": 1008
+              },
+              {
+                "index": 4,
+                "address": "0x55e282953c4b",
+                "function": "main",
+                "file": "/src/driver/zlib_driver.c",
+                "line": 74
+              }
+            ],
+            "raw_stdout": "",
+            "raw_stderr": "trees.c:1092:20: runtime error: index 687 out of bounds for type 'const uch[512]' (aka 'const unsigned char[512]')\n    #0 0x55e2829e9a1f in compress_block /src/trees.c:1092:20\n    #1 0x55e2829dd32e in _tr_flush_block /src/trees.c\n    #2 0x55e28298e117 in deflate_slow /src/deflate.c:2056:9\n    #3 0x55e28296b51e in deflate /src/deflate.c:1008:18\n    #4 0x55e282953c4b in main /src/driver/zlib_driver.c:74:11\n    #5 0x7f8c14bb71c9  (/lib/x86_64-linux-gnu/libc.so.6+0x2a1c9) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #6 0x7f8c14bb728a in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x2a28a) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #7 0x55e28287a3a4 in _start (/src/driver_sanitized+0x883a4) (BuildId: 4936b354b5163f2967de3965d57a241d180e7e61)\n\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior trees.c:1092:20 \n",
+            "symbolizer_failed": false,
+            "unsymbolized_frames": 1
+          },
+          "signature": {
+            "error_type": "out-of-bounds",
+            "file": "trees.c",
+            "function": "compress_block",
+            "line": 1092
+          },
+          "correlation": {
+            "is_correlated": true,
+            "correlation_type": "Edited function on observed stack",
+            "matched_file": "trees.c",
+            "matched_line": 1092,
+            "matched_frame": {
+              "index": 0,
+              "address": "0x55e2829e9a1f",
+              "function": "compress_block",
+              "file": "/src/trees.c",
+              "line": 1092
+            },
+            "hunk": null,
+            "reason": "The top runtime frame is an edited function; lower edited stack functions are callers, so this supports a stack-level relation without selecting a single hunk or claiming branch execution."
+          }
+        },
+        {
+          "execution": {
+            "exit_code": -6,
+            "stdout": "",
+            "stderr": "trees.c:1092:20: runtime error: index 687 out of bounds for type 'const uch[512]' (aka 'const unsigned char[512]')\n    #0 0x55cd30247a1f in compress_block /src/trees.c:1092:20\n    #1 0x55cd3023b32e in _tr_flush_block /src/trees.c\n    #2 0x55cd301ec117 in deflate_slow /src/deflate.c:2056:9\n    #3 0x55cd301c951e in deflate /src/deflate.c:1008:18\n    #4 0x55cd301b1c4b in main /src/driver/zlib_driver.c:74:11\n    #5 0x7f8b9f4741c9  (/lib/x86_64-linux-gnu/libc.so.6+0x2a1c9) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #6 0x7f8b9f47428a in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x2a28a) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #7 0x55cd300d83a4 in _start (/src/driver_sanitized+0x883a4) (BuildId: 4936b354b5163f2967de3965d57a241d180e7e61)\n\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior trees.c:1092:20 \n",
+            "timed_out": false,
+            "output_limited": false,
+            "resource_limited": false,
+            "command": [
+              "/src/driver_sanitized",
+              "--file",
+              "/input"
+            ],
+            "container_state": {
+              "Status": "exited",
+              "Running": false,
+              "Paused": false,
+              "Restarting": false,
+              "OOMKilled": false,
+              "Dead": false,
+              "Pid": 0,
+              "ExitCode": 0,
+              "Error": "",
+              "StartedAt": "2026-11-18T20:35:58.554310719Z",
+              "FinishedAt": "2026-11-18T20:35:59.394319661Z"
+            }
+          },
+          "triage": {
+            "is_crash": true,
+            "error_type": "out-of-bounds",
+            "detection_mechanism": "UndefinedBehaviorSanitizer",
+            "exit_code": -6,
+            "signal_name": "SIGABRT",
+            "stack_trace": [
+              {
+                "index": 0,
+                "address": "0x55cd30247a1f",
+                "function": "compress_block",
+                "file": "/src/trees.c",
+                "line": 1092
+              },
+              {
+                "index": 2,
+                "address": "0x55cd301ec117",
+                "function": "deflate_slow",
+                "file": "/src/deflate.c",
+                "line": 2056
+              },
+              {
+                "index": 3,
+                "address": "0x55cd301c951e",
+                "function": "deflate",
+                "file": "/src/deflate.c",
+                "line": 1008
+              },
+              {
+                "index": 4,
+                "address": "0x55cd301b1c4b",
+                "function": "main",
+                "file": "/src/driver/zlib_driver.c",
+                "line": 74
+              }
+            ],
+            "raw_stdout": "",
+            "raw_stderr": "trees.c:1092:20: runtime error: index 687 out of bounds for type 'const uch[512]' (aka 'const unsigned char[512]')\n    #0 0x55cd30247a1f in compress_block /src/trees.c:1092:20\n    #1 0x55cd3023b32e in _tr_flush_block /src/trees.c\n    #2 0x55cd301ec117 in deflate_slow /src/deflate.c:2056:9\n    #3 0x55cd301c951e in deflate /src/deflate.c:1008:18\n    #4 0x55cd301b1c4b in main /src/driver/zlib_driver.c:74:11\n    #5 0x7f8b9f4741c9  (/lib/x86_64-linux-gnu/libc.so.6+0x2a1c9) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #6 0x7f8b9f47428a in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x2a28a) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #7 0x55cd300d83a4 in _start (/src/driver_sanitized+0x883a4) (BuildId: 4936b354b5163f2967de3965d57a241d180e7e61)\n\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior trees.c:1092:20 \n",
+            "symbolizer_failed": false,
+            "unsymbolized_frames": 1
+          },
+          "signature": {
+            "error_type": "out-of-bounds",
+            "file": "trees.c",
+            "function": "compress_block",
+            "line": 1092
+          },
+          "correlation": {
+            "is_correlated": true,
+            "correlation_type": "Edited function on observed stack",
+            "matched_file": "trees.c",
+            "matched_line": 1092,
+            "matched_frame": {
+              "index": 0,
+              "address": "0x55cd30247a1f",
+              "function": "compress_block",
+              "file": "/src/trees.c",
+              "line": 1092
+            },
+            "hunk": null,
+            "reason": "The top runtime frame is an edited function; lower edited stack functions are callers, so this supports a stack-level relation without selecting a single hunk or claiming branch execution."
+          }
+        },
+        {
+          "execution": {
+            "exit_code": -6,
+            "stdout": "",
+            "stderr": "trees.c:1092:20: runtime error: index 687 out of bounds for type 'const uch[512]' (aka 'const unsigned char[512]')\n    #0 0x560e03e07a1f in compress_block /src/trees.c:1092:20\n    #1 0x560e03dfb32e in _tr_flush_block /src/trees.c\n    #2 0x560e03dac117 in deflate_slow /src/deflate.c:2056:9\n    #3 0x560e03d8951e in deflate /src/deflate.c:1008:18\n    #4 0x560e03d71c4b in main /src/driver/zlib_driver.c:74:11\n    #5 0x7fbc0629a1c9  (/lib/x86_64-linux-gnu/libc.so.6+0x2a1c9) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #6 0x7fbc0629a28a in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x2a28a) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #7 0x560e03c983a4 in _start (/src/driver_sanitized+0x883a4) (BuildId: 4936b354b5163f2967de3965d57a241d180e7e61)\n\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior trees.c:1092:20 \n",
+            "timed_out": false,
+            "output_limited": false,
+            "resource_limited": false,
+            "command": [
+              "/src/driver_sanitized",
+              "--file",
+              "/input"
+            ],
+            "container_state": {
+              "Status": "exited",
+              "Running": false,
+              "Paused": false,
+              "Restarting": false,
+              "OOMKilled": false,
+              "Dead": false,
+              "Pid": 0,
+              "ExitCode": 0,
+              "Error": "",
+              "StartedAt": "2026-11-18T20:35:59.856703407Z",
+              "FinishedAt": "2026-11-18T20:36:00.7358947Z"
+            }
+          },
+          "triage": {
+            "is_crash": true,
+            "error_type": "out-of-bounds",
+            "detection_mechanism": "UndefinedBehaviorSanitizer",
+            "exit_code": -6,
+            "signal_name": "SIGABRT",
+            "stack_trace": [
+              {
+                "index": 0,
+                "address": "0x560e03e07a1f",
+                "function": "compress_block",
+                "file": "/src/trees.c",
+                "line": 1092
+              },
+              {
+                "index": 2,
+                "address": "0x560e03dac117",
+                "function": "deflate_slow",
+                "file": "/src/deflate.c",
+                "line": 2056
+              },
+              {
+                "index": 3,
+                "address": "0x560e03d8951e",
+                "function": "deflate",
+                "file": "/src/deflate.c",
+                "line": 1008
+              },
+              {
+                "index": 4,
+                "address": "0x560e03d71c4b",
+                "function": "main",
+                "file": "/src/driver/zlib_driver.c",
+                "line": 74
+              }
+            ],
+            "raw_stdout": "",
+            "raw_stderr": "trees.c:1092:20: runtime error: index 687 out of bounds for type 'const uch[512]' (aka 'const unsigned char[512]')\n    #0 0x560e03e07a1f in compress_block /src/trees.c:1092:20\n    #1 0x560e03dfb32e in _tr_flush_block /src/trees.c\n    #2 0x560e03dac117 in deflate_slow /src/deflate.c:2056:9\n    #3 0x560e03d8951e in deflate /src/deflate.c:1008:18\n    #4 0x560e03d71c4b in main /src/driver/zlib_driver.c:74:11\n    #5 0x7fbc0629a1c9  (/lib/x86_64-linux-gnu/libc.so.6+0x2a1c9) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #6 0x7fbc0629a28a in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x2a28a) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)\n    #7 0x560e03c983a4 in _start (/src/driver_sanitized+0x883a4) (BuildId: 4936b354b5163f2967de3965d57a241d180e7e61)\n\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior trees.c:1092:20 \n",
+            "symbolizer_failed": false,
+            "unsymbolized_frames": 1
+          },
+          "signature": {
+            "error_type": "out-of-bounds",
+            "file": "trees.c",
+            "function": "compress_block",
+            "line": 1092
+          },
+          "correlation": {
+            "is_correlated": true,
+            "correlation_type": "Edited function on observed stack",
+            "matched_file": "trees.c",
+            "matched_line": 1092,
+            "matched_frame": {
+              "index": 0,
+              "address": "0x560e03e07a1f",
+              "function": "compress_block",
+              "file": "/src/trees.c",
+              "line": 1092
+            },
+            "hunk": null,
+            "reason": "The top runtime frame is an edited function; lower edited stack functions are callers, so this supports a stack-level relation without selecting a single hunk or claiming branch execution."
+          }
+        }
+      ]
+    }
+  ],
+  "minimization": {
+    "original_size": 32768,
+    "minimized_size": 28672,
+    "reduced": true,
+    "stop_reason": "oracle_call_limit",
+    "oracle_calls": 32,
+    "max_granularity": 16,
+    "max_oracle_calls": 32,
+    "limit_reached": true
+  },
+  "reproduced": true,
+  "stable": true,
+  "minimization_scope": "reference oracle",
+  "baseline_fail_patch_pass": true,
+  "versions": {
+    "base": "88fb854d151473d88294f56da390408c61be23a8",
+    "patch": "73baa13a5ce13ab49e2b6eb85d2269148b283185"
+  },
+  "artifacts": {
+    "base": {
+      "source": "base/sanitized",
+      "binary": "driver_sanitized",
+      "sha256": "3439f344bc87faa3b0559688c3c73ca03550bc55ef834ca48fc42e2a64c40935"
+    },
+    "patch": {
+      "source": "patch/sanitized",
+      "binary": "driver_sanitized",
+      "sha256": "7c77d4c6c17e751ca92d359fce1e9d543f756407365fa91c5c894c6b7c331893"
+    }
+  },
+  "replay_command": [
+    "python",
+    "-m",
+    "diffsheriff.reproduce",
+    "reproducers/366341994f277a0cdf94"
+  ]
+}

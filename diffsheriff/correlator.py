@@ -163,6 +163,43 @@ def correlate_stack_to_diff(frames, hunks, side="patch"):
             if frame:
                 edit_candidates.append((frame, hunk))
         if len(edit_candidates) > 1:
+            functions = {
+                (source_path(frame.file), frame.function)
+                for frame, _ in edit_candidates
+            }
+            if len(functions) == 1:
+                representative_frame = min(
+                    edit_candidates, key=lambda item: item[0].index
+                )[0]
+                matched_file, _ = next(iter(functions))
+                return CorrelationVerdict(
+                    True,
+                    "Edits in observed function",
+                    matched_file,
+                    representative_frame.line,
+                    representative_frame,
+                    None,
+                    "Multiple edited hunks belong to the same function observed on "
+                    "the baseline stack; this supports a function-level relation "
+                    "without selecting a single hunk or claiming branch execution.",
+                )
+            top_candidates = [
+                (frame, hunk) for frame, hunk in edit_candidates if frame.index == 0
+            ]
+            if top_candidates:
+                representative_frame = top_candidates[0][0]
+                return CorrelationVerdict(
+                    True,
+                    "Edited function on observed stack",
+                    source_path(representative_frame.file),
+                    representative_frame.line,
+                    representative_frame,
+                    None,
+                    "The top runtime frame is an edited function; lower edited "
+                    "stack functions are callers, so this supports a stack-level "
+                    "relation without selecting a single hunk or claiming branch "
+                    "execution.",
+                )
             return CorrelationVerdict(
                 False,
                 "Inconclusive",

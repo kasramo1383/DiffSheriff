@@ -1,0 +1,186 @@
+diff --git a/deflate.c b/deflate.c
+index 425babc..19cba87 100644
+--- a/deflate.c
++++ b/deflate.c
+@@ -258,5 +257,0 @@ int ZEXPORT deflateInit2_(strm, level, method, windowBits, memLevel, strategy,
+-    ushf *overlay;
+-    /* We overlay pending_buf and d_buf+l_buf. This works since the average
+-     * output size for (length,distance) codes is <= 24 bits.
+-     */
+-
+@@ -332,3 +327,41 @@ int ZEXPORT deflateInit2_(strm, level, method, windowBits, memLevel, strategy,
+-    overlay = (ushf *) ZALLOC(strm, s->lit_bufsize, sizeof(ush)+2);
+-    s->pending_buf = (uchf *) overlay;
+-    s->pending_buf_size = (ulg)s->lit_bufsize * (sizeof(ush)+2L);
++    /* We overlay pending_buf and sym_buf. This works since the average size
++     * for length/distance pairs over any compressed block is assured to be 31
++     * bits or less.
++     *
++     * Analysis: The longest fixed codes are a length code of 8 bits plus 5
++     * extra bits, for lengths 131 to 257. The longest fixed distance codes are
++     * 5 bits plus 13 extra bits, for distances 16385 to 32768. The longest
++     * possible fixed-codes length/distance pair is then 31 bits total.
++     *
++     * sym_buf starts one-fourth of the way into pending_buf. So there are
++     * three bytes in sym_buf for every four bytes in pending_buf. Each symbol
++     * in sym_buf is three bytes -- two for the distance and one for the
++     * literal/length. As each symbol is consumed, the pointer to the next
++     * sym_buf value to read moves forward three bytes. From that symbol, up to
++     * 31 bits are written to pending_buf. The closest the written pending_buf
++     * bits gets to the next sym_buf symbol to read is just before the last
++     * code is written. At that time, 31*(n-2) bits have been written, just
++     * after 24*(n-2) bits have been consumed from sym_buf. sym_buf starts at
++     * 8*n bits into pending_buf. (Note that the symbol buffer fills when n-1
++     * symbols are written.) The closest the writing gets to what is unread is
++     * then n+14 bits. Here n is lit_bufsize, which is 16384 by default, and
++     * can range from 128 to 32768.
++     *
++     * Therefore, at a minimum, there are 142 bits of space between what is
++     * written and what is read in the overlain buffers, so the symbols cannot
++     * be overwritten by the compressed data. That space is actually 139 bits,
++     * due to the three-bit fixed-code block header.
++     *
++     * That covers the case where either Z_FIXED is specified, forcing fixed
++     * codes, or when the use of fixed codes is chosen, because that choice
++     * results in a smaller compressed block than dynamic codes. That latter
++     * condition then assures that the above analysis also covers all dynamic
++     * blocks. A dynamic-code block will only be chosen to be emitted if it has
++     * fewer bits than a fixed-code block would for the same set of symbols.
++     * Therefore its average symbol length is assured to be less than 31. So
++     * the compressed data for a dynamic block also cannot overwrite the
++     * symbols from which it is being constructed.
++     */
++
++    s->pending_buf = (uchf *) ZALLOC(strm, s->lit_bufsize, 4);
++    s->pending_buf_size = (ulg)s->lit_bufsize * 4;
+@@ -343,2 +376,6 @@ int ZEXPORT deflateInit2_(strm, level, method, windowBits, memLevel, strategy,
+-    s->d_buf = overlay + s->lit_bufsize/sizeof(ush);
+-    s->l_buf = s->pending_buf + (1+sizeof(ush))*s->lit_bufsize;
++    s->sym_buf = s->pending_buf + s->lit_bufsize;
++    s->sym_end = (s->lit_bufsize - 1) * 3;
++    /* We avoid equality with lit_bufsize*3 because of wraparound at 64K
++     * on 16 bit machines and because stored blocks are restricted to
++     * 64K-1 bytes.
++     */
+@@ -555 +592 @@ int ZEXPORT deflatePrime (strm, bits, value)
+-    if ((Bytef *)(s->d_buf) < s->pending_out + ((Buf_size + 7) >> 3))
++    if (s->sym_buf < s->pending_out + ((Buf_size + 7) >> 3))
+@@ -1116 +1152,0 @@ int ZEXPORT deflateCopy (dest, source)
+-    ushf *overlay;
+@@ -1136,2 +1172 @@ int ZEXPORT deflateCopy (dest, source)
+-    overlay = (ushf *) ZALLOC(dest, ds->lit_bufsize, sizeof(ush)+2);
+-    ds->pending_buf = (uchf *) overlay;
++    ds->pending_buf = (uchf *) ZALLOC(dest, ds->lit_bufsize, 4);
+@@ -1151,2 +1186 @@ int ZEXPORT deflateCopy (dest, source)
+-    ds->d_buf = overlay + ds->lit_bufsize/sizeof(ush);
+-    ds->l_buf = ds->pending_buf + (1+sizeof(ush))*ds->lit_bufsize;
++    ds->sym_buf = ds->pending_buf + ds->lit_bufsize;
+@@ -1928 +1962 @@ local block_state deflate_fast(s, flush)
+-    if (s->last_lit)
++    if (s->sym_next)
+@@ -2059 +2093 @@ local block_state deflate_slow(s, flush)
+-    if (s->last_lit)
++    if (s->sym_next)
+@@ -2134 +2168 @@ local block_state deflate_rle(s, flush)
+-    if (s->last_lit)
++    if (s->sym_next)
+@@ -2173 +2207 @@ local block_state deflate_huff(s, flush)
+-    if (s->last_lit)
++    if (s->sym_next)
+diff --git a/deflate.h b/deflate.h
+index 23ecdd3..d4cf1a9 100644
+--- a/deflate.h
++++ b/deflate.h
+@@ -220 +220 @@ typedef struct internal_state {
+-    uchf *l_buf;          /* buffer for literals or lengths */
++    uchf *sym_buf;        /* buffer for distances and literals/lengths */
+@@ -242,7 +242,2 @@ typedef struct internal_state {
+-    uInt last_lit;      /* running index in l_buf */
+-
+-    ushf *d_buf;
+-    /* Buffer for distances. To simplify the code, d_buf and l_buf have
+-     * the same number of elements. To use different lengths, an extra flag
+-     * array would be necessary.
+-     */
++    uInt sym_next;      /* running index in sym_buf */
++    uInt sym_end;       /* symbol table full when sym_next reaches this */
+@@ -328,2 +323,3 @@ void ZLIB_INTERNAL _tr_stored_block OF((deflate_state *s, charf *buf,
+-    s->d_buf[s->last_lit] = 0; \
+-    s->l_buf[s->last_lit++] = cc; \
++    s->sym_buf[s->sym_next++] = 0; \
++    s->sym_buf[s->sym_next++] = 0; \
++    s->sym_buf[s->sym_next++] = cc; \
+@@ -331 +327 @@ void ZLIB_INTERNAL _tr_stored_block OF((deflate_state *s, charf *buf,
+-    flush = (s->last_lit == s->lit_bufsize-1); \
++    flush = (s->sym_next == s->sym_end); \
+@@ -336,2 +332,3 @@ void ZLIB_INTERNAL _tr_stored_block OF((deflate_state *s, charf *buf,
+-    s->d_buf[s->last_lit] = dist; \
+-    s->l_buf[s->last_lit++] = len; \
++    s->sym_buf[s->sym_next++] = dist; \
++    s->sym_buf[s->sym_next++] = dist >> 8; \
++    s->sym_buf[s->sym_next++] = len; \
+@@ -341 +338 @@ void ZLIB_INTERNAL _tr_stored_block OF((deflate_state *s, charf *buf,
+-    flush = (s->last_lit == s->lit_bufsize-1); \
++    flush = (s->sym_next == s->sym_end); \
+diff --git a/trees.c b/trees.c
+index 4f4a650..decaeb7 100644
+--- a/trees.c
++++ b/trees.c
+@@ -419 +419 @@ local void init_block(s)
+-    s->last_lit = s->matches = 0;
++    s->sym_next = s->matches = 0;
+@@ -951 +951 @@ void ZLIB_INTERNAL _tr_flush_block(s, buf, stored_len, last)
+-                s->last_lit));
++                s->sym_next / 3));
+@@ -1020,2 +1020,3 @@ int ZLIB_INTERNAL _tr_tally (s, dist, lc)
+-    s->d_buf[s->last_lit] = (ush)dist;
+-    s->l_buf[s->last_lit++] = (uch)lc;
++    s->sym_buf[s->sym_next++] = dist;
++    s->sym_buf[s->sym_next++] = dist >> 8;
++    s->sym_buf[s->sym_next++] = lc;
+@@ -1036,24 +1037 @@ int ZLIB_INTERNAL _tr_tally (s, dist, lc)
+-
+-#ifdef TRUNCATE_BLOCK
+-    /* Try to guess if it is profitable to stop the current block here */
+-    if ((s->last_lit & 0x1fff) == 0 && s->level > 2) {
+-        /* Compute an upper bound for the compressed length */
+-        ulg out_length = (ulg)s->last_lit*8L;
+-        ulg in_length = (ulg)((long)s->strstart - s->block_start);
+-        int dcode;
+-        for (dcode = 0; dcode < D_CODES; dcode++) {
+-            out_length += (ulg)s->dyn_dtree[dcode].Freq *
+-                (5L+extra_dbits[dcode]);
+-        }
+-        out_length >>= 3;
+-        Tracev((stderr,"\nlast_lit %u, in %ld, out ~%ld(%ld%%) ",
+-               s->last_lit, in_length, out_length,
+-               100L - out_length*100L/in_length));
+-        if (s->matches < s->last_lit/2 && out_length < in_length/2) return 1;
+-    }
+-#endif
+-    return (s->last_lit == s->lit_bufsize-1);
+-    /* We avoid equality with lit_bufsize because of wraparound at 64K
+-     * on 16 bit machines and because stored blocks are restricted to
+-     * 64K-1 bytes.
+-     */
++    return (s->sym_next == s->sym_end);
+@@ -1072 +1050 @@ local void compress_block(s, ltree, dtree)
+-    unsigned lx = 0;    /* running index in l_buf */
++    unsigned sx = 0;    /* running index in sym_buf */
+@@ -1076,3 +1054,4 @@ local void compress_block(s, ltree, dtree)
+-    if (s->last_lit != 0) do {
+-        dist = s->d_buf[lx];
+-        lc = s->l_buf[lx++];
++    if (s->sym_next != 0) do {
++        dist = s->sym_buf[sx++] & 0xff;
++        dist += (unsigned)(s->sym_buf[sx++] & 0xff) << 8;
++        lc = s->sym_buf[sx++];
+@@ -1103,3 +1082,2 @@ local void compress_block(s, ltree, dtree)
+-        /* Check that the overlay between pending_buf and d_buf+l_buf is ok: */
+-        Assert((uInt)(s->pending) < s->lit_bufsize + 2*lx,
+-               "pendingBuf overflow");
++        /* Check that the overlay between pending_buf and sym_buf is ok: */
++        Assert(s->pending < s->lit_bufsize + sx, "pendingBuf overflow");
+@@ -1107 +1085 @@ local void compress_block(s, ltree, dtree)
+-    } while (lx < s->last_lit);
++    } while (sx < s->sym_next);

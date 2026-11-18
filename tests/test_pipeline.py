@@ -368,6 +368,63 @@ def test_compare_case_accepts_independently_valid_boundary(
         assert result["incomplete_reasons"] == []
 
 
+def test_confirmed_baseline_security_failure_does_not_add_functional_gap(
+    pipeline_fixture,
+):
+    import diffsheriff.pipeline as pipeline
+
+    cfg, _, _ = pipeline_fixture
+    base = pipeline.observe(
+        Path("base/sanitized"),
+        "program",
+        b"boundary",
+        cfg.execution,
+        "base",
+        [],
+    )
+    base.update(
+        signature=cfg.baseline_signature,
+        triage={**base["triage"], "is_crash": True},
+        execution={
+            **base["execution"],
+            "exit_code": -6,
+            "stdout": "",
+            "stderr": "diagnostic",
+        },
+        correlation={
+            **base["correlation"],
+            "is_correlated": True,
+            "correlation_type": "Edits in observed function",
+            "matched_file": "source.c",
+            "matched_frame": {"function": "parse"},
+            "hunk": None,
+        },
+    )
+    patch = pipeline.observe(
+        Path("patch/sanitized"),
+        "program",
+        b"boundary",
+        cfg.execution,
+        "patch",
+        [],
+    )
+    result = pipeline.compare_case(
+        {
+            "suite": "valid",
+            "valid_input": True,
+            "expected": {"exit_code": 0, "stdout": "ok\n", "stderr": ""},
+        },
+        "sanitized",
+        {"base": [base] * 3, "patch": [patch] * 3},
+        cfg.baseline_signature,
+    )
+    assert result["baseline_seen"]
+    assert any(status == "Fixed" for status, _, _ in result["findings"])
+    assert (
+        "functional_expectation_unmet_on_baseline" not in result["incomplete_reasons"]
+    )
+
+
 @pytest.mark.parametrize("valid_input,code", [(True, 20), (False, 40), (None, 40)])
 @pytest.mark.parametrize("security_remains", [False, True])
 def test_boundary_regression_uses_independent_validity(
@@ -1279,7 +1336,7 @@ def test_initial_reduction_instability_is_retained(
         (False, False, False),
     ],
 )
-def test_function_edit_fixed_requires_unique_consistent_runtime_and_expectation(
+def test_function_edit_fixed_requires_consistent_runtime_and_expectation(
     tmp_path, pipeline_fixture, monkeypatch, ambiguous, changing_caller, known_expected
 ):
     import diffsheriff.pipeline as pipeline
@@ -1321,7 +1378,8 @@ def test_function_edit_fixed_requires_unique_consistent_runtime_and_expectation(
 
     monkeypatch.setattr(pipeline, "execute_container", observed)
     summary = run_pipeline(cfg, tmp_path / "runs")
-    fixed = not ambiguous and not changing_caller and known_expected
+    # Multiple hunks in one observed function are valid function-level evidence.
+    fixed = not changing_caller and known_expected
     assert summary.exit_code == (0 if fixed else 40), summary.notes
     assert summary.security_flaws_fixed == int(fixed)
 

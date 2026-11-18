@@ -1,0 +1,27 @@
+{
+  "input": "b57cbd4884ab8dbf08cfb22cae47a3cbfb75074f304294c37a361c7e9d8592f2.input",
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "base_ref": "b1bd9ad4088a429292111a831247a26bbe06b350",
+  "signature": {
+    "error_type": "stack-use-after-return",
+    "file": "pngerror.c",
+    "function": "png_safe_execute",
+    "line": 954
+  },
+  "finding_signature": {
+    "error_type": "stack-use-after-return",
+    "file": "pngerror.c",
+    "function": "png_safe_execute",
+    "line": 954
+  },
+  "finding_side": "base",
+  "mode": "sanitized",
+  "kind": "security",
+  "check": "full",
+  "valid_input": false,
+  "expected": {
+    "exit_code": 2,
+    "stdout": "",
+    "stderr": ""
+  }
+}

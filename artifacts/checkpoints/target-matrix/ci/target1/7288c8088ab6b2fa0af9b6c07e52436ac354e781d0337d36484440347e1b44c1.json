@@ -1,0 +1,17 @@
+{
+  "input": "7288c8088ab6b2fa0af9b6c07e52436ac354e781d0337d36484440347e1b44c1.input",
+  "sha256": "ce3ec87e85c128f5bbf75e86a88a03769da4efb4350a4111a9c20bc78f3d5436",
+  "base_ref": "88fb854d151473d88294f56da390408c61be23a8",
+  "signature": null,
+  "finding_signature": null,
+  "finding_side": "patch",
+  "mode": "sanitized",
+  "kind": "functional",
+  "check": "full",
+  "valid_input": true,
+  "expected": {
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+}

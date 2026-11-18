@@ -1,23 +1,35 @@
 Validating zlib-cve-2018-25032: 88fb854d1514 -> 29abcf1b7d99
-INCONCLUSIVE (exit 40); 120 suite executions
-Security: INCONCLUSIVE; functional: PASS; analysis: incomplete
+PASS (exit 0); 144 suite executions
+Security: PASS; functional: PASS; analysis: complete
 Hardening (release) base: NX=True PIE=True RELRO=partial canary=False
 Hardening (release) patch: NX=True PIE=True RELRO=partial canary=False
   base/release: sanitizer symbols=none observed; FORTIFY symbol candidates=0; symbol tables=.dynsym,.symtab
   base/sanitized: sanitizer symbols=asan,ubsan,lsan; FORTIFY symbol candidates=24; symbol tables=.dynsym,.symtab
   patch/release: sanitizer symbols=none observed; FORTIFY symbol candidates=0; symbol tables=.dynsym,.symtab
   patch/sanitized: sanitizer symbols=asan,ubsan,lsan; FORTIFY symbol candidates=24; symbol tables=.dynsym,.symtab
-  Inconclusive: malicious/cve_2018_25032.input [sanitized] - none
-    detection: none; correlation: Inconclusive; stable: True
-    Baseline diagnostic disappeared without sufficient expected behavior or patch correlation; Baseline does not satisfy the independent valid-input expectation
-  Inconclusive: malicious/cve_2018_25032_bypass.input [sanitized] - none
-    detection: none; correlation: Inconclusive; stable: True
-    Baseline diagnostic disappeared without sufficient expected behavior or patch correlation; Baseline does not satisfy the independent valid-input expectation
-  Inconclusive: regression/533609f36db8336c36255e0f4a97624621afe93ebba4349c80a3c650f518d139 [sanitized] - none
-    detection: none; correlation: Inconclusive; stable: True
-    Baseline diagnostic disappeared without sufficient expected behavior or patch correlation; Baseline does not satisfy the independent valid-input expectation
-  Inconclusive: regression/7c2328b634e431ba1384cf482081177cbf34eab62de1952b1c2893808309b404 [sanitized] - none
-    detection: none; correlation: Inconclusive; stable: True
-    Baseline diagnostic disappeared without sufficient expected behavior or patch correlation; Baseline does not satisfy the independent valid-input expectation
-Evidence directory: /mnt/f/KasraFolder/دانشگاه صنعتی آریامهر/ترم 7/امنیت داده و شبکه/Project/artifacts/evaluation/target1/correct/runs/run-76j2clt5
+  Fixed: malicious/cve_2018_25032.input [sanitized] - out-of-bounds
+    detection: UndefinedBehaviorSanitizer; correlation: Edited function on observed stack; stable: True
+    Baseline diagnostic absent in corresponding patch replays within this suite
+    minimized input: reproducers/366341994f277a0cdf94/minimized.input
+  Fixed: malicious/cve_2018_25032_bypass.input [sanitized] - out-of-bounds
+    detection: UndefinedBehaviorSanitizer; correlation: Edited function on observed stack; stable: True
+    Baseline diagnostic absent in corresponding patch replays within this suite
+    minimized input: reproducers/10afaa1b36e110f955b6/minimized.input
+  Fixed: regression/4b905826bb639d67e11a2b0aa2b7aae8a91f1d528e390e04730fb682cffe4c95 [sanitized] - out-of-bounds
+    detection: UndefinedBehaviorSanitizer; correlation: Edited function on observed stack; stable: True
+    Baseline diagnostic absent in corresponding patch replays within this suite
+    minimized input: reproducers/c096d0a193e7da16203c/minimized.input
+  Fixed: regression/533609f36db8336c36255e0f4a97624621afe93ebba4349c80a3c650f518d139 [sanitized] - out-of-bounds
+    detection: UndefinedBehaviorSanitizer; correlation: Edited function on observed stack; stable: True
+    Baseline diagnostic absent in corresponding patch replays within this suite
+    minimized input: reproducers/e07e34e5b6f25f879257/minimized.input
+  Fixed: regression/7c2328b634e431ba1384cf482081177cbf34eab62de1952b1c2893808309b404 [sanitized] - out-of-bounds
+    detection: UndefinedBehaviorSanitizer; correlation: Edited function on observed stack; stable: True
+    Baseline diagnostic absent in corresponding patch replays within this suite
+    minimized input: reproducers/d60941f22695b19241af/minimized.input
+  Fixed: regression/b697feb0cb1ce7bab6717c4faa5d1d76b2c1ed3351b5cd8c3b8792ca4a793324 [sanitized] - out-of-bounds
+    detection: UndefinedBehaviorSanitizer; correlation: Edited function on observed stack; stable: True
+    Baseline diagnostic absent in corresponding patch replays within this suite
+    minimized input: reproducers/3c7172cc2e257430a623/minimized.input
+Evidence directory: /tmp/diffsheriff-eval-20261118/artifacts/evaluation/target1/correct/runs/run-b6y4fkte
 Report: artifacts/evaluation/target1/correct/report.json

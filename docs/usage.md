@@ -216,7 +216,7 @@ completeness.
 | `source_signature_unconfirmed` | An abnormal termination lacked a confirmed source signature. |
 | `patch_attribution_unestablished`, `fix_evidence_insufficient` | Evidence was insufficient to attribute a patch finding or classify a baseline finding as fixed, respectively. |
 | `functional_expectation_missing` | An input lacked an independent functional expectation. |
-| `functional_expectation_unmet_on_baseline`, `functional_expectation_unmet_on_patch` | Observed behavior on the indicated version did not meet the independent expectation and the comparison remained inconclusive. |
+| `functional_expectation_unmet_on_baseline`, `functional_expectation_unmet_on_patch` | Observed behavior on the indicated version did not meet the independent expectation and the comparison remained inconclusive. A confirmed designated baseline security signature is handled as the security scenario instead of adding the baseline functional-gap reason. |
 | `report_write_failed`, `regression_export_failed` | The retained report could not be written or regression export failed, respectively. |
 
 An insertion-only patch can be related to a baseline finding when one insertion hunk
@@ -232,11 +232,13 @@ does not acquire causal attribution from this baseline-only rule.
 
 For a hunk that replaces existing lines, `Edit in observed function` requires one
 matching hunk with an unambiguous function declaration and matching runtime file/function.
-Several matching edit hunks remain inconclusive; stack order and line distance do not
-identify which change matters. A direct edited-line runtime intersection takes precedence.
-Function-only evidence does not prove branch execution or patch causation. A Fixed
-verdict still requires the same hunk across baseline replays and independently expected
-behavior on the patch.
+Several matching edit hunks are accepted as `Edits in observed function` when every
+candidate belongs to the same observed function. When callers are also edited, the
+top runtime frame may instead be reported as `Edited function on observed stack`.
+Different-function candidates with no edited top frame remain inconclusive. A direct
+edited-line runtime intersection takes precedence. Function- and stack-level evidence
+do not prove branch execution or patch causation. A Fixed verdict still requires stable
+corresponding baseline replays and independently expected behavior on the patch.
 
 The report identifies its run directory. `total_tests_run` counts suite executions
 (including their three repetitions); `functional_passed` and `functional_failed`

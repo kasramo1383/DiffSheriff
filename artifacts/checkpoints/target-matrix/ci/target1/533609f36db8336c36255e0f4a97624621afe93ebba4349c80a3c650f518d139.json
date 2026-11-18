@@ -1,0 +1,27 @@
+{
+  "input": "533609f36db8336c36255e0f4a97624621afe93ebba4349c80a3c650f518d139.input",
+  "sha256": "a9f1396959159672a427bbcc44f375aa8b5de4127ced1cd3123fef16a70b6fa8",
+  "base_ref": "88fb854d151473d88294f56da390408c61be23a8",
+  "signature": {
+    "error_type": "out-of-bounds",
+    "file": "trees.c",
+    "function": "compress_block",
+    "line": 1092
+  },
+  "finding_signature": {
+    "error_type": "out-of-bounds",
+    "file": "trees.c",
+    "function": "compress_block",
+    "line": 1092
+  },
+  "finding_side": "base",
+  "mode": "sanitized",
+  "kind": "security",
+  "check": "full",
+  "valid_input": true,
+  "expected": {
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+}

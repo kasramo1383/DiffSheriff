@@ -12,11 +12,14 @@ is relevant. Two correlator cases reproduced that arbitrary selection; a pipelin
 showed it allowing PASS despite ambiguous attribution. `red.xml` retains all three
 failures and the successful tests from that pre-fix run.
 
-The fallback now requires a single matching edited hunk. Multiple matches yield
-Inconclusive with an explicit ambiguity reason and no selected hunk. Actual edited-line
-runtime intersections retain precedence. A single function relation is labelled as
-such, never as proof of branch execution or causation. Missing declaration/path evidence,
-changing replay evidence and unsatisfied independent behavior cannot establish Fixed.
+The recorded correction required a single matching edited hunk. The current F08
+implementation keeps that conservative rule for candidates in different functions, and
+adds `Edits in observed function` when multiple candidates share one runtime file and
+function, or `Edited function on observed stack` when the top runtime frame is edited
+and lower edited candidates are callers. Actual edited-line runtime intersections retain
+precedence. Function- and stack-level relations are never proof of branch execution or
+causation. Missing declaration/path evidence, changing replay evidence and unsatisfied
+independent behavior cannot establish Fixed.
 
 ## Exit priorities
 

@@ -1,0 +1,49 @@
+Validating libpng-cve-2019-7317: b1bd9ad4088a -> 426e4f9baa9b
+FUNC_REGRESSION (exit 20); 78 suite executions
+Security: INCONCLUSIVE; functional: FAIL; analysis: incomplete
+Hardening (release) base: NX=True PIE=True RELRO=partial canary=False
+Hardening (release) patch: NX=True PIE=True RELRO=partial canary=False
+  base/release: sanitizer symbols=none observed; FORTIFY symbol candidates=0; symbol tables=.dynsym,.symtab
+  base/sanitized: sanitizer symbols=asan,ubsan,lsan; FORTIFY symbol candidates=24; symbol tables=.dynsym,.symtab
+  patch/release: sanitizer symbols=none observed; FORTIFY symbol candidates=0; symbol tables=.dynsym,.symtab
+  patch/sanitized: sanitizer symbols=asan,ubsan,lsan; FORTIFY symbol candidates=24; symbol tables=.dynsym,.symtab
+  Functional Regression: valid/valid.png [release] - none
+    detection: none; correlation: Inconclusive; stable: True
+    Independent expected behavior passed on baseline and failed on patch
+    minimized input: reproducers/68fbb6402166f4bf515f/minimized.input
+  Inconclusive: valid/valid.png [sanitized] - none
+    detection: none; correlation: Inconclusive; stable: True
+    Baseline diagnostic disappeared without sufficient expected behavior or patch correlation; Patched behavior does not satisfy the independent expectation
+  Fixed: boundary/empty.png [sanitized] - stack-use-after-return
+    detection: AddressSanitizer; correlation: Indirect (Caller/Callee); stable: True
+    Baseline diagnostic absent in corresponding patch replays within this suite
+    minimized input: reproducers/79510d87e4da910bbfe2/minimized.input
+  Fixed: malicious/cve_2019_7317.png [sanitized] - stack-use-after-return
+    detection: AddressSanitizer; correlation: Indirect (Caller/Callee); stable: True
+    Baseline diagnostic absent in corresponding patch replays within this suite
+    minimized input: reproducers/21cb11479b3718cc7a85/minimized.input
+  Fixed: malicious/cve_2019_7317_bypass.png [sanitized] - stack-use-after-return
+    detection: AddressSanitizer; correlation: Indirect (Caller/Callee); stable: True
+    Baseline diagnostic absent in corresponding patch replays within this suite
+    minimized input: reproducers/42e23ade22c01d6f5c0d/minimized.input
+  Fixed: regression/06a5f810c2191a3ae3e8af72acf41e81f907033e691d3e38032a270f37a5f446 [sanitized] - stack-use-after-return
+    detection: AddressSanitizer; correlation: Indirect (Caller/Callee); stable: True
+    Baseline diagnostic absent in corresponding patch replays within this suite
+    minimized input: reproducers/d5be0f5c6c71961fd688/minimized.input
+  Inconclusive: regression/aa623b9c6c003303387bbd289e02da44fa7ee81b3be80d11a312c7bd9b16874f [sanitized] - none
+    detection: none; correlation: Inconclusive; stable: True
+    Baseline diagnostic disappeared without sufficient expected behavior or patch correlation; Diagnostic regression has no independent functional expectation
+  Fixed: regression/b57cbd4884ab8dbf08cfb22cae47a3cbfb75074f304294c37a361c7e9d8592f2 [sanitized] - stack-use-after-return
+    detection: AddressSanitizer; correlation: Indirect (Caller/Callee); stable: True
+    Baseline diagnostic absent in corresponding patch replays within this suite
+    minimized input: reproducers/db6feb1241eb4e57b519/minimized.input
+  Fixed: minimized/d1d72691b1585db6a4be [sanitized] - stack-use-after-return
+    detection: AddressSanitizer; correlation: Indirect (Caller/Callee); stable: True
+    Baseline diagnostic absent in corresponding patch replays within this suite
+    minimized input: reproducers/d1d72691b1585db6a4be/minimized.input
+  Fixed: minimized/01aa3285bad23ff748a7 [sanitized] - stack-use-after-return
+    detection: AddressSanitizer; correlation: Indirect (Caller/Callee); stable: True
+    Baseline diagnostic absent in corresponding patch replays within this suite
+    minimized input: reproducers/01aa3285bad23ff748a7/minimized.input
+Evidence directory: /tmp/diffsheriff-eval-20261118/artifacts/evaluation/target2/regression/runs/run-a66pfkl4
+Report: artifacts/evaluation/target2/regression/report.json

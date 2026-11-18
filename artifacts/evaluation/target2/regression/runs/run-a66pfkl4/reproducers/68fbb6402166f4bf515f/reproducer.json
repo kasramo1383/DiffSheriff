@@ -1,0 +1,1016 @@
+{
+  "case": "valid/valid.png",
+  "mode": "release",
+  "finding_side": "patch",
+  "signature": null,
+  "kind": "functional",
+  "functional_mismatch": {
+    "fields": [
+      "exit_code",
+      "stderr"
+    ],
+    "error_type": "none",
+    "limits": {
+      "timed_out": false,
+      "resource_limited": false,
+      "output_limited": false
+    }
+  },
+  "original_sha256": "546f711f1f5b493ad7a79a5ec0c37f30e35f59be97b92731a9ddb01a225df5d8",
+  "minimized_sha256": "546f711f1f5b493ad7a79a5ec0c37f30e35f59be97b92731a9ddb01a225df5d8",
+  "expected": {
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "original_expected": {
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "valid_input": true,
+  "original_valid_input": true,
+  "regression_input": "minimized.input",
+  "diagnostic_only": false,
+  "settings": {
+    "timeout_seconds": 5,
+    "input_method": "file",
+    "file_argument_flag": "--file",
+    "fixed_arguments": [],
+    "environment_variables": {
+      "HTTP_PROXY": "",
+      "HTTPS_PROXY": "",
+      "ALL_PROXY": "",
+      "NO_PROXY": "",
+      "http_proxy": "",
+      "https_proxy": "",
+      "all_proxy": "",
+      "no_proxy": "",
+      "ASAN_OPTIONS": "detect_leaks=0:abort_on_error=1:symbolize=1:external_symbolizer_path=/usr/bin/llvm-symbolizer",
+      "UBSAN_OPTIONS": "print_stacktrace=1:halt_on_error=1:external_symbolizer_path=/usr/bin/llvm-symbolizer"
+    },
+    "image": "sha256:47c203681dabe4881149e9ae6672fdf53c3c940c6a605c37b549d3621984c32f",
+    "memory_mb": 2048,
+    "cpus": 2,
+    "pids_limit": 128,
+    "output_limit_bytes": 1048576
+  },
+  "runs": {
+    "base": [
+      {
+        "execution": {
+          "exit_code": 0,
+          "stdout": "",
+          "stderr": "",
+          "timed_out": false,
+          "output_limited": false,
+          "resource_limited": false,
+          "command": [
+            "/src/driver_release",
+            "--file",
+            "/input"
+          ],
+          "container_state": {
+            "Status": "exited",
+            "Running": false,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 0,
+            "ExitCode": 0,
+            "Error": "",
+            "StartedAt": "2026-11-18T20:57:06.596108156Z",
+            "FinishedAt": "2026-11-18T20:57:06.681752488Z"
+          }
+        },
+        "triage": {
+          "is_crash": false,
+          "error_type": "none",
+          "detection_mechanism": "none",
+          "exit_code": 0,
+          "signal_name": null,
+          "stack_trace": [],
+          "raw_stdout": "",
+          "raw_stderr": "",
+          "symbolizer_failed": false,
+          "unsymbolized_frames": 0
+        },
+        "signature": null,
+        "correlation": {
+          "is_correlated": false,
+          "correlation_type": "Inconclusive",
+          "matched_file": null,
+          "matched_line": null,
+          "matched_frame": null,
+          "hunk": null,
+          "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+        }
+      },
+      {
+        "execution": {
+          "exit_code": 0,
+          "stdout": "",
+          "stderr": "",
+          "timed_out": false,
+          "output_limited": false,
+          "resource_limited": false,
+          "command": [
+            "/src/driver_release",
+            "--file",
+            "/input"
+          ],
+          "container_state": {
+            "Status": "exited",
+            "Running": false,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 0,
+            "ExitCode": 0,
+            "Error": "",
+            "StartedAt": "2026-11-18T20:57:07.013570483Z",
+            "FinishedAt": "2026-11-18T20:57:07.10133916Z"
+          }
+        },
+        "triage": {
+          "is_crash": false,
+          "error_type": "none",
+          "detection_mechanism": "none",
+          "exit_code": 0,
+          "signal_name": null,
+          "stack_trace": [],
+          "raw_stdout": "",
+          "raw_stderr": "",
+          "symbolizer_failed": false,
+          "unsymbolized_frames": 0
+        },
+        "signature": null,
+        "correlation": {
+          "is_correlated": false,
+          "correlation_type": "Inconclusive",
+          "matched_file": null,
+          "matched_line": null,
+          "matched_frame": null,
+          "hunk": null,
+          "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+        }
+      },
+      {
+        "execution": {
+          "exit_code": 0,
+          "stdout": "",
+          "stderr": "",
+          "timed_out": false,
+          "output_limited": false,
+          "resource_limited": false,
+          "command": [
+            "/src/driver_release",
+            "--file",
+            "/input"
+          ],
+          "container_state": {
+            "Status": "exited",
+            "Running": false,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 0,
+            "ExitCode": 0,
+            "Error": "",
+            "StartedAt": "2026-11-18T20:57:07.43228238Z",
+            "FinishedAt": "2026-11-18T20:57:07.508252331Z"
+          }
+        },
+        "triage": {
+          "is_crash": false,
+          "error_type": "none",
+          "detection_mechanism": "none",
+          "exit_code": 0,
+          "signal_name": null,
+          "stack_trace": [],
+          "raw_stdout": "",
+          "raw_stderr": "",
+          "symbolizer_failed": false,
+          "unsymbolized_frames": 0
+        },
+        "signature": null,
+        "correlation": {
+          "is_correlated": false,
+          "correlation_type": "Inconclusive",
+          "matched_file": null,
+          "matched_line": null,
+          "matched_frame": null,
+          "hunk": null,
+          "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+        }
+      }
+    ],
+    "patch": [
+      {
+        "execution": {
+          "exit_code": 1,
+          "stdout": "",
+          "stderr": "driver error: image height exceeds supported maximum\n",
+          "timed_out": false,
+          "output_limited": false,
+          "resource_limited": false,
+          "command": [
+            "/src/driver_release",
+            "--file",
+            "/input"
+          ],
+          "container_state": {
+            "Status": "exited",
+            "Running": false,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 0,
+            "ExitCode": 0,
+            "Error": "",
+            "StartedAt": "2026-11-18T20:57:07.838939652Z",
+            "FinishedAt": "2026-11-18T20:57:07.915907781Z"
+          }
+        },
+        "triage": {
+          "is_crash": false,
+          "error_type": "none",
+          "detection_mechanism": "none",
+          "exit_code": 1,
+          "signal_name": null,
+          "stack_trace": [],
+          "raw_stdout": "",
+          "raw_stderr": "driver error: image height exceeds supported maximum\n",
+          "symbolizer_failed": false,
+          "unsymbolized_frames": 0
+        },
+        "signature": null,
+        "correlation": {
+          "is_correlated": false,
+          "correlation_type": "Inconclusive",
+          "matched_file": null,
+          "matched_line": null,
+          "matched_frame": null,
+          "hunk": null,
+          "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+        }
+      },
+      {
+        "execution": {
+          "exit_code": 1,
+          "stdout": "",
+          "stderr": "driver error: image height exceeds supported maximum\n",
+          "timed_out": false,
+          "output_limited": false,
+          "resource_limited": false,
+          "command": [
+            "/src/driver_release",
+            "--file",
+            "/input"
+          ],
+          "container_state": {
+            "Status": "exited",
+            "Running": false,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 0,
+            "ExitCode": 0,
+            "Error": "",
+            "StartedAt": "2026-11-18T20:57:08.245938874Z",
+            "FinishedAt": "2026-11-18T20:57:08.3200902Z"
+          }
+        },
+        "triage": {
+          "is_crash": false,
+          "error_type": "none",
+          "detection_mechanism": "none",
+          "exit_code": 1,
+          "signal_name": null,
+          "stack_trace": [],
+          "raw_stdout": "",
+          "raw_stderr": "driver error: image height exceeds supported maximum\n",
+          "symbolizer_failed": false,
+          "unsymbolized_frames": 0
+        },
+        "signature": null,
+        "correlation": {
+          "is_correlated": false,
+          "correlation_type": "Inconclusive",
+          "matched_file": null,
+          "matched_line": null,
+          "matched_frame": null,
+          "hunk": null,
+          "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+        }
+      },
+      {
+        "execution": {
+          "exit_code": 1,
+          "stdout": "",
+          "stderr": "driver error: image height exceeds supported maximum\n",
+          "timed_out": false,
+          "output_limited": false,
+          "resource_limited": false,
+          "command": [
+            "/src/driver_release",
+            "--file",
+            "/input"
+          ],
+          "container_state": {
+            "Status": "exited",
+            "Running": false,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 0,
+            "ExitCode": 0,
+            "Error": "",
+            "StartedAt": "2026-11-18T20:57:08.695613492Z",
+            "FinishedAt": "2026-11-18T20:57:08.773162744Z"
+          }
+        },
+        "triage": {
+          "is_crash": false,
+          "error_type": "none",
+          "detection_mechanism": "none",
+          "exit_code": 1,
+          "signal_name": null,
+          "stack_trace": [],
+          "raw_stdout": "",
+          "raw_stderr": "driver error: image height exceeds supported maximum\n",
+          "symbolizer_failed": false,
+          "unsymbolized_frames": 0
+        },
+        "signature": null,
+        "correlation": {
+          "is_correlated": false,
+          "correlation_type": "Inconclusive",
+          "matched_file": null,
+          "matched_line": null,
+          "matched_frame": null,
+          "hunk": null,
+          "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+        }
+      }
+    ]
+  },
+  "minimization_log": [
+    {
+      "input_sha256": "546f711f1f5b493ad7a79a5ec0c37f30e35f59be97b92731a9ddb01a225df5d8",
+      "observations": [
+        {
+          "execution": {
+            "exit_code": 1,
+            "stdout": "",
+            "stderr": "driver error: image height exceeds supported maximum\n",
+            "timed_out": false,
+            "output_limited": false,
+            "resource_limited": false,
+            "command": [
+              "/src/driver_release",
+              "--file",
+              "/input"
+            ],
+            "container_state": {
+              "Status": "exited",
+              "Running": false,
+              "Paused": false,
+              "Restarting": false,
+              "OOMKilled": false,
+              "Dead": false,
+              "Pid": 0,
+              "ExitCode": 0,
+              "Error": "",
+              "StartedAt": "2026-11-18T20:57:01.265706558Z",
+              "FinishedAt": "2026-11-18T20:57:01.349657064Z"
+            }
+          },
+          "triage": {
+            "is_crash": false,
+            "error_type": "none",
+            "detection_mechanism": "none",
+            "exit_code": 1,
+            "signal_name": null,
+            "stack_trace": [],
+            "raw_stdout": "",
+            "raw_stderr": "driver error: image height exceeds supported maximum\n",
+            "symbolizer_failed": false,
+            "unsymbolized_frames": 0
+          },
+          "signature": null,
+          "correlation": {
+            "is_correlated": false,
+            "correlation_type": "Inconclusive",
+            "matched_file": null,
+            "matched_line": null,
+            "matched_frame": null,
+            "hunk": null,
+            "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+          }
+        },
+        {
+          "execution": {
+            "exit_code": 1,
+            "stdout": "",
+            "stderr": "driver error: image height exceeds supported maximum\n",
+            "timed_out": false,
+            "output_limited": false,
+            "resource_limited": false,
+            "command": [
+              "/src/driver_release",
+              "--file",
+              "/input"
+            ],
+            "container_state": {
+              "Status": "exited",
+              "Running": false,
+              "Paused": false,
+              "Restarting": false,
+              "OOMKilled": false,
+              "Dead": false,
+              "Pid": 0,
+              "ExitCode": 0,
+              "Error": "",
+              "StartedAt": "2026-11-18T20:57:01.781632379Z",
+              "FinishedAt": "2026-11-18T20:57:01.859127007Z"
+            }
+          },
+          "triage": {
+            "is_crash": false,
+            "error_type": "none",
+            "detection_mechanism": "none",
+            "exit_code": 1,
+            "signal_name": null,
+            "stack_trace": [],
+            "raw_stdout": "",
+            "raw_stderr": "driver error: image height exceeds supported maximum\n",
+            "symbolizer_failed": false,
+            "unsymbolized_frames": 0
+          },
+          "signature": null,
+          "correlation": {
+            "is_correlated": false,
+            "correlation_type": "Inconclusive",
+            "matched_file": null,
+            "matched_line": null,
+            "matched_frame": null,
+            "hunk": null,
+            "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+          }
+        },
+        {
+          "execution": {
+            "exit_code": 1,
+            "stdout": "",
+            "stderr": "driver error: image height exceeds supported maximum\n",
+            "timed_out": false,
+            "output_limited": false,
+            "resource_limited": false,
+            "command": [
+              "/src/driver_release",
+              "--file",
+              "/input"
+            ],
+            "container_state": {
+              "Status": "exited",
+              "Running": false,
+              "Paused": false,
+              "Restarting": false,
+              "OOMKilled": false,
+              "Dead": false,
+              "Pid": 0,
+              "ExitCode": 0,
+              "Error": "",
+              "StartedAt": "2026-11-18T20:57:02.201020416Z",
+              "FinishedAt": "2026-11-18T20:57:02.279092022Z"
+            }
+          },
+          "triage": {
+            "is_crash": false,
+            "error_type": "none",
+            "detection_mechanism": "none",
+            "exit_code": 1,
+            "signal_name": null,
+            "stack_trace": [],
+            "raw_stdout": "",
+            "raw_stderr": "driver error: image height exceeds supported maximum\n",
+            "symbolizer_failed": false,
+            "unsymbolized_frames": 0
+          },
+          "signature": null,
+          "correlation": {
+            "is_correlated": false,
+            "correlation_type": "Inconclusive",
+            "matched_file": null,
+            "matched_line": null,
+            "matched_frame": null,
+            "hunk": null,
+            "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+          }
+        }
+      ],
+      "baseline": [
+        {
+          "execution": {
+            "exit_code": 0,
+            "stdout": "",
+            "stderr": "",
+            "timed_out": false,
+            "output_limited": false,
+            "resource_limited": false,
+            "command": [
+              "/src/driver_release",
+              "--file",
+              "/input"
+            ],
+            "container_state": {
+              "Status": "exited",
+              "Running": false,
+              "Paused": false,
+              "Restarting": false,
+              "OOMKilled": false,
+              "Dead": false,
+              "Pid": 0,
+              "ExitCode": 0,
+              "Error": "",
+              "StartedAt": "2026-11-18T20:57:02.658359556Z",
+              "FinishedAt": "2026-11-18T20:57:02.748634006Z"
+            }
+          },
+          "triage": {
+            "is_crash": false,
+            "error_type": "none",
+            "detection_mechanism": "none",
+            "exit_code": 0,
+            "signal_name": null,
+            "stack_trace": [],
+            "raw_stdout": "",
+            "raw_stderr": "",
+            "symbolizer_failed": false,
+            "unsymbolized_frames": 0
+          },
+          "signature": null,
+          "correlation": {
+            "is_correlated": false,
+            "correlation_type": "Inconclusive",
+            "matched_file": null,
+            "matched_line": null,
+            "matched_frame": null,
+            "hunk": null,
+            "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+          }
+        },
+        {
+          "execution": {
+            "exit_code": 0,
+            "stdout": "",
+            "stderr": "",
+            "timed_out": false,
+            "output_limited": false,
+            "resource_limited": false,
+            "command": [
+              "/src/driver_release",
+              "--file",
+              "/input"
+            ],
+            "container_state": {
+              "Status": "exited",
+              "Running": false,
+              "Paused": false,
+              "Restarting": false,
+              "OOMKilled": false,
+              "Dead": false,
+              "Pid": 0,
+              "ExitCode": 0,
+              "Error": "",
+              "StartedAt": "2026-11-18T20:57:03.217336039Z",
+              "FinishedAt": "2026-11-18T20:57:03.306974655Z"
+            }
+          },
+          "triage": {
+            "is_crash": false,
+            "error_type": "none",
+            "detection_mechanism": "none",
+            "exit_code": 0,
+            "signal_name": null,
+            "stack_trace": [],
+            "raw_stdout": "",
+            "raw_stderr": "",
+            "symbolizer_failed": false,
+            "unsymbolized_frames": 0
+          },
+          "signature": null,
+          "correlation": {
+            "is_correlated": false,
+            "correlation_type": "Inconclusive",
+            "matched_file": null,
+            "matched_line": null,
+            "matched_frame": null,
+            "hunk": null,
+            "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+          }
+        },
+        {
+          "execution": {
+            "exit_code": 0,
+            "stdout": "",
+            "stderr": "",
+            "timed_out": false,
+            "output_limited": false,
+            "resource_limited": false,
+            "command": [
+              "/src/driver_release",
+              "--file",
+              "/input"
+            ],
+            "container_state": {
+              "Status": "exited",
+              "Running": false,
+              "Paused": false,
+              "Restarting": false,
+              "OOMKilled": false,
+              "Dead": false,
+              "Pid": 0,
+              "ExitCode": 0,
+              "Error": "",
+              "StartedAt": "2026-11-18T20:57:03.656154295Z",
+              "FinishedAt": "2026-11-18T20:57:03.729502515Z"
+            }
+          },
+          "triage": {
+            "is_crash": false,
+            "error_type": "none",
+            "detection_mechanism": "none",
+            "exit_code": 0,
+            "signal_name": null,
+            "stack_trace": [],
+            "raw_stdout": "",
+            "raw_stderr": "",
+            "symbolizer_failed": false,
+            "unsymbolized_frames": 0
+          },
+          "signature": null,
+          "correlation": {
+            "is_correlated": false,
+            "correlation_type": "Inconclusive",
+            "matched_file": null,
+            "matched_line": null,
+            "matched_frame": null,
+            "hunk": null,
+            "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+          }
+        }
+      ]
+    },
+    {
+      "input_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "observations": [
+        {
+          "execution": {
+            "exit_code": 2,
+            "stdout": "",
+            "stderr": "",
+            "timed_out": false,
+            "output_limited": false,
+            "resource_limited": false,
+            "command": [
+              "/src/driver_release",
+              "--file",
+              "/input"
+            ],
+            "container_state": {
+              "Status": "exited",
+              "Running": false,
+              "Paused": false,
+              "Restarting": false,
+              "OOMKilled": false,
+              "Dead": false,
+              "Pid": 0,
+              "ExitCode": 0,
+              "Error": "",
+              "StartedAt": "2026-11-18T20:57:04.056910752Z",
+              "FinishedAt": "2026-11-18T20:57:04.137184853Z"
+            }
+          },
+          "triage": {
+            "is_crash": false,
+            "error_type": "none",
+            "detection_mechanism": "none",
+            "exit_code": 2,
+            "signal_name": null,
+            "stack_trace": [],
+            "raw_stdout": "",
+            "raw_stderr": "",
+            "symbolizer_failed": false,
+            "unsymbolized_frames": 0
+          },
+          "signature": null,
+          "correlation": {
+            "is_correlated": false,
+            "correlation_type": "Inconclusive",
+            "matched_file": null,
+            "matched_line": null,
+            "matched_frame": null,
+            "hunk": null,
+            "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+          }
+        },
+        {
+          "execution": {
+            "exit_code": 2,
+            "stdout": "",
+            "stderr": "",
+            "timed_out": false,
+            "output_limited": false,
+            "resource_limited": false,
+            "command": [
+              "/src/driver_release",
+              "--file",
+              "/input"
+            ],
+            "container_state": {
+              "Status": "exited",
+              "Running": false,
+              "Paused": false,
+              "Restarting": false,
+              "OOMKilled": false,
+              "Dead": false,
+              "Pid": 0,
+              "ExitCode": 0,
+              "Error": "",
+              "StartedAt": "2026-11-18T20:57:04.472612807Z",
+              "FinishedAt": "2026-11-18T20:57:04.55403563Z"
+            }
+          },
+          "triage": {
+            "is_crash": false,
+            "error_type": "none",
+            "detection_mechanism": "none",
+            "exit_code": 2,
+            "signal_name": null,
+            "stack_trace": [],
+            "raw_stdout": "",
+            "raw_stderr": "",
+            "symbolizer_failed": false,
+            "unsymbolized_frames": 0
+          },
+          "signature": null,
+          "correlation": {
+            "is_correlated": false,
+            "correlation_type": "Inconclusive",
+            "matched_file": null,
+            "matched_line": null,
+            "matched_frame": null,
+            "hunk": null,
+            "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+          }
+        },
+        {
+          "execution": {
+            "exit_code": 2,
+            "stdout": "",
+            "stderr": "",
+            "timed_out": false,
+            "output_limited": false,
+            "resource_limited": false,
+            "command": [
+              "/src/driver_release",
+              "--file",
+              "/input"
+            ],
+            "container_state": {
+              "Status": "exited",
+              "Running": false,
+              "Paused": false,
+              "Restarting": false,
+              "OOMKilled": false,
+              "Dead": false,
+              "Pid": 0,
+              "ExitCode": 0,
+              "Error": "",
+              "StartedAt": "2026-11-18T20:57:04.900427995Z",
+              "FinishedAt": "2026-11-18T20:57:04.983554233Z"
+            }
+          },
+          "triage": {
+            "is_crash": false,
+            "error_type": "none",
+            "detection_mechanism": "none",
+            "exit_code": 2,
+            "signal_name": null,
+            "stack_trace": [],
+            "raw_stdout": "",
+            "raw_stderr": "",
+            "symbolizer_failed": false,
+            "unsymbolized_frames": 0
+          },
+          "signature": null,
+          "correlation": {
+            "is_correlated": false,
+            "correlation_type": "Inconclusive",
+            "matched_file": null,
+            "matched_line": null,
+            "matched_frame": null,
+            "hunk": null,
+            "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+          }
+        }
+      ],
+      "baseline": [
+        {
+          "execution": {
+            "exit_code": 2,
+            "stdout": "",
+            "stderr": "",
+            "timed_out": false,
+            "output_limited": false,
+            "resource_limited": false,
+            "command": [
+              "/src/driver_release",
+              "--file",
+              "/input"
+            ],
+            "container_state": {
+              "Status": "exited",
+              "Running": false,
+              "Paused": false,
+              "Restarting": false,
+              "OOMKilled": false,
+              "Dead": false,
+              "Pid": 0,
+              "ExitCode": 0,
+              "Error": "",
+              "StartedAt": "2026-11-18T20:57:05.319789951Z",
+              "FinishedAt": "2026-11-18T20:57:05.397637342Z"
+            }
+          },
+          "triage": {
+            "is_crash": false,
+            "error_type": "none",
+            "detection_mechanism": "none",
+            "exit_code": 2,
+            "signal_name": null,
+            "stack_trace": [],
+            "raw_stdout": "",
+            "raw_stderr": "",
+            "symbolizer_failed": false,
+            "unsymbolized_frames": 0
+          },
+          "signature": null,
+          "correlation": {
+            "is_correlated": false,
+            "correlation_type": "Inconclusive",
+            "matched_file": null,
+            "matched_line": null,
+            "matched_frame": null,
+            "hunk": null,
+            "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+          }
+        },
+        {
+          "execution": {
+            "exit_code": 2,
+            "stdout": "",
+            "stderr": "",
+            "timed_out": false,
+            "output_limited": false,
+            "resource_limited": false,
+            "command": [
+              "/src/driver_release",
+              "--file",
+              "/input"
+            ],
+            "container_state": {
+              "Status": "exited",
+              "Running": false,
+              "Paused": false,
+              "Restarting": false,
+              "OOMKilled": false,
+              "Dead": false,
+              "Pid": 0,
+              "ExitCode": 0,
+              "Error": "",
+              "StartedAt": "2026-11-18T20:57:05.725169258Z",
+              "FinishedAt": "2026-11-18T20:57:05.804544597Z"
+            }
+          },
+          "triage": {
+            "is_crash": false,
+            "error_type": "none",
+            "detection_mechanism": "none",
+            "exit_code": 2,
+            "signal_name": null,
+            "stack_trace": [],
+            "raw_stdout": "",
+            "raw_stderr": "",
+            "symbolizer_failed": false,
+            "unsymbolized_frames": 0
+          },
+          "signature": null,
+          "correlation": {
+            "is_correlated": false,
+            "correlation_type": "Inconclusive",
+            "matched_file": null,
+            "matched_line": null,
+            "matched_frame": null,
+            "hunk": null,
+            "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+          }
+        },
+        {
+          "execution": {
+            "exit_code": 2,
+            "stdout": "",
+            "stderr": "",
+            "timed_out": false,
+            "output_limited": false,
+            "resource_limited": false,
+            "command": [
+              "/src/driver_release",
+              "--file",
+              "/input"
+            ],
+            "container_state": {
+              "Status": "exited",
+              "Running": false,
+              "Paused": false,
+              "Restarting": false,
+              "OOMKilled": false,
+              "Dead": false,
+              "Pid": 0,
+              "ExitCode": 0,
+              "Error": "",
+              "StartedAt": "2026-11-18T20:57:06.134806187Z",
+              "FinishedAt": "2026-11-18T20:57:06.212964309Z"
+            }
+          },
+          "triage": {
+            "is_crash": false,
+            "error_type": "none",
+            "detection_mechanism": "none",
+            "exit_code": 2,
+            "signal_name": null,
+            "stack_trace": [],
+            "raw_stdout": "",
+            "raw_stderr": "",
+            "symbolizer_failed": false,
+            "unsymbolized_frames": 0
+          },
+          "signature": null,
+          "correlation": {
+            "is_correlated": false,
+            "correlation_type": "Inconclusive",
+            "matched_file": null,
+            "matched_line": null,
+            "matched_frame": null,
+            "hunk": null,
+            "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+          }
+        }
+      ]
+    }
+  ],
+  "minimization": {
+    "original_size": 8759,
+    "minimized_size": 8759,
+    "reduced": false,
+    "stop_reason": "oracle_call_limit",
+    "oracle_calls": 32,
+    "max_granularity": 16,
+    "max_oracle_calls": 32,
+    "limit_reached": true
+  },
+  "reproduced": true,
+  "stable": true,
+  "minimization_scope": "approved corpus payloads only",
+  "baseline_fail_patch_pass": false,
+  "versions": {
+    "base": "b1bd9ad4088a429292111a831247a26bbe06b350",
+    "patch": "426e4f9baa9b35ed6635423b50f3c7e43fd6c8b0"
+  },
+  "artifacts": {
+    "base": {
+      "source": "base/release",
+      "binary": "driver_release",
+      "sha256": "6bb7e8482daa579567e7d4b64a004ef569e3073127bf2d66104412de8c660a4a"
+    },
+    "patch": {
+      "source": "patch/release",
+      "binary": "driver_release",
+      "sha256": "e7ce0fb25494a2561ed68cc1a06ca93d1dbba30749a38e5ebe4ac17c1c956ead"
+    }
+  },
+  "replay_command": [
+    "python",
+    "-m",
+    "diffsheriff.reproduce",
+    "reproducers/68fbb6402166f4bf515f"
+  ]
+}

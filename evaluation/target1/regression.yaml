@@ -32,6 +32,9 @@ execution:
   environment_variables:
     ASAN_OPTIONS: detect_leaks=0:abort_on_error=1:symbolize=1:external_symbolizer_path=/usr/bin/llvm-symbolizer
     UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1:external_symbolizer_path=/usr/bin/llvm-symbolizer
+minimization:
+  max_granularity: 16
+  max_oracle_calls: 32
 hardening_baseline:
   enforce_nx: false
   enforce_pie: false

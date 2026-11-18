@@ -302,24 +302,60 @@ def test_edit_in_observed_function_matches_baseline_stack():
     assert result.matched_line == 1092
 
 
-@pytest.mark.parametrize("second_function,second_line", [("parse", 30), ("caller", 30)])
-def test_multiple_observed_edit_hunks_do_not_select_by_proximity(
-    second_function, second_line
-):
+def test_multiple_observed_edit_hunks_in_same_function_report_function_relation():
     diff = (
         "--- a/source.c\n+++ b/source.c\n"
         "@@ -10 +10 @@ int parse(char *input) {\n-old();\n+new();\n"
-        f"@@ -{second_line} +{second_line} @@ int {second_function}(char *input) {{\n"
+        "@@ -20 +20 @@ int parse(char *input) {\n-old();\n+new();\n"
+    )
+    result = correlate_stack_to_diff(
+        [StackFrame(0, "", "parse", "/src/source.c", 12)],
+        parse_unified_diff(diff),
+        "base",
+    )
+    assert result.is_correlated
+    assert result.correlation_type == "Edits in observed function"
+    assert result.hunk is None
+    assert result.matched_frame.function == "parse"
+    assert "same function" in result.reason
+
+
+def test_multiple_observed_edit_hunks_in_different_functions_remain_ambiguous():
+    diff = (
+        "--- a/source.c\n+++ b/source.c\n"
+        "@@ -10 +10 @@ int parse(char *input) {\n-old();\n+new();\n"
+        "@@ -30 +30 @@ int caller(char *input) {\n"
         "-old();\n+new();\n"
     )
     frames = [
-        StackFrame(0, "", "parse", "/src/source.c", 12),
-        StackFrame(1, "", "caller", "/src/source.c", 32),
+        StackFrame(0, "", "unrelated", "/src/other.c", 2),
+        StackFrame(1, "", "parse", "/src/source.c", 12),
+        StackFrame(2, "", "caller", "/src/source.c", 32),
     ]
     result = correlate_stack_to_diff(frames, parse_unified_diff(diff), "base")
     assert not result.is_correlated
     assert result.hunk is None
     assert "ambiguous" in result.reason.lower()
+
+
+def test_multiple_observed_edit_hunks_use_top_runtime_function_relation():
+    diff = (
+        "--- a/source.c\n+++ b/source.c\n"
+        "@@ -10 +10 @@ int parse(char *input) {\n-old();\n+new();\n"
+        "@@ -30 +30 @@ int caller(char *input) {\n-old();\n+new();\n"
+    )
+    result = correlate_stack_to_diff(
+        [
+            StackFrame(0, "", "parse", "/src/source.c", 12),
+            StackFrame(1, "", "caller", "/src/source.c", 32),
+        ],
+        parse_unified_diff(diff),
+        "base",
+    )
+    assert result.is_correlated
+    assert result.correlation_type == "Edited function on observed stack"
+    assert result.hunk is None
+    assert result.matched_frame.function == "parse"
 
 
 @pytest.mark.parametrize(

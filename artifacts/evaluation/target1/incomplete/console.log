@@ -1,5 +1,5 @@
 Validating zlib-cve-2018-25032: 88fb854d1514 -> 3798818fa44d
-VULN_REMAINS_OR_NEW_ISSUE (exit 10); 120 suite executions
+VULN_REMAINS_OR_NEW_ISSUE (exit 10); 144 suite executions
 Security: FAIL; functional: INCONCLUSIVE; analysis: incomplete
 Hardening (release) base: NX=True PIE=True RELRO=partial canary=False
 Hardening (release) patch: NX=True PIE=True RELRO=partial canary=False
@@ -9,24 +9,39 @@ Hardening (release) patch: NX=True PIE=True RELRO=partial canary=False
   patch/sanitized: sanitizer symbols=asan,ubsan,lsan; FORTIFY symbol candidates=24; symbol tables=.dynsym,.symtab
   Inconclusive: malicious/cve_2018_25032.input [sanitized] - none
     detection: none; correlation: Inconclusive; stable: True
-    Baseline diagnostic disappeared without sufficient expected behavior or patch correlation; Baseline does not satisfy the independent valid-input expectation
+    Baseline diagnostic disappeared without sufficient expected behavior or patch correlation
   Incomplete Fix: malicious/cve_2018_25032_bypass.input [sanitized] - out-of-bounds
     detection: UndefinedBehaviorSanitizer; correlation: Inconclusive; stable: True
     Confirmed diagnostic on patch; causation requires the recorded correlation evidence
     minimized input: reproducers/83a432193398047434ca/minimized.input
   Inconclusive: malicious/cve_2018_25032_bypass.input [sanitized] - out-of-bounds
     detection: UndefinedBehaviorSanitizer; correlation: Inconclusive; stable: True
-    Patch finding is confirmed, but attribution is inconclusive; Baseline does not satisfy the independent valid-input expectation
+    Patch finding is confirmed, but attribution is inconclusive
     minimized input: reproducers/83a432193398047434ca/minimized.input
+  Incomplete Fix: regression/4b905826bb639d67e11a2b0aa2b7aae8a91f1d528e390e04730fb682cffe4c95 [sanitized] - out-of-bounds
+    detection: UndefinedBehaviorSanitizer; correlation: Inconclusive; stable: True
+    Confirmed diagnostic on patch; causation requires the recorded correlation evidence
+    minimized input: reproducers/4ebf1aebd4ffa18ebc43/minimized.input
+  Inconclusive: regression/4b905826bb639d67e11a2b0aa2b7aae8a91f1d528e390e04730fb682cffe4c95 [sanitized] - out-of-bounds
+    detection: UndefinedBehaviorSanitizer; correlation: Inconclusive; stable: True
+    Patch finding is confirmed, but attribution is inconclusive
+    minimized input: reproducers/4ebf1aebd4ffa18ebc43/minimized.input
   Inconclusive: regression/533609f36db8336c36255e0f4a97624621afe93ebba4349c80a3c650f518d139 [sanitized] - none
     detection: none; correlation: Inconclusive; stable: True
-    Baseline diagnostic disappeared without sufficient expected behavior or patch correlation; Baseline does not satisfy the independent valid-input expectation
+    Baseline diagnostic disappeared without sufficient expected behavior or patch correlation
   Inconclusive: regression/7c2328b634e431ba1384cf482081177cbf34eab62de1952b1c2893808309b404 [sanitized] - none
     detection: none; correlation: Inconclusive; stable: True
-    Baseline diagnostic disappeared without sufficient expected behavior or patch correlation; Baseline does not satisfy the independent valid-input expectation
+    Baseline diagnostic disappeared without sufficient expected behavior or patch correlation
+  Inconclusive: regression/b697feb0cb1ce7bab6717c4faa5d1d76b2c1ed3351b5cd8c3b8792ca4a793324 [sanitized] - none
+    detection: none; correlation: Inconclusive; stable: True
+    Baseline diagnostic disappeared without sufficient expected behavior or patch correlation
   Inconclusive: minimized/10afaa1b36e110f955b6 [sanitized] - none
     detection: none; correlation: Inconclusive; stable: True
-    Baseline diagnostic disappeared without sufficient expected behavior or patch correlation; Baseline does not satisfy the independent valid-input expectation
+    Baseline diagnostic disappeared without sufficient expected behavior or patch correlation
     minimized input: reproducers/10afaa1b36e110f955b6/minimized.input
-Evidence directory: /mnt/f/KasraFolder/دانشگاه صنعتی آریامهر/ترم 7/امنیت داده و شبکه/Project/artifacts/evaluation/target1/incomplete/runs/run-y7lh43z5
+  Inconclusive: minimized/c096d0a193e7da16203c [sanitized] - none
+    detection: none; correlation: Inconclusive; stable: True
+    Baseline diagnostic disappeared without sufficient expected behavior or patch correlation
+    minimized input: reproducers/c096d0a193e7da16203c/minimized.input
+Evidence directory: /tmp/diffsheriff-eval-20261118/artifacts/evaluation/target1/incomplete/runs/run-ccpiyz0o
 Report: artifacts/evaluation/target1/incomplete/report.json

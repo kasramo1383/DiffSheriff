@@ -1,0 +1,18 @@
+diff --git a/driver/png_driver.c b/driver/png_driver.c
+index 6099ae8..165cb22 100755
+--- a/driver/png_driver.c
++++ b/driver/png_driver.c
+@@ -23,0 +24,5 @@ int main(int argc, char **argv) {
++        if (image.height > 50) {
++            fprintf(stderr, "driver error: image height exceeds supported maximum\n");
++            png_image_free(&image);
++            return 1;
++        }
+diff --git a/png.c b/png.c
+index 9d9926f..efd1aec 100644
+--- a/png.c
++++ b/png.c
+@@ -4591,2 +4591 @@ png_image_free(png_imagep image)
+-      /* Ignore errors here: */
+-      (void)png_safe_execute(image, png_image_free_function, image);
++      png_image_free_function(image);

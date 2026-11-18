@@ -280,6 +280,20 @@ def compare_case(case, mode, runs, baseline_signature, known_baseline=False):
         correlation = base["correlation"]
         correlated = correlation["is_correlated"]
         if correlation["correlation_type"] in {
+            "Edits in observed function",
+            "Edited function on observed stack",
+        }:
+            expected_function = (correlation.get("matched_frame") or {}).get("function")
+            correlated = all(
+                item["correlation"]["is_correlated"]
+                and item["correlation"]["correlation_type"]
+                == correlation["correlation_type"]
+                and item["correlation"]["matched_file"] == correlation["matched_file"]
+                and (item["correlation"].get("matched_frame") or {}).get("function")
+                == expected_function
+                for item in runs["base"]
+            )
+        elif correlation["correlation_type"] in {
             "Insertion in observed function",
             "Edit in observed function",
         }:
@@ -320,8 +334,7 @@ def compare_case(case, mode, runs, baseline_signature, known_baseline=False):
                 "source_signature_unconfirmed",
                 f"{side} abnormal termination has no confirmed source signature",
             )
-    fixed_flaw = any(status == "Fixed" for status, _, _ in findings)
-    if case["valid_input"] and not base_ok and not fixed_flaw:
+    if case["valid_input"] and not base_ok and not baseline_seen:
         note(
             "functional_expectation_unmet_on_baseline",
             "Baseline does not satisfy the independent valid-input expectation",
