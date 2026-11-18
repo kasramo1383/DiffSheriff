@@ -1,0 +1,28 @@
+# F03 corpus review - raw evidence
+# date: 2026-11-17T15:12:35Z
+# host toolchain: Debian clang version 14.0.6; GNU Make 4.3; gcc (Debian 15.3.0-2) 15.3.0
+# target1 refs: baseline=88fb854d151473d88294f56da390408c61be23a8 correct=29abcf1b7d99287ec85e5babd4d4234f60d1fff7
+
+## 1. asset suite
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+11 passed, 1 warning in 6.11s
+
+## 2. discover_cases counts (all six configs)
+target1/correct: total=10 invalid=0 suites={'valid': 4, 'boundary': 2, 'malicious': 2, 'regression': 2}
+target1/incomplete: total=10 invalid=0 suites={'valid': 4, 'boundary': 2, 'malicious': 2, 'regression': 2}
+target1/regression: total=10 invalid=0 suites={'valid': 4, 'boundary': 2, 'malicious': 2, 'regression': 2}
+target2/correct: total=4 invalid=3 suites={'valid': 1, 'boundary': 1, 'malicious': 2}
+target2/incomplete: total=4 invalid=3 suites={'valid': 1, 'boundary': 1, 'malicious': 2}
+target2/regression: total=4 invalid=3 suites={'valid': 1, 'boundary': 1, 'malicious': 2}
+
+## 3. baseline release driver - file-interface probe
+rc=0 --file evaluation/target1/suites/valid/valid_small.txt  stderr=
+rc=0 --file evaluation/target1/suites/boundary/empty.txt  stderr=
+rc=0 --file evaluation/target1/suites/invalid/cve_2018_25032.input  stderr=
+rc=1 --file /nonexistent-path-xyz  stderr=fopen: No such file or directory
+rc=0 --file /tmp/over.bin  stderr=
+no --file: rc=1 Usage: /tmp/build/t1/baseline/driver_release --file <path>
+
+## 4. content fuzz (release, baseline + correct)
+cases=77 baseline_nonzero=0 correct_nonzero=0 -> no content-based invalid payload

@@ -99,9 +99,11 @@ Fixed reviewed fixture expectations can suffice; no general decoder is required.
 streams are generally legitimate compression inputs even when labelled “invalid”
 because they exercise a memory defect. PNG validity requires independent parsing.
 RFC 1950/1951 and the PNG format specification are candidate authorities; merely naming
-them does not establish that these tests implement their behavior. Review expected
-outputs, valid boundaries, malformed-input behavior and reduced-input validity before
-acceptance. The roadmap records the resulting requirements gaps.
+them does not establish that these tests implement their behavior. The selected expected
+outputs, valid boundaries and malformed-input behavior were reviewed under F03; the
+compressor interface has no invalid payload in its declared scope, and reduced-input
+validity stays inconclusive until independently established. See the roadmap for the
+recorded gaps.
 
 ## Required execution evidence
 
@@ -132,9 +134,17 @@ same documented resource limits across variants.
 The reference therefore reports all in-scope bytes as valid and predicts successful
 completion, including the byte streams that expose the security defect. Unsupported
 larger payloads fail the reference explicitly; this does not claim the driver enforces
-that assessment bound. The existing `invalid/` directory is a legacy security-corpus
-location, not proof of malformed compression data. Invalid-interface coverage remains
-a separate F03 review item. PNG has its separate native-format contract below; general format decoding is outside this scope.
+that assessment bound. The existing `invalid/` directory is a security-corpus location,
+not proof of malformed compression data. Because the compressor interface accepts every
+byte string, the declared 0-65536 byte scope contains no invalid payload: a native probe
+of the release driver returned 0 for every suite and generated payload and for
+65536/65537-byte and randomized inputs, and rejected only interface-level conditions (a
+missing or unreadable path, or a missing `--file`), which a payload suite cannot express.
+Target 1 therefore adds no `valid_input: false` case and keeps its triggers labelled
+valid; the assignment's invalid-input category is exercised by the tool's mandatory
+valid/boundary/malicious suites and supplied with genuine rejected payloads by Target 2
+(see F03 in the roadmap). PNG has its separate native-format contract below; general
+format decoding is outside this scope.
 
 Tests independently compress/decompress the selected payloads with Python's system
 zlib and verify that every manifest/reference validity agrees. This demonstrates that

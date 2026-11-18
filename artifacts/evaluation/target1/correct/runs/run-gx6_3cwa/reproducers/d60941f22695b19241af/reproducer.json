@@ -1,0 +1,539 @@
+{
+  "case": "regression/7c2328b634e431ba1384cf482081177cbf34eab62de1952b1c2893808309b404",
+  "mode": "sanitized",
+  "finding_side": "base",
+  "signature": {
+    "error_type": "out-of-bounds",
+    "file": "trees.c",
+    "function": "unknown",
+    "line": 1092
+  },
+  "kind": "security",
+  "functional_mismatch": [],
+  "original_sha256": "e738dd11f4fccb4b3ceb2893a57ec3b3a84f10181a0bb067f32aea8c58746973",
+  "minimized_sha256": "e738dd11f4fccb4b3ceb2893a57ec3b3a84f10181a0bb067f32aea8c58746973",
+  "expected": {
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "original_expected": {
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "valid_input": true,
+  "original_valid_input": true,
+  "regression_input": "minimized.input",
+  "diagnostic_only": false,
+  "settings": {
+    "timeout_seconds": 5,
+    "input_method": "file",
+    "file_argument_flag": "--file",
+    "fixed_arguments": [],
+    "environment_variables": {
+      "HTTP_PROXY": "",
+      "HTTPS_PROXY": "",
+      "ALL_PROXY": "",
+      "NO_PROXY": "",
+      "http_proxy": "",
+      "https_proxy": "",
+      "all_proxy": "",
+      "no_proxy": "",
+      "ASAN_OPTIONS": "detect_leaks=0:abort_on_error=1:symbolize=1",
+      "UBSAN_OPTIONS": "print_stacktrace=1:halt_on_error=1"
+    },
+    "image": "local-native-x86_64",
+    "memory_mb": 2048,
+    "cpus": 2,
+    "pids_limit": 128,
+    "output_limit_bytes": 1048576
+  },
+  "runs": {
+    "base": [
+      {
+        "execution": {
+          "exit_code": -6,
+          "stdout": "",
+          "stderr": "trees.c:1092:20: runtime error: index 646 out of bounds for type 'const uch[512]' (aka 'const unsigned char[512]')\n==6594==WARNING: invalid path to external symbolizer!\n==6594==WARNING: Failed to use and restart external symbolizer!\n    #0 0x65186babfccf  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x1caccf) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n    #1 0x65186bab1197  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x1bc197) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n    #2 0x65186ba67b7c  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x172b7c) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n    #3 0x65186ba452ca  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x1502ca) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n    #4 0x65186ba2e420  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x139420) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n    #5 0x7bb943884f76  (/usr/lib/x86_64-linux-gnu/libc.so.6+0x29f76) (BuildId: e0715e6b2fc508102cc2100d3d25a1aa4eb676f9)\n    #6 0x7bb943885026  (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a026) (BuildId: e0715e6b2fc508102cc2100d3d25a1aa4eb676f9)\n    #7 0x65186b970360  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x7b360) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior trees.c:1092:20 in \n",
+          "timed_out": false,
+          "output_limited": false,
+          "resource_limited": false,
+          "command": [
+            "/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized",
+            "--file",
+            "/tmp/tmpkuoz3sgu/input"
+          ],
+          "container_state": {
+            "Error": "",
+            "ExitCode": 0,
+            "OOMKilled": false
+          }
+        },
+        "triage": {
+          "is_crash": true,
+          "error_type": "out-of-bounds",
+          "detection_mechanism": "UndefinedBehaviorSanitizer",
+          "exit_code": -6,
+          "signal_name": "SIGABRT",
+          "stack_trace": [
+            {
+              "index": 0,
+              "address": "",
+              "function": "unknown",
+              "file": "trees.c",
+              "line": 1092
+            }
+          ],
+          "raw_stdout": "",
+          "raw_stderr": "trees.c:1092:20: runtime error: index 646 out of bounds for type 'const uch[512]' (aka 'const unsigned char[512]')\n==6594==WARNING: invalid path to external symbolizer!\n==6594==WARNING: Failed to use and restart external symbolizer!\n    #0 0x65186babfccf  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x1caccf) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n    #1 0x65186bab1197  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x1bc197) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n    #2 0x65186ba67b7c  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x172b7c) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n    #3 0x65186ba452ca  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x1502ca) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n    #4 0x65186ba2e420  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x139420) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n    #5 0x7bb943884f76  (/usr/lib/x86_64-linux-gnu/libc.so.6+0x29f76) (BuildId: e0715e6b2fc508102cc2100d3d25a1aa4eb676f9)\n    #6 0x7bb943885026  (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a026) (BuildId: e0715e6b2fc508102cc2100d3d25a1aa4eb676f9)\n    #7 0x65186b970360  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x7b360) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior trees.c:1092:20 in \n"
+        },
+        "signature": {
+          "error_type": "out-of-bounds",
+          "file": "trees.c",
+          "function": "unknown",
+          "line": 1092
+        },
+        "correlation": {
+          "is_correlated": false,
+          "correlation_type": "Inconclusive",
+          "matched_file": null,
+          "matched_line": null,
+          "matched_frame": null,
+          "hunk": null,
+          "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+        }
+      },
+      {
+        "execution": {
+          "exit_code": -6,
+          "stdout": "",
+          "stderr": "trees.c:1092:20: runtime error: index 646 out of bounds for type 'const uch[512]' (aka 'const unsigned char[512]')\n==6601==WARNING: invalid path to external symbolizer!\n==6601==WARNING: Failed to use and restart external symbolizer!\n    #0 0x57b7c9c1cccf  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x1caccf) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n    #1 0x57b7c9c0e197  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x1bc197) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n    #2 0x57b7c9bc4b7c  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x172b7c) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n    #3 0x57b7c9ba22ca  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x1502ca) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n    #4 0x57b7c9b8b420  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x139420) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n    #5 0x785b413aff76  (/usr/lib/x86_64-linux-gnu/libc.so.6+0x29f76) (BuildId: e0715e6b2fc508102cc2100d3d25a1aa4eb676f9)\n    #6 0x785b413b0026  (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a026) (BuildId: e0715e6b2fc508102cc2100d3d25a1aa4eb676f9)\n    #7 0x57b7c9acd360  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x7b360) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior trees.c:1092:20 in \n",
+          "timed_out": false,
+          "output_limited": false,
+          "resource_limited": false,
+          "command": [
+            "/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized",
+            "--file",
+            "/tmp/tmpgsz634b7/input"
+          ],
+          "container_state": {
+            "Error": "",
+            "ExitCode": 0,
+            "OOMKilled": false
+          }
+        },
+        "triage": {
+          "is_crash": true,
+          "error_type": "out-of-bounds",
+          "detection_mechanism": "UndefinedBehaviorSanitizer",
+          "exit_code": -6,
+          "signal_name": "SIGABRT",
+          "stack_trace": [
+            {
+              "index": 0,
+              "address": "",
+              "function": "unknown",
+              "file": "trees.c",
+              "line": 1092
+            }
+          ],
+          "raw_stdout": "",
+          "raw_stderr": "trees.c:1092:20: runtime error: index 646 out of bounds for type 'const uch[512]' (aka 'const unsigned char[512]')\n==6601==WARNING: invalid path to external symbolizer!\n==6601==WARNING: Failed to use and restart external symbolizer!\n    #0 0x57b7c9c1cccf  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x1caccf) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n    #1 0x57b7c9c0e197  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x1bc197) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n    #2 0x57b7c9bc4b7c  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x172b7c) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n    #3 0x57b7c9ba22ca  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x1502ca) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n    #4 0x57b7c9b8b420  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x139420) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n    #5 0x785b413aff76  (/usr/lib/x86_64-linux-gnu/libc.so.6+0x29f76) (BuildId: e0715e6b2fc508102cc2100d3d25a1aa4eb676f9)\n    #6 0x785b413b0026  (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a026) (BuildId: e0715e6b2fc508102cc2100d3d25a1aa4eb676f9)\n    #7 0x57b7c9acd360  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x7b360) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior trees.c:1092:20 in \n"
+        },
+        "signature": {
+          "error_type": "out-of-bounds",
+          "file": "trees.c",
+          "function": "unknown",
+          "line": 1092
+        },
+        "correlation": {
+          "is_correlated": false,
+          "correlation_type": "Inconclusive",
+          "matched_file": null,
+          "matched_line": null,
+          "matched_frame": null,
+          "hunk": null,
+          "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+        }
+      },
+      {
+        "execution": {
+          "exit_code": -6,
+          "stdout": "",
+          "stderr": "trees.c:1092:20: runtime error: index 646 out of bounds for type 'const uch[512]' (aka 'const unsigned char[512]')\n==6608==WARNING: invalid path to external symbolizer!\n==6608==WARNING: Failed to use and restart external symbolizer!\n    #0 0x5568d05bbccf  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x1caccf) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n    #1 0x5568d05ad197  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x1bc197) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n    #2 0x5568d0563b7c  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x172b7c) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n    #3 0x5568d05412ca  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x1502ca) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n    #4 0x5568d052a420  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x139420) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n    #5 0x7a84f0773f76  (/usr/lib/x86_64-linux-gnu/libc.so.6+0x29f76) (BuildId: e0715e6b2fc508102cc2100d3d25a1aa4eb676f9)\n    #6 0x7a84f0774026  (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a026) (BuildId: e0715e6b2fc508102cc2100d3d25a1aa4eb676f9)\n    #7 0x5568d046c360  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x7b360) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior trees.c:1092:20 in \n",
+          "timed_out": false,
+          "output_limited": false,
+          "resource_limited": false,
+          "command": [
+            "/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized",
+            "--file",
+            "/tmp/tmpjfghlz9g/input"
+          ],
+          "container_state": {
+            "Error": "",
+            "ExitCode": 0,
+            "OOMKilled": false
+          }
+        },
+        "triage": {
+          "is_crash": true,
+          "error_type": "out-of-bounds",
+          "detection_mechanism": "UndefinedBehaviorSanitizer",
+          "exit_code": -6,
+          "signal_name": "SIGABRT",
+          "stack_trace": [
+            {
+              "index": 0,
+              "address": "",
+              "function": "unknown",
+              "file": "trees.c",
+              "line": 1092
+            }
+          ],
+          "raw_stdout": "",
+          "raw_stderr": "trees.c:1092:20: runtime error: index 646 out of bounds for type 'const uch[512]' (aka 'const unsigned char[512]')\n==6608==WARNING: invalid path to external symbolizer!\n==6608==WARNING: Failed to use and restart external symbolizer!\n    #0 0x5568d05bbccf  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x1caccf) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n    #1 0x5568d05ad197  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x1bc197) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n    #2 0x5568d0563b7c  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x172b7c) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n    #3 0x5568d05412ca  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x1502ca) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n    #4 0x5568d052a420  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x139420) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n    #5 0x7a84f0773f76  (/usr/lib/x86_64-linux-gnu/libc.so.6+0x29f76) (BuildId: e0715e6b2fc508102cc2100d3d25a1aa4eb676f9)\n    #6 0x7a84f0774026  (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a026) (BuildId: e0715e6b2fc508102cc2100d3d25a1aa4eb676f9)\n    #7 0x5568d046c360  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x7b360) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior trees.c:1092:20 in \n"
+        },
+        "signature": {
+          "error_type": "out-of-bounds",
+          "file": "trees.c",
+          "function": "unknown",
+          "line": 1092
+        },
+        "correlation": {
+          "is_correlated": false,
+          "correlation_type": "Inconclusive",
+          "matched_file": null,
+          "matched_line": null,
+          "matched_frame": null,
+          "hunk": null,
+          "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+        }
+      }
+    ],
+    "patch": [
+      {
+        "execution": {
+          "exit_code": -11,
+          "stdout": "",
+          "stderr": "",
+          "timed_out": false,
+          "output_limited": false,
+          "resource_limited": false,
+          "command": [
+            "/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/patch/sanitized/driver_sanitized",
+            "--file",
+            "/tmp/tmpgnvi3es_/input"
+          ],
+          "container_state": {
+            "Error": "",
+            "ExitCode": 0,
+            "OOMKilled": false
+          }
+        },
+        "triage": {
+          "is_crash": true,
+          "error_type": "SIGSEGV",
+          "detection_mechanism": "OS Signal",
+          "exit_code": -11,
+          "signal_name": "SIGSEGV",
+          "stack_trace": [],
+          "raw_stdout": "",
+          "raw_stderr": ""
+        },
+        "signature": null,
+        "correlation": {
+          "is_correlated": false,
+          "correlation_type": "Inconclusive",
+          "matched_file": null,
+          "matched_line": null,
+          "matched_frame": null,
+          "hunk": null,
+          "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+        }
+      },
+      {
+        "execution": {
+          "exit_code": 0,
+          "stdout": "",
+          "stderr": "",
+          "timed_out": false,
+          "output_limited": false,
+          "resource_limited": false,
+          "command": [
+            "/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/patch/sanitized/driver_sanitized",
+            "--file",
+            "/tmp/tmpo3c2j8eu/input"
+          ],
+          "container_state": {
+            "Error": "",
+            "ExitCode": 0,
+            "OOMKilled": false
+          }
+        },
+        "triage": {
+          "is_crash": false,
+          "error_type": "none",
+          "detection_mechanism": "none",
+          "exit_code": 0,
+          "signal_name": null,
+          "stack_trace": [],
+          "raw_stdout": "",
+          "raw_stderr": ""
+        },
+        "signature": null,
+        "correlation": {
+          "is_correlated": false,
+          "correlation_type": "Inconclusive",
+          "matched_file": null,
+          "matched_line": null,
+          "matched_frame": null,
+          "hunk": null,
+          "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+        }
+      },
+      {
+        "execution": {
+          "exit_code": 0,
+          "stdout": "",
+          "stderr": "",
+          "timed_out": false,
+          "output_limited": false,
+          "resource_limited": false,
+          "command": [
+            "/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/patch/sanitized/driver_sanitized",
+            "--file",
+            "/tmp/tmpzkg1y2fd/input"
+          ],
+          "container_state": {
+            "Error": "",
+            "ExitCode": 0,
+            "OOMKilled": false
+          }
+        },
+        "triage": {
+          "is_crash": false,
+          "error_type": "none",
+          "detection_mechanism": "none",
+          "exit_code": 0,
+          "signal_name": null,
+          "stack_trace": [],
+          "raw_stdout": "",
+          "raw_stderr": ""
+        },
+        "signature": null,
+        "correlation": {
+          "is_correlated": false,
+          "correlation_type": "Inconclusive",
+          "matched_file": null,
+          "matched_line": null,
+          "matched_frame": null,
+          "hunk": null,
+          "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+        }
+      }
+    ]
+  },
+  "minimization_log": [
+    {
+      "input_sha256": "e738dd11f4fccb4b3ceb2893a57ec3b3a84f10181a0bb067f32aea8c58746973",
+      "observations": [
+        {
+          "execution": {
+            "exit_code": -6,
+            "stdout": "",
+            "stderr": "trees.c:1092:20: runtime error: index 646 out of bounds for type 'const uch[512]' (aka 'const unsigned char[512]')\n==6146==WARNING: invalid path to external symbolizer!\n==6146==WARNING: Failed to use and restart external symbolizer!\n    #0 0x5a43733a8ccf  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x1caccf) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n    #1 0x5a437339a197  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x1bc197) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n    #2 0x5a4373350b7c  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x172b7c) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n    #3 0x5a437332e2ca  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x1502ca) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n    #4 0x5a4373317420  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x139420) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n    #5 0x7e5fe47c9f76  (/usr/lib/x86_64-linux-gnu/libc.so.6+0x29f76) (BuildId: e0715e6b2fc508102cc2100d3d25a1aa4eb676f9)\n    #6 0x7e5fe47ca026  (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a026) (BuildId: e0715e6b2fc508102cc2100d3d25a1aa4eb676f9)\n    #7 0x5a4373259360  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x7b360) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior trees.c:1092:20 in \n",
+            "timed_out": false,
+            "output_limited": false,
+            "resource_limited": false,
+            "command": [
+              "/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized",
+              "--file",
+              "/tmp/tmp0eqc_4j_/input"
+            ],
+            "container_state": {
+              "Error": "",
+              "ExitCode": 0,
+              "OOMKilled": false
+            }
+          },
+          "triage": {
+            "is_crash": true,
+            "error_type": "out-of-bounds",
+            "detection_mechanism": "UndefinedBehaviorSanitizer",
+            "exit_code": -6,
+            "signal_name": "SIGABRT",
+            "stack_trace": [
+              {
+                "index": 0,
+                "address": "",
+                "function": "unknown",
+                "file": "trees.c",
+                "line": 1092
+              }
+            ],
+            "raw_stdout": "",
+            "raw_stderr": "trees.c:1092:20: runtime error: index 646 out of bounds for type 'const uch[512]' (aka 'const unsigned char[512]')\n==6146==WARNING: invalid path to external symbolizer!\n==6146==WARNING: Failed to use and restart external symbolizer!\n    #0 0x5a43733a8ccf  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x1caccf) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n    #1 0x5a437339a197  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x1bc197) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n    #2 0x5a4373350b7c  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x172b7c) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n    #3 0x5a437332e2ca  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x1502ca) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n    #4 0x5a4373317420  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x139420) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n    #5 0x7e5fe47c9f76  (/usr/lib/x86_64-linux-gnu/libc.so.6+0x29f76) (BuildId: e0715e6b2fc508102cc2100d3d25a1aa4eb676f9)\n    #6 0x7e5fe47ca026  (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a026) (BuildId: e0715e6b2fc508102cc2100d3d25a1aa4eb676f9)\n    #7 0x5a4373259360  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x7b360) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior trees.c:1092:20 in \n"
+          },
+          "signature": {
+            "error_type": "out-of-bounds",
+            "file": "trees.c",
+            "function": "unknown",
+            "line": 1092
+          },
+          "correlation": {
+            "is_correlated": false,
+            "correlation_type": "Inconclusive",
+            "matched_file": null,
+            "matched_line": null,
+            "matched_frame": null,
+            "hunk": null,
+            "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+          }
+        },
+        {
+          "execution": {
+            "exit_code": -6,
+            "stdout": "",
+            "stderr": "trees.c:1092:20: runtime error: index 646 out of bounds for type 'const uch[512]' (aka 'const unsigned char[512]')\n==6153==WARNING: invalid path to external symbolizer!\n==6153==WARNING: Failed to use and restart external symbolizer!\n    #0 0x5956e503bccf  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x1caccf) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n    #1 0x5956e502d197  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x1bc197) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n    #2 0x5956e4fe3b7c  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x172b7c) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n    #3 0x5956e4fc12ca  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x1502ca) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n    #4 0x5956e4faa420  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x139420) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n    #5 0x77f8440eaf76  (/usr/lib/x86_64-linux-gnu/libc.so.6+0x29f76) (BuildId: e0715e6b2fc508102cc2100d3d25a1aa4eb676f9)\n    #6 0x77f8440eb026  (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a026) (BuildId: e0715e6b2fc508102cc2100d3d25a1aa4eb676f9)\n    #7 0x5956e4eec360  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x7b360) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior trees.c:1092:20 in \n",
+            "timed_out": false,
+            "output_limited": false,
+            "resource_limited": false,
+            "command": [
+              "/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized",
+              "--file",
+              "/tmp/tmpe0g889yn/input"
+            ],
+            "container_state": {
+              "Error": "",
+              "ExitCode": 0,
+              "OOMKilled": false
+            }
+          },
+          "triage": {
+            "is_crash": true,
+            "error_type": "out-of-bounds",
+            "detection_mechanism": "UndefinedBehaviorSanitizer",
+            "exit_code": -6,
+            "signal_name": "SIGABRT",
+            "stack_trace": [
+              {
+                "index": 0,
+                "address": "",
+                "function": "unknown",
+                "file": "trees.c",
+                "line": 1092
+              }
+            ],
+            "raw_stdout": "",
+            "raw_stderr": "trees.c:1092:20: runtime error: index 646 out of bounds for type 'const uch[512]' (aka 'const unsigned char[512]')\n==6153==WARNING: invalid path to external symbolizer!\n==6153==WARNING: Failed to use and restart external symbolizer!\n    #0 0x5956e503bccf  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x1caccf) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n    #1 0x5956e502d197  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x1bc197) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n    #2 0x5956e4fe3b7c  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x172b7c) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n    #3 0x5956e4fc12ca  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x1502ca) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n    #4 0x5956e4faa420  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x139420) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n    #5 0x77f8440eaf76  (/usr/lib/x86_64-linux-gnu/libc.so.6+0x29f76) (BuildId: e0715e6b2fc508102cc2100d3d25a1aa4eb676f9)\n    #6 0x77f8440eb026  (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a026) (BuildId: e0715e6b2fc508102cc2100d3d25a1aa4eb676f9)\n    #7 0x5956e4eec360  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x7b360) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior trees.c:1092:20 in \n"
+          },
+          "signature": {
+            "error_type": "out-of-bounds",
+            "file": "trees.c",
+            "function": "unknown",
+            "line": 1092
+          },
+          "correlation": {
+            "is_correlated": false,
+            "correlation_type": "Inconclusive",
+            "matched_file": null,
+            "matched_line": null,
+            "matched_frame": null,
+            "hunk": null,
+            "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+          }
+        },
+        {
+          "execution": {
+            "exit_code": -6,
+            "stdout": "",
+            "stderr": "trees.c:1092:20: runtime error: index 646 out of bounds for type 'const uch[512]' (aka 'const unsigned char[512]')\n==6160==WARNING: invalid path to external symbolizer!\n==6160==WARNING: Failed to use and restart external symbolizer!\n    #0 0x5bf60924cccf  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x1caccf) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n    #1 0x5bf60923e197  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x1bc197) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n    #2 0x5bf6091f4b7c  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x172b7c) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n    #3 0x5bf6091d22ca  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x1502ca) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n    #4 0x5bf6091bb420  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x139420) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n    #5 0x71317ffe0f76  (/usr/lib/x86_64-linux-gnu/libc.so.6+0x29f76) (BuildId: e0715e6b2fc508102cc2100d3d25a1aa4eb676f9)\n    #6 0x71317ffe1026  (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a026) (BuildId: e0715e6b2fc508102cc2100d3d25a1aa4eb676f9)\n    #7 0x5bf6090fd360  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x7b360) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior trees.c:1092:20 in \n",
+            "timed_out": false,
+            "output_limited": false,
+            "resource_limited": false,
+            "command": [
+              "/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized",
+              "--file",
+              "/tmp/tmp8yrsbwyr/input"
+            ],
+            "container_state": {
+              "Error": "",
+              "ExitCode": 0,
+              "OOMKilled": false
+            }
+          },
+          "triage": {
+            "is_crash": true,
+            "error_type": "out-of-bounds",
+            "detection_mechanism": "UndefinedBehaviorSanitizer",
+            "exit_code": -6,
+            "signal_name": "SIGABRT",
+            "stack_trace": [
+              {
+                "index": 0,
+                "address": "",
+                "function": "unknown",
+                "file": "trees.c",
+                "line": 1092
+              }
+            ],
+            "raw_stdout": "",
+            "raw_stderr": "trees.c:1092:20: runtime error: index 646 out of bounds for type 'const uch[512]' (aka 'const unsigned char[512]')\n==6160==WARNING: invalid path to external symbolizer!\n==6160==WARNING: Failed to use and restart external symbolizer!\n    #0 0x5bf60924cccf  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x1caccf) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n    #1 0x5bf60923e197  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x1bc197) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n    #2 0x5bf6091f4b7c  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x172b7c) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n    #3 0x5bf6091d22ca  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x1502ca) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n    #4 0x5bf6091bb420  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x139420) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n    #5 0x71317ffe0f76  (/usr/lib/x86_64-linux-gnu/libc.so.6+0x29f76) (BuildId: e0715e6b2fc508102cc2100d3d25a1aa4eb676f9)\n    #6 0x71317ffe1026  (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a026) (BuildId: e0715e6b2fc508102cc2100d3d25a1aa4eb676f9)\n    #7 0x5bf6090fd360  (/workspace/Project/artifacts/evaluation/target1/correct/runs/run-gx6_3cwa/base/sanitized/driver_sanitized+0x7b360) (BuildId: e3dbdf1eaa178011b7c4035c65ff7bcdc1d5d166)\n\nSUMMARY: UndefinedBehaviorSanitizer: undefined-behavior trees.c:1092:20 in \n"
+          },
+          "signature": {
+            "error_type": "out-of-bounds",
+            "file": "trees.c",
+            "function": "unknown",
+            "line": 1092
+          },
+          "correlation": {
+            "is_correlated": false,
+            "correlation_type": "Inconclusive",
+            "matched_file": null,
+            "matched_line": null,
+            "matched_frame": null,
+            "hunk": null,
+            "reason": "No unambiguous edited-line or inserted-function runtime evidence; attribution is unsupported."
+          }
+        }
+      ]
+    }
+  ],
+  "minimization": {
+    "original_size": 26624,
+    "minimized_size": 26624,
+    "reduced": false,
+    "stop_reason": "granularity_limit",
+    "oracle_calls": 62,
+    "max_granularity": 16,
+    "max_oracle_calls": 256,
+    "limit_reached": true
+  },
+  "reproduced": true,
+  "stable": false,
+  "minimization_scope": "reference oracle",
+  "baseline_fail_patch_pass": false,
+  "versions": {
+    "base": "88fb854d151473d88294f56da390408c61be23a8",
+    "patch": "29abcf1b7d99287ec85e5babd4d4234f60d1fff7"
+  },
+  "artifacts": {
+    "base": {
+      "source": "base/sanitized",
+      "binary": "driver_sanitized",
+      "sha256": "218ab5132e475c80212bbf148ac19be664e80ece3bdc11a51e14c3dd94413229"
+    },
+    "patch": {
+      "source": "patch/sanitized",
+      "binary": "driver_sanitized",
+      "sha256": "0e1d089ebfcb4ae5ba31b65cd5f3c15d3b1d1bea9cf8741cbb626ab9b648d935"
+    }
+  },
+  "replay_command": [
+    "python",
+    "-m",
+    "diffsheriff.reproduce",
+    "reproducers/d60941f22695b19241af"
+  ]
+}

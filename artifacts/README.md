@@ -1,11 +1,16 @@
 # Retained evidence
 
-These are historical verification records. Current acceptance and all remaining work
-belong in [the roadmap](../docs/roadmap.md). No selected-target matrix run bundle is
-currently delivered here. Generated regressions under `evaluation/` do not replace one.
+These are retained verification records. Current acceptance and remaining work belong
+in [the roadmap](../docs/roadmap.md). One `target1/correct` evaluation attempt is
+retained under `evaluation/`; its report returned exit 40 (INCONCLUSIVE) and it is not
+an accepted comparison. The Strix campaign stopped before the other five comparisons,
+so the complete six-comparison matrix is still missing. Generated regressions under
+`evaluation/` do not replace that matrix.
 
 | Record | Purpose |
 | --- | --- |
+| [F03 corpus review](checkpoints/f03-corpus-review/README.md) | Selected-input/expectation review and the zlib invalid-input resolution. |
+| [Build and hardening](checkpoints/build-hardening/README.md) | Selected-version builds, ELF NX/PIE/RELRO/canary observations and downgrade reporting. |
 | [PNG contract](checkpoints/png-contract/README.md) | Decode-error handling, updated source versions, reviewed fixtures and native scenario checks. |
 | [Zlib contract and CI setup](checkpoints/zlib-contract-ci/README.md) | Bounded zlib status/validity, native cases and fresh source-bundle setup. |
 | [Correlation and priority](checkpoints/correlation-priority/README.md) | Ambiguous attribution repair and all 16 mixed-outcome CLI checks; [rebuilt-runtime retry](checkpoints/correlation-priority/retry/README.md). |

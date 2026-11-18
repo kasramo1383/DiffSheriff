@@ -95,6 +95,20 @@ and independent expectations for newly reduced bytes remain separate work.
 ### F03 - Review the existing corpus and expectations
 
 - **Depends on:** F01/F02 contract decisions.
+- **Review verified (F03; scope interpretation pending instructor approval).**
+  `python -m pytest -q tests/test_target_assets.py` passes
+  (11) and all six configs load: target1 has 10 cases per variant and no
+  `valid_input: false` case; target2 has 4 cases per variant with 3 invalid. The
+  assignment (p. 2) requires the tool to run valid, boundary and invalid input suites on
+  both versions. A native probe of the target1 release
+  driver returned 0 for every suite and generated payload and for 65536/65537-byte and
+  randomized inputs, and rejected only interface-level conditions (missing/unreadable
+  path, missing `--file`) that a payload suite cannot express. The `65537 -> exit 2`
+  result is therefore reference-only, not target behavior. Resolution: target1 adds no
+  invalid payload and keeps its triggers labelled valid; the project-wide suite includes
+  genuine rejected inputs in target2. This interpretation is not instructor-approved.
+  No corpus or config file changed; the review evidence is retained
+  under the [F03 corpus-review checkpoint](../artifacts/checkpoints/f03-corpus-review/README.md).
 - **Fix:** Correct validity and unsupported expectations for existing files. Ensure
   representative valid, boundary and invalid cases are documented. Add the smallest
   missing case only if a required category or chosen boundary behavior lacks coverage.
@@ -104,6 +118,17 @@ and independent expectations for newly reduced bytes remain separate work.
 
 ### F04 - Confirm builds and measure hardening
 
+- **Verified (F04).** All eight selected versions build natively (Debian clang 14.0.6,
+  GNU make 4.3) to x86_64 ELF in ordinary and instrumented modes from the delivered
+  bundles; no build or packaging change was needed. Every release binary shows NX=True,
+  PIE=True, RELRO=partial, canary=False (the bundled default flags omit canary and full
+  RELRO, and the six configs impose no absolute all-enabled minimum). Release and
+  sanitized sha256 identities are retained under the
+  [build/hardening checkpoint](../artifacts/checkpoints/build-hardening/README.md).
+  Downgrade reporting was verified on real ELFs: baseline->correct reports no
+  degradation; a deliberately weakened build (`-no-pie -z norelro -z execstack
+  -fno-stack-protector`) reports NX, PIE and RELRO downgrades. `tests/test_hardening.py`
+  passes (7).
 - **Fix:** Establish which compiler, flags, dependencies and runtime are actually used
   and document sufficient setup to build/replay. Make compiler selection explicit only
   if required for consistent builds. Absolute minima in the six configs are neutral;
@@ -115,9 +140,13 @@ and independent expectations for newly reduced bytes remain separate work.
 
 ### F05 - Update packaged sources only when needed
 
+- **Verified (F05).** All four configured commits resolve from both delivered bundles
+  (`git bundle list-heads`), matching the six configs' `base_ref`/`patch_ref`. No
+  ref/bundle/config disagreement was found, so no packaging change was made.
 **PNG driver update packaged and verified.** All four current refs/configs and the
 source bundle agree. Legacy refs preserve the prior versions; source-mapping evidence
 records the exact transition. No library fix or license was changed.
+
 
 - **Depends on:** Any source changes in F01/F02/F04.
 - **Fix:** If drivers/builds change, update the affected four scenario refs, bundles,
@@ -163,6 +192,13 @@ report its supported level instead of expanding the assignment.
 ### F09 - Deliver the required target results
 
 - **Depends on:** F01-F05/F07 where corrective work is needed.
+- **Partial F09 campaign retained:** `artifacts/evaluation/target1/correct/report.json`
+  and its `runs/run-gx6_3cwa/` bundle record one comparison attempt. It ran 120 tests
+  but returned 40 (INCONCLUSIVE), with 11 functional passes, 9 failures, no stable
+  designated baseline finding, and incomplete analysis. Preserve it as a failed attempt;
+  it does not count as an accepted correct comparison or complete matrix row. Diagnose
+  the baseline signature/reproduction discrepancy before rerunning this row. No other
+  target/variant run bundle is present yet.
 - **Fix:** Execute the six baseline/patch comparisons in [evaluation.md](evaluation.md).
   Retain each report and its source/build/input/reproducer evidence. Keep meaningful
   failed attempts without producing redundant checkpoint campaigns.
