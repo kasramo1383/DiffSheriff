@@ -1,0 +1,7 @@
+diff --git a/deflate.h b/deflate.h
+index 23ecdd3..0654924 100644
+--- a/deflate.h
++++ b/deflate.h
+@@ -341 +341 @@ void ZLIB_INTERNAL _tr_stored_block OF((deflate_state *s, charf *buf,
+-    flush = (s->last_lit == s->lit_bufsize-1); \
++    flush = (s->last_lit >= s->lit_bufsize-1 || (s->lit_bufsize <= 128 && s->last_lit >= 64 && s->strm->total_in <= 32768)); \

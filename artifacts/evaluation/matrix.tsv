@@ -1,0 +1,3 @@
+target	variant	expected	actual	verdict
+target1	correct	0	40	mismatch
+target1	incomplete	10	10	verified

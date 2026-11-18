@@ -1,0 +1,23 @@
+Validating zlib-cve-2018-25032: 88fb854d1514 -> 29abcf1b7d99
+INCONCLUSIVE (exit 40); 120 suite executions
+Security: INCONCLUSIVE; functional: PASS; analysis: incomplete
+Hardening (release) base: NX=True PIE=True RELRO=partial canary=False
+Hardening (release) patch: NX=True PIE=True RELRO=partial canary=False
+  base/release: sanitizer symbols=none observed; FORTIFY symbol candidates=0; symbol tables=.dynsym,.symtab
+  base/sanitized: sanitizer symbols=asan,ubsan,lsan; FORTIFY symbol candidates=24; symbol tables=.dynsym,.symtab
+  patch/release: sanitizer symbols=none observed; FORTIFY symbol candidates=0; symbol tables=.dynsym,.symtab
+  patch/sanitized: sanitizer symbols=asan,ubsan,lsan; FORTIFY symbol candidates=24; symbol tables=.dynsym,.symtab
+  Inconclusive: malicious/cve_2018_25032.input [sanitized] - none
+    detection: none; correlation: Inconclusive; stable: True
+    Baseline diagnostic disappeared without sufficient expected behavior or patch correlation; Baseline does not satisfy the independent valid-input expectation
+  Inconclusive: malicious/cve_2018_25032_bypass.input [sanitized] - none
+    detection: none; correlation: Inconclusive; stable: True
+    Baseline diagnostic disappeared without sufficient expected behavior or patch correlation; Baseline does not satisfy the independent valid-input expectation
+  Inconclusive: regression/533609f36db8336c36255e0f4a97624621afe93ebba4349c80a3c650f518d139 [sanitized] - none
+    detection: none; correlation: Inconclusive; stable: True
+    Baseline diagnostic disappeared without sufficient expected behavior or patch correlation; Baseline does not satisfy the independent valid-input expectation
+  Inconclusive: regression/7c2328b634e431ba1384cf482081177cbf34eab62de1952b1c2893808309b404 [sanitized] - none
+    detection: none; correlation: Inconclusive; stable: True
+    Baseline diagnostic disappeared without sufficient expected behavior or patch correlation; Baseline does not satisfy the independent valid-input expectation
+Evidence directory: /mnt/f/KasraFolder/دانشگاه صنعتی آریامهر/ترم 7/امنیت داده و شبکه/Project/artifacts/evaluation/target1/correct/runs/run-76j2clt5
+Report: artifacts/evaluation/target1/correct/report.json
