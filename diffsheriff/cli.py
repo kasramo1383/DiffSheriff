@@ -47,12 +47,14 @@ def main(config, output_json, artifacts, regressions_from, export_regressions):
         summary = run_pipeline(cfg, artifacts.resolve())
         if export_regressions is not None:
             failure_reason = "regression_export_failed"
-            if regressions.exists():
-                copy_regressions(
-                    regressions, export_regressions, cfg.base_ref, replace_existing=True
-                )
-            else:
-                export_regressions.mkdir(parents=True, exist_ok=True)
+            source = (
+                regressions
+                if regressions.exists() or regressions.is_symlink()
+                else None
+            )
+            copy_regressions(
+                source, export_regressions, cfg.base_ref, replace_existing=True
+            )
     except Exception as error:
         summary.exit_code, summary.verdict = 30, "BUILD_OR_CONFIG_ERROR"
         summary.mark_incomplete(failure_reason)

@@ -252,3 +252,155 @@ def test_patch_coordinate_signature_is_supported(tmp_path):
     (source / "case.json").write_text(json.dumps(item))
     copy_regressions(source, destination, "a" * 40)
     assert (destination / "case.json").exists()
+
+
+def functional_export(path, cases):
+    """Write full-check functional manifests mapping manifest name to input name."""
+    path.mkdir()
+    for manifest_name, input_name in cases.items():
+        payload = f"harmless {input_name}".encode()
+        (path / input_name).write_bytes(payload)
+        item = {
+            "base_ref": "a" * 40,
+            "input": input_name,
+            "sha256": hashlib.sha256(payload).hexdigest(),
+            "mode": "sanitized",
+            "signature": {
+                "error_type": "functional-mismatch",
+                "file": "sample.c",
+                "function": "parse",
+                "line": 8,
+            },
+            "finding_signature": None,
+            "finding_side": "patch",
+            "kind": "functional",
+            "check": "full",
+            "valid_input": True,
+            "expected": {"exit_code": 0, "stdout": "ok", "stderr": ""},
+        }
+        (path / manifest_name).write_text(json.dumps(item))
+
+
+def destination_bytes(destination):
+    return {path.name: path.read_bytes() for path in destination.iterdir()}
+
+
+def test_export_refresh_drops_case_missing_from_source(tmp_path):
+    source, destination = tmp_path / "source", tmp_path / "destination"
+    functional_export(
+        source, {"kept.json": "kept.input", "retired.json": "retired.input"}
+    )
+    copy_regressions(source, destination, "a" * 40, replace_existing=True)
+    (destination / "notes.txt").write_bytes(b"unrelated local notes")
+    (source / "retired.json").unlink()
+    (source / "retired.input").unlink()
+    copy_regressions(source, destination, "a" * 40, replace_existing=True)
+    assert sorted(path.name for path in destination.iterdir()) == [
+        "kept.input",
+        "kept.json",
+        "notes.txt",
+    ]
+    assert (destination / "kept.json").read_bytes() == (
+        source / "kept.json"
+    ).read_bytes()
+    assert (destination / "notes.txt").read_bytes() == b"unrelated local notes"
+
+
+def test_refresh_keeps_payload_referenced_by_retained_manifest(tmp_path):
+    source, destination = tmp_path / "source", tmp_path / "destination"
+    functional_export(
+        source, {"kept.json": "shared.input", "retired.json": "shared.input"}
+    )
+    copy_regressions(source, destination, "a" * 40, replace_existing=True)
+    (source / "retired.json").unlink()
+    copy_regressions(source, destination, "a" * 40, replace_existing=True)
+    assert sorted(path.name for path in destination.iterdir()) == [
+        "kept.json",
+        "shared.input",
+    ]
+    assert (destination / "shared.input").read_bytes() == b"harmless shared.input"
+
+
+def test_invalid_refresh_leaves_prior_snapshot_intact(tmp_path):
+    source, destination = tmp_path / "source", tmp_path / "destination"
+    functional_export(
+        source, {"kept.json": "kept.input", "retired.json": "retired.input"}
+    )
+    copy_regressions(source, destination, "a" * 40, replace_existing=True)
+    before = destination_bytes(destination)
+    (source / "kept.input").write_bytes(b"tampered without a new hash")
+    (source / "retired.json").unlink()
+    (source / "retired.input").unlink()
+    with pytest.raises(ConfigError):
+        copy_regressions(source, destination, "a" * 40, replace_existing=True)
+    assert destination_bytes(destination) == before
+
+
+def test_refresh_fails_closed_on_unowned_destination_manifest(tmp_path):
+    source, destination = tmp_path / "source", tmp_path / "destination"
+    functional_export(source, {"kept.json": "kept.input"})
+    copy_regressions(source, destination, "a" * 40, replace_existing=True)
+    (destination / "unknown.json").write_bytes(b"not a retained regression")
+    before = destination_bytes(destination)
+    (source / "kept.json").unlink()
+    (source / "kept.input").unlink()
+    with pytest.raises(ConfigError):
+        copy_regressions(source, destination, "a" * 40, replace_existing=True)
+    assert destination_bytes(destination) == before
+
+
+def test_refresh_keeps_payload_of_other_baseline_sorted_after_stale_manifest(tmp_path):
+    source, destination = tmp_path / "source", tmp_path / "destination"
+    source.mkdir()
+    functional_export(
+        destination, {"a-stale.json": "shared.input", "z-other.json": "shared.input"}
+    )
+    other = destination / "z-other.json"
+    data = json.loads(other.read_bytes())
+    other.write_text(json.dumps({**data, "base_ref": "b" * 40}))
+    other_before = other.read_bytes()
+    copy_regressions(source, destination, "a" * 40, replace_existing=True)
+    assert destination_bytes(destination) == {
+        "z-other.json": other_before,
+        "shared.input": b"harmless shared.input",
+    }
+
+
+def test_refresh_refuses_to_change_other_baseline_payload(tmp_path):
+    source, destination = tmp_path / "source", tmp_path / "destination"
+    functional_export(source, {"incoming.json": "shared.input"})
+    functional_export(destination, {"other.json": "shared.input"})
+    other = destination / "other.json"
+    payload = b"different harmless bytes"
+    (destination / "shared.input").write_bytes(payload)
+    data = json.loads(other.read_bytes())
+    other.write_text(
+        json.dumps(
+            {
+                **data,
+                "base_ref": "b" * 40,
+                "sha256": hashlib.sha256(payload).hexdigest(),
+            }
+        )
+    )
+    before = destination_bytes(destination)
+    with pytest.raises(ConfigError, match="Refusing to replace unrelated"):
+        copy_regressions(source, destination, "a" * 40, replace_existing=True)
+    assert destination_bytes(destination) == before
+
+
+def test_refresh_retires_old_payload_when_manifest_switches_input(tmp_path):
+    source, destination = tmp_path / "source", tmp_path / "destination"
+    functional_export(source, {"case.json": "new.input"})
+    functional_export(destination, {"case.json": "old.input"})
+    copy_regressions(source, destination, "a" * 40, replace_existing=True)
+    assert destination_bytes(destination) == destination_bytes(source)
+
+
+def test_export_rejects_missing_source_path_without_retiring_existing_files(tmp_path):
+    source, destination = tmp_path / "missing", tmp_path / "destination"
+    functional_export(destination, {"existing.json": "existing.input"})
+    before = destination_bytes(destination)
+    with pytest.raises(ConfigError, match="Missing retained regression directory"):
+        copy_regressions(source, destination, "a" * 40, replace_existing=True)
+    assert destination_bytes(destination) == before

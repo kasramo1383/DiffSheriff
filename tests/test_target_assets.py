@@ -142,6 +142,71 @@ def test_workflow_missing_bundle_fails_before_validation(tmp_path):
     assert not (tmp_path / "evaluation/target1/repository").exists()
 
 
+@pytest.mark.skipif(sys.platform == "win32", reason="CI uses bash on Linux")
+@pytest.mark.parametrize("second", ["ready", "missing", "occupied", "symlink"])
+def test_workflow_preflights_both_bundle_destinations(tmp_path, second):
+    fixture = tmp_path / "fixture"
+    fixture.mkdir()
+
+    def git(*args):
+        return subprocess.check_output(
+            ["git", "-C", str(fixture), *args], text=True, stderr=subprocess.PIPE
+        ).strip()
+
+    git("init", "--initial-branch=main")
+    (fixture / "readme.txt").write_text("harmless bundle fixture")
+    git("add", "readme.txt")
+    git(
+        "-c",
+        "user.name=Fixture",
+        "-c",
+        "user.email=fixture@example.invalid",
+        "-c",
+        "commit.gpgsign=false",
+        "commit",
+        "-m",
+        "Fixture",
+    )
+    head = git("rev-parse", "HEAD")
+    for target in ("target1", "target2"):
+        bundle = tmp_path / "targets" / target / "source.bundle"
+        bundle.parent.mkdir(parents=True)
+        if target == "target1" or second != "missing":
+            git("bundle", "create", str(bundle), "--all")
+
+    first = tmp_path / "evaluation/target1/repository"
+    last = tmp_path / "evaluation/target2/repository"
+    last.parent.mkdir(parents=True)
+    if second == "occupied":
+        last.mkdir()
+        (last / "marker.txt").write_text("keep")
+    elif second == "symlink":
+        last.symlink_to(fixture, target_is_directory=True)
+
+    result = subprocess.run(
+        ["bash", "-e", "-c", preparation_script()], cwd=tmp_path, capture_output=True
+    )
+    if second == "ready":
+        assert result.returncode == 0, result.stderr
+        for checkout in (first, last):
+            assert (
+                subprocess.check_output(
+                    ["git", "-C", str(checkout), "rev-parse", "HEAD"], text=True
+                ).strip()
+                == head
+            )
+    else:
+        assert result.returncode != 0
+        assert not first.exists()
+        if second == "occupied":
+            assert (last / "marker.txt").read_text() == "keep"
+        elif second == "symlink":
+            assert last.is_symlink() and last.resolve() == fixture
+            assert (last / "readme.txt").read_text() == "harmless bundle fixture"
+        else:
+            assert not last.exists()
+
+
 PNG = ROOT / "evaluation/target2"
 
 

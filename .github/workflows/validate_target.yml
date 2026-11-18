@@ -32,11 +32,19 @@ jobs:
       - name: Prepare target sources
         run: |
           for target in target1 target2; do
+            bundle="targets/$target/source.bundle"
             destination="evaluation/$target/repository"
+            if [ ! -f "$bundle" ]; then
+              echo "Missing target source bundle: $bundle" >&2
+              exit 1
+            fi
             if [ -e "$destination" ] || [ -L "$destination" ]; then
               echo "Refusing to overwrite existing target source: $destination" >&2
               exit 1
             fi
+          done
+          for target in target1 target2; do
+            destination="evaluation/$target/repository"
             git clone -- "targets/$target/source.bundle" "$destination"
           done
       - run: python -m pip install .

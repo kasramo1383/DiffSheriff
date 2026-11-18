@@ -3,8 +3,8 @@
 The [target workflow](../.github/workflows/validate_target.yml) runs the real CLI.
 Its config must already identify an authorized local target, independently defined
 expectations, and full baseline/patch Git commit hashes. The example schema is not
-a runnable course target. Target approval is recorded in
-[target_scenarios.md](target_scenarios.md).
+a runnable course target. See [target_scenarios.md](target_scenarios.md) for target
+provenance and the status of instructor approval.
 
 Run **Validate target patch** manually in GitHub Actions with the config's path,
 or set the repository variable `DIFFSHERIFF_TARGET_CONFIG` to enable it on the
@@ -13,10 +13,17 @@ from another workflow using `workflow_call`. The checkout includes full history 
 submodules; `target.repository_path` must resolve to the checked-out target repository
 with both source commits available. The runtime image is built from this checkout.
 
-The `Prepare target sources` step clones the two delivered bundles before the CLI runs.
-It refuses an existing destination (including local modifications) and stops on a
-missing/corrupt bundle. Fresh-runner tests verify every configured commit is available.
-Target acceptance results remain separate from source-setup verification.
+The `Prepare target sources` step preflights both bundle paths
+(`targets/<target>/source.bundle`) and both destinations
+(`evaluation/<target>/repository`) before it clones either bundle. A missing
+bundle, or an existing or symlinked destination, stops the step before it
+creates a checkout. Only then does the step clone the two bundles in the existing
+order. Fresh-runner tests verify every configured commit is available. If a clone
+itself fails after a successful preflight, the first checkout may already exist;
+retry from a fresh checkout or clean runner rather than reusing the partial
+workspace, because the step refuses an existing destination and never deletes one.
+See the [evaluation guide](evaluation.md) for standalone setup. Target acceptance
+results remain separate from source setup verification.
 
 The job runs:
 
@@ -81,7 +88,10 @@ build mode, both signatures, finding side, kind, and all other metadata except
 unchanged. Equal metadata also preserves local formatting, and repeated imports are
 idempotent. Different non-null expectations, identity differences, invalid metadata,
 corrupt inputs, traversal, and symlinks fail closed before transfer writes. Export
-still explicitly refreshes its caller-owned output snapshot.
+refreshes the caller-owned output snapshot for the configured baseline, even
+when there are no generated regressions. It retires stale manifests and unreferenced
+payloads from that baseline. Other baselines and unrelated files are preserved.
+Invalid destination manifests and conflicting files are rejected before any writes.
 
 For an untrusted cache expectation without independent local evidence, import reports
 `BUILD_OR_CONFIG_ERROR` (30). Omit `--regressions-from` for a fresh local run, or establish

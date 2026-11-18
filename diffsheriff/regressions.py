@@ -87,16 +87,53 @@ def regression_identity(item):
     )
 
 
+def _plan_export_retirement(destination, base_ref, pending, incoming_manifests):
+    """Validate ownership and find files no longer referenced by this snapshot."""
+    owned = set()
+    preserved = set()
+    for manifest in sorted(destination.glob("*.json")):
+        item, payload, _ = read_regression(destination, manifest.name)
+        files = {manifest.name, payload.name}
+        if item["base_ref"] == base_ref:
+            owned.update(files)
+        else:
+            preserved.update(files)
+
+    for name, data in pending.items():
+        target = destination / name
+        if (
+            target.exists()
+            and (name in preserved or name not in owned)
+            and target.read_bytes() != data
+        ):
+            raise ConfigError(
+                f"Refusing to replace unrelated regression file: {target}"
+            )
+    # A payload cannot stand in for an existing manifest. Normal exports use
+    # distinct names; reject an ambiguous legacy snapshot before any writes.
+    if (pending.keys() - incoming_manifests) & {
+        manifest.name for manifest in destination.glob("*.json")
+    }:
+        raise ConfigError("Export input conflicts with a retained manifest")
+    return [destination / name for name in sorted(owned - preserved - pending.keys())]
+
+
 def copy_regressions(
     source, destination, base_ref, *, replace_existing=False, local_cases=()
 ):
-    source, destination = Path(source), Path(destination)
-    if source.is_symlink() or destination.is_symlink():
+    """Copy a suite; an explicit None source exports an empty snapshot."""
+    source = Path(source) if source is not None else None
+    destination = Path(destination)
+    if destination.is_symlink() or (source is not None and source.is_symlink()):
         raise ConfigError("Regression directories cannot be symlinks")
-    if not source.is_dir():
+    if (source is None and not replace_existing) or (
+        source is not None and not source.is_dir()
+    ):
         raise ConfigError(f"Missing retained regression directory: {source}")
     pending = {}
-    for manifest in sorted(source.glob("*.json")):
+    incoming_manifests = set()
+    manifests = sorted(source.glob("*.json")) if source is not None else ()
+    for manifest in manifests:
         item, payload, manifest = read_regression(source, manifest.name)
         target_manifest = destination / manifest.name
         if target_manifest.is_symlink():
@@ -105,6 +142,7 @@ def copy_regressions(
             if target_manifest.exists() and not replace_existing:
                 raise ConfigError("Conflicting retained regression baseline")
             continue
+        incoming_manifests.add(manifest.name)
         manifest_data = manifest.read_bytes()
         if not replace_existing and target_manifest.exists():
             local, local_payload, _ = read_regression(destination, manifest.name)
@@ -148,8 +186,20 @@ def copy_regressions(
                     f"Refusing to replace conflicting regression: {target}"
                 )
             pending[path.name] = data
+    retire = []
+    if replace_existing:
+        retire = _plan_export_retirement(
+            destination, base_ref, pending, incoming_manifests
+        )
+        for target in retire:
+            if target.is_symlink() or not target.is_file():
+                raise ConfigError(
+                    f"Refusing to remove stale regression entry: {target}"
+                )
     destination.mkdir(parents=True, exist_ok=True)
     for name, data in pending.items():
         target = destination / name
         if not target.exists() or target.read_bytes() != data:
             target.write_bytes(data)
+    for target in retire:
+        target.unlink()

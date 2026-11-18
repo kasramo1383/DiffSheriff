@@ -40,7 +40,7 @@ was implemented and tested; they do not create new assignment requirements.
 | Correlation and Fixed/Incomplete/New/Regression/Inconclusive (p. 2) | Generic implementation and tests exist. F08 added conservative handling of multiple function-edit candidates. Real-target reports must explain the supported relation and uncertainty; function-level evidence does not require proof of causation. |
 | Valid/boundary/invalid suites, corresponding release/sanitized builds, error/mechanism/termination/output/limits (p. 2) | Implemented generically. Target suites exist; verify their chosen cases and labels. zlib memory-error triggers are not semantically invalid merely because they crash. An empty PNG can be an invalid boundary case; add cases only where the agreed boundary/functional behavior is otherwise untested. |
 | Reproducers, automatic reduction, three replays and enrolled later-run regressions (p. 3) | Implemented generically; F06 records reduction limits/outcomes. Selected-target full run bundles are absent. The two zlib functional manifests now have independently justified true validity; the old PNG cases were retired as legacy evidence after the driver/source refs changed. New-baseline later-run acceptance remains pending. Keep unknown expectations inconclusive instead of inventing them. |
-| Release hardening inspection and downgrade warnings (p. 3) | Implemented, with generic downgrade tests. Verify actual release observations on both targets. Absolute all-protections minima were a project policy, not a PDF requirement, and are relaxed in the selected configs. |
+| Release hardening inspection and downgrade warnings (p. 3) | F04 records native release observations for both targets and generic downgrade tests. Retain the tool's release hardening results from the delivery environment during F09. |
 | CLI, JSON, independent statuses and priority `30 > 10 > 20 > 40 > 0` (p. 3) | F11 verifies all 16 combinations through CLI and JSON. CI now prepares the bundle-backed source directories and refuses existing destinations; full selected-target CI results remain pending. |
 | Two independent programs, at least one real, four versions each (p. 4) | Two real libraries and all eight local snapshot refs exist. libpng uses system zlib rather than Target 1's tree. Inspect scenario behavior in the required six comparisons; deliberate driver regressions are acceptable within the declared/approved contract. |
 | Standalone delivery (pp. 4-5) | Source/assets/instructions exist; demonstrate target validation and replay from delivered files. Combine that check with the matrix work where possible rather than adding another full duplicate campaign. |
@@ -52,11 +52,10 @@ full delivered reports/reproducer runs; they remain unverified rather than dispr
 
 ## Remaining fixes and acceptance checks
 
-F06, F08 and F11 have generic implementation/verification evidence. Keep their IDs for
-continuity; their already completed optional safeguards are not further work. The first
-action is the remaining F03/F07/F09 target evaluation and regression work. Complete each remaining item with the smallest
-change that satisfies the stated course requirement. Keep results with their run and
-update status here without introducing another checklist or approval workflow.
+F06, F08 and F11 have generic verification evidence. Review the retained F09 attempt
+against the delivery environment and the report contract before closing any comparison.
+F07, F10 and F12 still need acceptance evidence. The F03 corpus review is recorded
+below, and the per-target invalid-input interpretation awaits the instructor under E01.
 
 ### F01 - Justify the bounded zlib functional contract
 
@@ -104,10 +103,11 @@ and independent expectations for newly reduced bytes remain separate work.
   driver returned 0 for every suite and generated payload and for 65536/65537-byte and
   randomized inputs, and rejected only interface-level conditions (missing/unreadable
   path, missing `--file`) that a payload suite cannot express. The `65537 -> exit 2`
-  result is therefore reference-only, not target behavior. Resolution: target1 adds no
-  invalid payload and keeps its triggers labelled valid; the project-wide suite includes
-  genuine rejected inputs in target2. This interpretation is not instructor-approved.
-  No corpus or config file changed; the review evidence is retained
+  result is therefore a reference scope check. The independent compression contract
+  supports the Target 1 labels. The native release probe records exit behavior and
+  does not establish memory safety. Target 2 supplies rejected inputs. Whether that
+  satisfies the assignment across both targets remains open under E01.
+  The review evidence is retained
   under the [F03 corpus-review checkpoint](../artifacts/checkpoints/f03-corpus-review/README.md).
 - **Fix:** Correct validity and unsupported expectations for existing files. Ensure
   representative valid, boundary and invalid cases are documented. Add the smallest
@@ -140,13 +140,11 @@ and independent expectations for newly reduced bytes remain separate work.
 
 ### F05 - Update packaged sources only when needed
 
-- **Verified (F05).** All four configured commits resolve from both delivered bundles
-  (`git bundle list-heads`), matching the six configs' `base_ref`/`patch_ref`. No
-  ref/bundle/config disagreement was found, so no packaging change was made.
-**PNG driver update packaged and verified.** All four current refs/configs and the
-source bundle agree. Legacy refs preserve the prior versions; source-mapping evidence
-records the exact transition. No library fix or license was changed.
-
+- **Verified (F05).** The earlier PNG driver update shipped new scenario refs and a
+  refreshed source bundle. Legacy refs preserve the prior versions and the
+  [PNG checkpoint](../artifacts/checkpoints/png-contract/README.md) records the
+  transition. The subsequent recovery check found the four configured commits for
+  each target in its delivered bundle. That check required no further packaging changes.
 
 - **Depends on:** Any source changes in F01/F02/F04.
 - **Fix:** If drivers/builds change, update the affected four scenario refs, bundles,
@@ -170,6 +168,9 @@ manifests retain their original bytes/refs and now mark their valid compression 
 correctly. Both functional cases are verified as eligible when the pipeline loads them.
 PNG no longer enrolls the three obsolete-baseline cases or invents expectations for
 unknown bytes; new-baseline generated regressions still need F09 demonstration.
+Export refresh now retires stale files for the configured baseline. Local transfer
+and CLI tests cover empty exports, shared payloads, and preservation on validation
+errors. These checks do not establish selected-target later-run acceptance.
 
 - **Depends on:** F03 and any changed baseline refs.
 - **Fix:** Review the seven generated cases against their actual bytes and independent
@@ -193,9 +194,11 @@ report its supported level instead of expanding the assignment.
 
 - **Depends on:** F01-F05/F07 where corrective work is needed.
 - **Partial F09 campaign retained:** `artifacts/evaluation/target1/correct/report.json`
-  and its `runs/run-gx6_3cwa/` bundle record one comparison attempt. It ran 120 tests
-  but returned 40 (INCONCLUSIVE), with 11 functional passes, 9 failures, no stable
-  designated baseline finding, and incomplete analysis. Preserve it as a failed attempt;
+  and its `runs/run-gx6_3cwa/` bundle record one comparison attempt. The report counts
+  120 individual executions and 20 functional case/mode comparisons (11 passed and
+  9 failed). It returned 40 (INCONCLUSIVE), with no stable designated baseline finding
+  and incomplete analysis. Its native runtime label does not supply a Docker image ID.
+  Preserve it as a failed attempt;
   it does not count as an accepted correct comparison or complete matrix row. Diagnose
   the baseline signature/reproduction discrepancy before rerunning this row. No other
   target/variant run bundle is present yet.
@@ -210,9 +213,10 @@ report its supported level instead of expanding the assignment.
 
 ### F10 - Make the existing CI path runnable
 
-**Source preparation implemented and verified.** The workflow clones both bundles
-before validation; fresh-runner tests resolve all configured commits and exercise
-missing-bundle and existing-checkout refusal. End-to-end selected-target CI acceptance
+**Source preparation implemented and verified.** The workflow checks both bundle
+paths and destinations before it clones either. Fresh-runner tests resolve the configured
+commits; synthetic bundles verify that a missing second bundle or occupied or symlinked
+second destination leaves the first destination untouched. End-to-end selected-target CI acceptance
 remains pending the target contracts/matrices; this is not a hosted acceptance claim.
 
 - **Fix:** Prepare bundle-backed source repositories before the existing workflow
@@ -231,6 +235,9 @@ Use focused checks after changes and the existing final verification command whe
 needed; do not keep rerunning unchanged accepted tests or add new process machinery.
 
 ### F12 - Check standalone execution with the delivered assets
+
+[CI setup instructions](ci.md) describe preflight and recovery from an interrupted
+clone. Standalone delivery still needs the clean environment check below.
 
 - **Fix:** Finish only missing setup/usage details and supply the PDF-listed files.
   Use a fresh location without ignored developer state; combine this with F09/F10
