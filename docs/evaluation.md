@@ -113,6 +113,10 @@ hardening, correlation, three replay observations, and original/minimized inputs
 Code 30 means a build/config/tool problem; 40 means insufficient evidence. Diagnose
 the recorded reason; never override those codes to match the table.
 
+The verifier checks retained report and reproducer structure, process/report/expected
+exit-code agreement, baseline identity, and replay evidence. Its matrix verdict is not
+proof that `analysis_complete` is true or that every finding is correctly attributed;
+review each report's analysis status and incomplete reasons before accepting a target.
 The verifier fails a comparison that lacks a retained report, whose report exit code
 differs from the process exit code, whose `evidence.baseline_identity_modes` is empty,
 or whose reproducer bundles lack `reproducer.json`, `original.input`,

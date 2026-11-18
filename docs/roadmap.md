@@ -229,25 +229,29 @@ report its supported level instead of expanding the assignment.
 - **Historical attempt:** The earlier target1/correct report exited 40 with incomplete
   analysis and no container image identity. Preserve it as a failed historical attempt;
   it is not an accepted comparison.
-- **Diagnosis and remedy verified in Docker.** The previous 40 was not a verdict about the patch.
+- **Symbolizer diagnosis and remedy verified in Docker.** The previous missing-symbolizer cause is resolved.
   Setting `external_symbolizer_path=/usr/bin/llvm-symbolizer` in `ASAN_OPTIONS` and `UBSAN_OPTIONS`,
   defaulting it in the runner, and hardening triage frame parsing resolved the symbolizer issue:
   a live Docker run of `target1/correct` successfully established the baseline identity in sanitized
   mode (`baseline_identity_modes: ["sanitized"]`, resolving `compress_block` at `trees.c:1092`) with
   zero reproducer instability and 20/20 functional passes.
 - **Live execution status across comparisons:**
-  - `target1/correct`: Baseline reproduced and functional tests passed, but returned exit code `40`
-    due to the F08 multi-hunk correlation bug (`analysis_incomplete_reasons: ["fix_evidence_insufficient"]`).
-    Resolving F08 is the sole blocker for code `0` (`PASS`).
-  - `target1/incomplete`: Executed in Docker and passed with expected exit code `10` (`VULN_REMAINS`).
+  - `target1/correct`: Baseline identity was established in sanitized mode, but the retained report is
+    `analysis_complete: false`, exit `40`, with reasons `fix_evidence_insufficient` and
+    `functional_expectation_unmet_on_baseline`. F08 correlation and the baseline functional expectation
+    both need resolution; F08 is not the sole blocker.
+  - `target1/incomplete`: Process exit `10` matches the configured expectation, but the report remains
+    `analysis_complete: false` with `fix_evidence_insufficient`, `functional_expectation_unmet_on_baseline`,
+    and `patch_attribution_unestablished`. Treat this as an inconclusive run, not accepted target evidence.
   - `target1/regression`: Interrupted during delta-debugging minimization of functional regression due to
     256 unbound container oracle calls (see F06).
-  - `target2` (`correct: 0`, `incomplete: 10`, `regression: 20`): Unexecuted pending the F08 correlator
-    fix and F06 minimization bounding.
+  - `target2` (`correct: 0`, `incomplete: 10`, `regression: 20`): Unexecuted pending the F08 correlation
+    fix, resolution of the baseline functional-expectation gap, and F06 minimization bounding.
 - **Test suite isolation fixed:** tests/test_triage.py uses self-contained sanitizer
   fixtures and a fixed signature expectation; it does not depend on Strix packet files.
-- **Fix:** Apply the F08 correlator multi-hunk fix, bound minimization oracle calls in target evaluation
-  configs, and execute the full 6-row matrix via `scripts/run_matrix.sh` to retain verified reports,
+- **Fix:** Apply and verify the F08 correlator multi-hunk fix; diagnose the baseline functional-expectation
+  failures; confirm target1/incomplete can produce a complete, justified report; bound minimization oracle
+  calls in target evaluation configs; and execute the full 6-row matrix via `scripts/run_matrix.sh` to retain reports,
   console logs, and reproducer bundles under `artifacts/evaluation/{target1,target2}/{correct,incomplete,regression}`.
 - **Check:** Correct/incomplete/regression variants produce the justified 0/10/20
   outcomes; modes/settings remain equivalent; findings retain correlation, actual
