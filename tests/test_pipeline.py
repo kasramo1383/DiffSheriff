@@ -281,7 +281,27 @@ def test_build_failure_retains_evidence(tmp_path, pipeline_fixture, monkeypatch)
     monkeypatch.setattr("diffsheriff.pipeline.build_isolated_matrix", fail)
     summary = run_pipeline(cfg, tmp_path / "runs")
     assert summary.exit_code == 30
+    assert summary.analysis_incomplete_reasons == ["tool_failure"]
     assert summary.evidence["builds"]["base"]["release"]["stderr"] == "compiler error"
+
+
+def test_runtime_image_setup_failure_keeps_report(
+    tmp_path, pipeline_fixture, monkeypatch
+):
+    cfg, _, _ = pipeline_fixture
+
+    def fail(_image):
+        raise OSError("image unavailable")
+
+    monkeypatch.setattr("diffsheriff.pipeline.resolve_image", fail)
+    summary = run_pipeline(cfg, tmp_path / "runs")
+    report_path = Path(summary.evidence["run_directory"]) / "report.json"
+    report = json.loads(report_path.read_text())
+    assert report["exit_code"] == 30
+    assert report["analysis_complete"] is False
+    assert report["analysis_incomplete_reasons"] == ["setup_failed"]
+    assert report["evidence"]["builds"] == {}
+    assert "image unavailable" in report["notes"][0]
 
 
 def test_late_execution_error_keeps_completed_findings(
@@ -341,6 +361,11 @@ def test_compare_case_accepts_independently_valid_boundary(
     assert result["regression"] == baseline_passes
     if not baseline_passes:
         assert any("Baseline does not satisfy" in note for note in result["notes"])
+        assert (
+            "functional_expectation_unmet_on_baseline" in result["incomplete_reasons"]
+        )
+    else:
+        assert result["incomplete_reasons"] == []
 
 
 @pytest.mark.parametrize("valid_input,code", [(True, 20), (False, 40), (None, 40)])
@@ -564,7 +589,9 @@ def test_insertion_requires_matching_function_evidence_in_every_replay(
 def test_only_designated_baseline_can_pass(tmp_path, pipeline_fixture):
     cfg, _, _ = pipeline_fixture
     cfg = replace(cfg, baseline_signature={**cfg.baseline_signature, "line": 99})
-    assert run_pipeline(cfg, tmp_path / "runs").exit_code == 40
+    summary = run_pipeline(cfg, tmp_path / "runs")
+    assert summary.exit_code == 40
+    assert "baseline_identity_unestablished" in summary.analysis_incomplete_reasons
 
 
 @pytest.mark.parametrize("patch_kind", ["heap-buffer-overflow", "heap-use-after-free"])
@@ -929,6 +956,7 @@ def test_timeout_preserves_functional_regression_without_security_claim(
     assert summary.exit_code == 20, summary.notes
     assert summary.security_status != "FAIL"
     assert not summary.analysis_complete
+    assert "runtime_budget_exhausted" in summary.analysis_incomplete_reasons
 
 
 def test_functional_regression_has_replay_bundle(tmp_path, pipeline_fixture):
@@ -1132,6 +1160,7 @@ def test_retained_report_failure_preserves_collected_evidence(
     assert summary.evidence["cases"]
     assert summary.security_flaws_fixed
     assert not summary.analysis_complete
+    assert summary.analysis_incomplete_reasons == ["report_write_failed"]
 
 
 def test_new_patch_findings_are_added_to_regressions(tmp_path, pipeline_fixture):
@@ -1370,7 +1399,14 @@ def test_cli_mixed_outcomes_preserve_json_and_priority(
     report = json.loads(report_path.read_text())
     assert result.exit_code == report["exit_code"] == expected_code, result.output
     assert f"exit {expected_code}" in result.output
-    assert report["analysis_complete"] == (not operational and not incomplete)
+    assert report["schema_version"] == "2.0"
+    expected_reasons = []
+    if incomplete:
+        expected_reasons.append("hardening_warning")
+    if operational:
+        expected_reasons.append("tool_failure")
+    assert report["analysis_incomplete_reasons"] == expected_reasons
+    assert report["analysis_complete"] == (not expected_reasons)
     statuses = {f["status"] for f in report["findings"]}
     if security:
         assert report["security_status"] == "FAIL"

@@ -185,6 +185,29 @@ Priority is `30 > 10 > 20 > 40 > 0`. JSON retains all findings and independent s
 functional, and completeness statuses. A new diagnostic is not automatically proof
 that the patch caused it. Correlation evidence and uncertainty are reported separately.
 
+New reports include `analysis_incomplete_reasons`, a list of distinct reason tokens
+in the order first recorded. It is empty for complete analysis and nonempty for
+incomplete analysis, including when a higher priority outcome determines the exit
+code. `notes` and finding evidence carry the details for individual failures.
+The field is additive in schema `2.0`. If an older incomplete report lacks it,
+read that as **cause not recorded** and continue to use `analysis_complete` for
+completeness.
+
+| Reason | Meaning |
+| --- | --- |
+| `setup_failed` | Configuration, inputs, runtime image resolution, or source preparation failed before the build. |
+| `tool_failure` | An operational error interrupted the build or analysis. |
+| `hardening_warning` | Release hardening degraded or did not meet a configured requirement. |
+| `runtime_budget_exhausted` | An execution hit a time, resource, or output limit. |
+| `replays_unstable`, `reproducer_unstable` | Suite observations or subsequent reproducer checks were unstable, respectively. |
+| `baseline_identity_unestablished` | No stable source evidence confirmed the designated baseline signature. |
+| `generated_baseline_signature_unconfirmed` | A generated case failed to confirm its expected baseline signature. |
+| `source_signature_unconfirmed` | An abnormal termination lacked a confirmed source signature. |
+| `patch_attribution_unestablished`, `fix_evidence_insufficient` | Evidence was insufficient to attribute a patch finding or classify a baseline finding as fixed, respectively. |
+| `functional_expectation_missing` | An input lacked an independent functional expectation. |
+| `functional_expectation_unmet_on_baseline`, `functional_expectation_unmet_on_patch` | Observed behavior on the indicated version did not meet the independent expectation and the comparison remained inconclusive. |
+| `report_write_failed`, `regression_export_failed` | The retained report could not be written or regression export failed, respectively. |
+
 An insertion-only patch can be related to a baseline finding when one insertion hunk
 has an unambiguous function declaration in Git's hunk context, and that exact function
 and source path appear on the baseline runtime stack after the insertion point. All
@@ -205,7 +228,10 @@ verdict still requires the same hunk across baseline replays and independently e
 behavior on the patch.
 
 The report identifies its run directory. `total_tests_run` counts suite executions
-(including their three repetitions); additional minimization and reproducer executions
+(including their three repetitions); `functional_passed` and `functional_failed`
+count comparisons for valid inputs by build mode. A failed comparison can be
+inconclusive, for example when the baseline also misses the independent expectation.
+Additional minimization and reproducer executions
 are recorded in the corresponding replay logs. stdout/stderr are bounded per stream;
 exceeding a bound prevents a passing result.
 

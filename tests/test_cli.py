@@ -17,6 +17,7 @@ def test_cli_missing_suites_is_configuration_error(tmp_path):
     payload = json.loads(report.read_text(encoding="utf-8"))
     assert payload["verdict"] == "BUILD_OR_CONFIG_ERROR"
     assert payload["analysis_complete"] is False
+    assert payload["analysis_incomplete_reasons"] == ["setup_failed"]
 
 
 def test_missing_configuration_writes_report(tmp_path):
@@ -25,4 +26,7 @@ def test_missing_configuration_writes_report(tmp_path):
         main, ["--config", str(tmp_path / "missing"), "--output-json", str(report)]
     )
     assert result.exit_code == 30
-    assert json.loads(report.read_text())["notes"]
+    payload = json.loads(report.read_text())
+    assert payload["analysis_complete"] is False
+    assert payload["analysis_incomplete_reasons"] == ["setup_failed"]
+    assert payload["notes"]

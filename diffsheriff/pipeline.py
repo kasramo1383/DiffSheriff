@@ -37,7 +37,6 @@ def empty_summary(name):
         0,
         False,
         [],
-        analysis_complete=False,
         notes=[],
     )
 
@@ -240,11 +239,15 @@ def compare_case(case, mode, runs, baseline_signature, known_baseline=False):
     base_sig, patch_sig = base["signature"], patch["signature"]
     baseline_seen = stable_observations(runs["base"]) and base_sig == baseline_signature
     findings = []
-    notes = []
+    diagnostics = []
+
+    def note(reason, message):
+        diagnostics.append((reason, message))
+
     regression = stable and case["valid_input"] and base_ok and not patch_ok
     vulnerability = stable and bool(patch_sig)
     if not stable:
-        notes.append("Replay observations are unstable")
+        note("replays_unstable", "Replay observations are unstable")
     if regression:
         findings.append(
             (
@@ -269,7 +272,10 @@ def compare_case(case, mode, runs, baseline_signature, known_baseline=False):
             )
         )
         if not patch["correlation"]["is_correlated"]:
-            notes.append("Patch finding is confirmed, but attribution is inconclusive")
+            note(
+                "patch_attribution_unestablished",
+                "Patch finding is confirmed, but attribution is inconclusive",
+            )
     if stable and base_sig and not patch_sig:
         correlation = base["correlation"]
         correlated = correlation["is_correlated"]
@@ -294,9 +300,10 @@ def compare_case(case, mode, runs, baseline_signature, known_baseline=False):
                 )
             )
         else:
-            notes.append(
+            note(
+                "fix_evidence_insufficient",
                 "Baseline diagnostic disappeared without sufficient expected "
-                "behavior or patch correlation"
+                "behavior or patch correlation",
             )
     for side, first in (("base", base), ("patch", patch)):
         execution = first["execution"]
@@ -304,33 +311,47 @@ def compare_case(case, mode, runs, baseline_signature, known_baseline=False):
             execution[key]
             for key in ("timed_out", "resource_limited", "output_limited")
         ):
-            notes.append(f"{side} execution reached a resource or output limit")
+            note(
+                "runtime_budget_exhausted",
+                f"{side} execution reached a resource or output limit",
+            )
         if first["triage"]["is_crash"] and not first["signature"]:
-            notes.append(
-                f"{side} abnormal termination has no confirmed source signature"
+            note(
+                "source_signature_unconfirmed",
+                f"{side} abnormal termination has no confirmed source signature",
             )
     fixed_flaw = any(status == "Fixed" for status, _, _ in findings)
     if case["valid_input"] and not base_ok and not fixed_flaw:
-        notes.append(
-            "Baseline does not satisfy the independent valid-input expectation"
+        note(
+            "functional_expectation_unmet_on_baseline",
+            "Baseline does not satisfy the independent valid-input expectation",
         )
     if case["expected"] is None:
-        notes.append("Diagnostic regression has no independent functional expectation")
+        note(
+            "functional_expectation_missing",
+            "Diagnostic regression has no independent functional expectation",
+        )
     elif not patch_ok and not vulnerability and not regression:
-        notes.append("Patched behavior does not satisfy the independent expectation")
+        note(
+            "functional_expectation_unmet_on_patch",
+            "Patched behavior does not satisfy the independent expectation",
+        )
     if (
         case.get("baseline_signature")
         and case.get("baseline_mode") == mode
         and base_sig != case["baseline_signature"]
     ):
-        notes.append(
-            "Generated regression did not reproduce its expected baseline signature"
+        note(
+            "generated_baseline_signature_unconfirmed",
+            "Generated regression did not reproduce its expected baseline signature",
         )
+    notes = [message for _, message in diagnostics]
     if notes:
         findings.append(("Inconclusive", patch, "; ".join(notes)))
     return {
         "findings": findings,
         "notes": notes,
+        "incomplete_reasons": [reason for reason, _ in diagnostics],
         "regression": regression,
         "vulnerability": vulnerability,
         "baseline_seen": baseline_seen,
@@ -650,7 +671,7 @@ def run_pipeline(cfg, artifact_root):
     summary = empty_summary(cfg.target_name)
     evidence = summary.evidence
     failed = vulnerability = regression = baseline_seen = False
-    incomplete = False
+    failure_reason = "setup_failed"
     try:
         cases, manifest_hash = discover_cases(cfg)
         artifact_root.mkdir(parents=True, exist_ok=True)
@@ -717,6 +738,7 @@ def run_pipeline(cfg, artifact_root):
         diff_text = diff.stdout.decode("utf-8")
         (directory / "patch.diff").write_text(diff_text, encoding="utf-8")
         hunks = parse_unified_diff(diff_text)
+        failure_reason = "tool_failure"
         artifacts = {}
         for side, commit in (("base", cfg.base_ref), ("patch", cfg.patch_ref)):
             build_directory = directory / side
@@ -762,7 +784,8 @@ def run_pipeline(cfg, artifact_root):
             ].index(cfg.hardening.min_relro):
                 warnings.append(f"{side}: RELRO is below the configured minimum")
         summary.notes.extend(warnings)
-        incomplete |= bool(warnings)
+        if warnings:
+            summary.mark_incomplete("hardening_warning")
         known_expectations = {}
         known_validity = {}
         for case in cases:
@@ -872,7 +895,7 @@ def run_pipeline(cfg, artifact_root):
             baseline_seen |= decision["baseline_seen"]
             vulnerability |= decision["vulnerability"]
             regression |= decision["regression"]
-            incomplete |= bool(decision["notes"])
+            summary.mark_incomplete(*decision["incomplete_reasons"])
             if case["valid_input"]:
                 passed = (decision["base_ok"] and decision["patch_ok"]) or (
                     (
@@ -938,18 +961,18 @@ def run_pipeline(cfg, artifact_root):
                             observation_error = error
                             break
                         stable = metadata["stable"]
-                        incomplete |= not stable
                         if (
                             compute_sha256(directory / minimized)
                             not in known_expectations
                         ):
-                            incomplete = True
+                            summary.mark_incomplete("functional_expectation_missing")
                             summary.notes.append(
                                 f"Minimized diagnostic input for {case['id']} {mode} "
                                 "has no independent expectation; full regression "
                                 "check is incomplete"
                             )
                         if not stable:
+                            summary.mark_incomplete("reproducer_unstable")
                             summary.notes.append(
                                 f"Unstable reproducer: {case['id']} {mode} {side}"
                             )
@@ -1022,10 +1045,10 @@ def run_pipeline(cfg, artifact_root):
                 "Designated baseline flaw was not reproduced "
                 "with stable source evidence"
             )
-            incomplete = True
+            summary.mark_incomplete("baseline_identity_unestablished")
     except Exception as error:
         failed = True
-        incomplete = True
+        summary.mark_incomplete(failure_reason)
         summary.notes.append(f"{type(error).__name__}: {error}")
     summary.security_flaws_fixed = sum(
         finding.status == "Fixed" for finding in summary.findings
@@ -1034,11 +1057,10 @@ def run_pipeline(cfg, artifact_root):
         finding.status in {"Incomplete Fix", "New Issue"}
         for finding in summary.findings
     )
-    summary.analysis_complete = not incomplete
     summary.security_status = (
         "FAIL"
         if vulnerability
-        else "PASS" if baseline_seen and not incomplete else "INCONCLUSIVE"
+        else "PASS" if baseline_seen and summary.analysis_complete else "INCONCLUSIVE"
     )
     summary.functional_status = (
         "FAIL"
@@ -1052,13 +1074,13 @@ def run_pipeline(cfg, artifact_root):
         )
     )
     summary.exit_code, summary.verdict = resolve_priority_exit_code(
-        failed, vulnerability, regression, incomplete
+        failed, vulnerability, regression, not summary.analysis_complete
     )
     if evidence.get("run_directory"):
         try:
             summary.write_json(Path(evidence["run_directory"]) / "report.json")
         except OSError as error:
             summary.exit_code, summary.verdict = 30, "BUILD_OR_CONFIG_ERROR"
-            summary.analysis_complete = False
+            summary.mark_incomplete("report_write_failed")
             summary.notes.append(f"Cannot write retained report: {error}")
     return summary

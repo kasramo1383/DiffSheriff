@@ -29,6 +29,7 @@ from diffsheriff.regressions import copy_regressions
 def main(config, output_json, artifacts, regressions_from, export_regressions):
     """Validate an authorized local C/C++ patch in isolated Linux containers."""
     summary = empty_summary("unknown")
+    failure_reason = "setup_failed"
     try:
         cfg = DiffSheriffConfig.from_yaml(config)
         regressions = cfg.config_directory / cfg.test_suites.regression_directory
@@ -42,8 +43,10 @@ def main(config, output_json, artifacts, regressions_from, export_regressions):
         click.echo(
             f"Validating {cfg.target_name}: {cfg.base_ref[:12]} -> {cfg.patch_ref[:12]}"
         )
+        failure_reason = "tool_failure"
         summary = run_pipeline(cfg, artifacts.resolve())
         if export_regressions is not None:
+            failure_reason = "regression_export_failed"
             if regressions.exists():
                 copy_regressions(
                     regressions, export_regressions, cfg.base_ref, replace_existing=True
@@ -52,7 +55,7 @@ def main(config, output_json, artifacts, regressions_from, export_regressions):
                 export_regressions.mkdir(parents=True, exist_ok=True)
     except Exception as error:
         summary.exit_code, summary.verdict = 30, "BUILD_OR_CONFIG_ERROR"
-        summary.analysis_complete = False
+        summary.mark_incomplete(failure_reason)
         summary.notes.append(f"{type(error).__name__}: {error}")
     try:
         summary.write_json(output_json)

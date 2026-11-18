@@ -66,6 +66,15 @@ class ValidationSummary:
     security_status: str = "INCONCLUSIVE"
     functional_status: str = "INCONCLUSIVE"
     evidence: Dict[str, Any] = field(default_factory=dict)
+    analysis_incomplete_reasons: List[str] = field(default_factory=list)
+
+    def mark_incomplete(self, *reasons: str) -> None:
+        """Record each reason once, in the order first observed."""
+        for reason in reasons:
+            if reason not in self.analysis_incomplete_reasons:
+                self.analysis_incomplete_reasons.append(reason)
+        if reasons:
+            self.analysis_complete = False
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -79,6 +88,7 @@ class ValidationSummary:
             "security_flaws_lingering": self.security_flaws_lingering,
             "hardening_degraded": self.hardening_degraded,
             "analysis_complete": self.analysis_complete,
+            "analysis_incomplete_reasons": self.analysis_incomplete_reasons,
             "notes": self.notes or [],
             "schema_version": "2.0",
             "security_status": self.security_status,
