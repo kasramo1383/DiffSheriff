@@ -20,6 +20,7 @@ Generated regressions under
 | [CI formatting](checkpoints/ci-format/README.md) | Formatting configuration and historical hosted generic CI results. |
 | [Minimized results](checkpoints/minimized-results/README.md) | Synthetic minimized-finding classification and deduplication evidence. |
 | [Cache imports](checkpoints/cache-import/README.md) | Synthetic stale/conflicting regression transfer and independent-expectation checks. |
+| [Clean checkout verification](checkpoints/clean-checkout/README.md) | Fresh Python setup, harmless runtime check, standalone wheel and local CI gate. |
 | [Reference parity](checkpoints/reference-parity/README.md) | ELF symbol observations, UBSan termination and generic verification. |
 | [Upstream provenance](target-candidates/README.md) | Original public source/parent/license research; not target acceptance. |
 

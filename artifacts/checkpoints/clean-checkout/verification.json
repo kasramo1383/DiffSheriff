@@ -1,0 +1,62 @@
+{
+  "source_base": "b0d59125ed5bf1fcb122780a2c8b65f2aacd240d",
+  "source_change_under_test": "Declare setuptools>=61.0 in development dependencies",
+  "pyproject_sha256": "6bc529953a39523de6d1837d595bcf4192f77b63c44aaccd0cb6a67f2c3ea0f6",
+  "pytest": {
+    "tests": 309,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "harmless_native_smoke": {
+    "exit_code": 40,
+    "analysis_complete": false,
+    "analysis_incomplete_reasons": [
+      "baseline_identity_unestablished"
+    ],
+    "security_status": "INCONCLUSIVE",
+    "functional_status": "PASS",
+    "total_tests_run": 36,
+    "functional_passed": 2,
+    "functional_failed": 0
+  },
+  "linux_amd64_runtime_image": "sha256:a4faa1c2964bb5a923694f11c9a8fdecab7ad333297da3f0ca7a5bec18bada54",
+  "wheel": {
+    "filename": "diffsheriff-0.1.0-py3-none-any.whl",
+    "sha256": "2ba5d6967eb9a7ae0ef57e30d359ea2c462d4d8130c5fed95a7fff71f97b7a22"
+  },
+  "wheel_cli": {
+    "help_exit": 0,
+    "missing_config_exit": 30,
+    "missing_config_reasons": [
+      "setup_failed"
+    ]
+  },
+  "local_ci_shell_with_synthetic_cli": [
+    {
+      "stub_exit": 0,
+      "step_exit": 0,
+      "json_retained": true
+    },
+    {
+      "stub_exit": 10,
+      "step_exit": 10,
+      "json_retained": true
+    },
+    {
+      "stub_exit": 20,
+      "step_exit": 20,
+      "json_retained": true
+    },
+    {
+      "stub_exit": 30,
+      "step_exit": 30,
+      "json_retained": true
+    },
+    {
+      "stub_exit": 40,
+      "step_exit": 40,
+      "json_retained": true
+    }
+  ]
+}

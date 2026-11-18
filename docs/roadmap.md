@@ -216,8 +216,9 @@ report its supported level instead of expanding the assignment.
 **Source preparation implemented and verified.** The workflow checks both bundle
 paths and destinations before it clones either. Fresh-runner tests resolve the configured
 commits; synthetic bundles verify that a missing second bundle or occupied or symlinked
-second destination leaves the first destination untouched. End-to-end selected-target CI acceptance
-remains pending the target contracts/matrices; this is not a hosted acceptance claim.
+second destination leaves the first destination untouched. The [clean checkout checkpoint](../artifacts/checkpoints/clean-checkout/README.md)
+records a passing local shell gate against synthetic exit codes and JSON output.
+End-to-end selected-target CI acceptance remains open.
 
 - **Fix:** Prepare bundle-backed source repositories before the existing workflow
   invokes the CLI. Retain its actual exit gating and JSON. Do not add another service,
@@ -237,7 +238,9 @@ needed; do not keep rerunning unchanged accepted tests or add new process machin
 ### F12 - Check standalone execution with the delivered assets
 
 [CI setup instructions](ci.md) describe preflight and recovery from an interrupted
-clone. Standalone delivery still needs the clean environment check below.
+clone. The [clean checkout checkpoint](../artifacts/checkpoints/clean-checkout/README.md)
+verifies fresh generic setup, the harmless native test, the delivered source refs,
+and a standalone wheel install. Target-specific delivery checks below remain open.
 
 - **Fix:** Finish only missing setup/usage details and supply the PDF-listed files.
   Use a fresh location without ignored developer state; combine this with F09/F10
