@@ -1,136 +1,158 @@
-# Strix implementation handoff
+# DiffSheriff recovery audit handoff
 
-Use this as the single live handoff for Strix or another coding agent. The [roadmap](roadmap.md) owns requirement interpretation and acceptance status; this file turns the remaining work into an execution order. The [original assignment](course_assignment.pdf) is authoritative.
+Use this handoff for a read-only review of the current committed project and the
+recovery evidence recorded at `1d0910d`. The [roadmap](roadmap.md) owns acceptance
+status and remaining work.
 
-```text
-Continue DiffSheriff from the current repository state. Read AGENTS.md,
-docs/course_assignment.pdf, docs/roadmap.md, docs/target_scenarios.md,
-docs/evaluation.md, and artifacts/README.md before changing anything.
+## Operator instructions
 
-Starting point recorded for this handoff: branch main at 3fb8372
-(fix: report PNG decode failures and refresh packaged scenarios). Preserve all current
-uncommitted work: edits to `artifacts/README.md`, `docs/agent_handoff_prompt.md`,
-`docs/roadmap.md`, and `docs/target_scenarios.md`; the new F03 and build-hardening
-checkpoints; and the partial `artifacts/evaluation/target1/correct/` run. Inspect Git
-state before acting and preserve unrelated changes and existing evidence.
+Paste the full block below into an interactive WSL Ubuntu terminal. It creates a
+fresh run directory and supplies the original assignment, requirements digest,
+architecture, roadmap, target provenance, CI policy, checkpoint summaries, and report
+metadata. An inventory lists the implementation, configuration, and test paths at the
+audited commit. The launcher gives Strix a documentation workspace and a writable
+report folder. The checkout, source bundles, inputs, and binaries stay outside it.
 
-The interrupted Strix run `project_d0e5` used the unpinned model
-`openrouter/deepseek/deepseek-v4.1-flash`. Its state file still says `running`, but no
-Strix process remains; treat it as orphaned and do not resume it. The operator's WSL
-Strix config is now pinned to `openrouter/deepseek/deepseek-v4.1-flash-1017`. Confirm
-the first request in a fresh Strix log names that exact model before proceeding. The
-retained target1/correct DiffSheriff report returned exit 40 (INCONCLUSIVE); diagnose
-its unstable baseline reproducer before counting or rerunning that comparison.
+The launcher uses the existing private Strix configuration, pins DeepSeek Flash 1017,
+and supplies an empty MCP configuration. It applies the Windows proxy on port 10808
+through the current WSL gateway.
 
-Network route already tested by the operator on 2026-11-17: Windows has a listener on
-port 10808; WSL gateway `172.22.224.1` can connect to it. A direct request to
-`https://auth.docker.io/token?service=registry.docker.io` returned HTTP 403; the same
-request through `http://172.22.224.1:10808` returned HTTP 200. Do not repeat proxy
-discovery. In WSL, derive the current gateway (it may change after restart), then set
-the process-scoped proxy before Strix/provider requests and dependency/image fetches:
+The launcher prints the exact paths at startup. Outputs live under
+`~/strix-runs/diffsheriff-audit-*/` in WSL:
+
+- `evidence/audit-output/audit-report.md` is the completed project audit.
+- `evidence/audit-output/audit-checkpoint.md` records progress if the run is interrupted.
+- `strix_runs/<run-id>/` holds native Strix artifacts such as `run.json`,
+  `strix.log`, and any coverage, SARIF, or native final report.
 
 ```bash
-gateway="$(ip -4 route show default | awk '{print $3; exit}')"
-proxy="http://${gateway}:10808"
-export HTTP_PROXY="$proxy" HTTPS_PROXY="$proxy" ALL_PROXY="$proxy"
-export http_proxy="$proxy" https_proxy="$proxy" all_proxy="$proxy"
-export NO_PROXY="localhost,127.0.0.1,::1" no_proxy="localhost,127.0.0.1,::1"
+(
+  set -euo pipefail
+  project='/mnt/f/KasraFolder/دانشگاه صنعتی آریامهر/ترم 7/امنیت داده و شبکه/Project'
+  revision=$(git -C "$project" rev-parse --verify HEAD)
+  recovery=1d0910d0f8eb25e3122a1600bddff2c1287d713a
+  model=openrouter/deepseek/deepseek-v4.1-flash-1017
+  git -C "$project" cat-file -e "${recovery}^{commit}"
+
+  mkdir -p "$HOME/strix-runs"
+  run_dir=$(mktemp -d "$HOME/strix-runs/diffsheriff-audit-XXXXXX")
+  packet="$run_dir/evidence"
+  output="$packet/audit-output"
+  mkdir -p "$output"
+
+  copy_doc() {
+    local path="$1"
+    mkdir -p "$packet/$(dirname "$path")"
+    git -C "$project" show "$revision:$path" > "$packet/$path"
+  }
+  for path in AGENTS.md docs/course_assignment.pdf docs/specification.md \
+    docs/architecture.md docs/roadmap.md artifacts/README.md; do
+    copy_doc "$path"
+  done
+  while IFS= read -r path; do
+    case "$path" in
+      */README.md) copy_doc "$path" ;;
+    esac
+  done < <(git -C "$project" ls-tree -r --name-only "$revision" -- artifacts/checkpoints)
+
+  git -C "$project" show "$revision:docs/target_scenarios.md" |
+    awk '/^## Driver and patch scope/ { exit } { print }' > "$packet/docs/target-provenance.md"
+  git -C "$project" show "$revision:docs/ci.md" |
+    awk '/^```/ { fence=!fence; next } !fence' > "$packet/docs/ci.md"
+  {
+    printf 'Project snapshot\n'
+    git -C "$project" show -s --format='%H %s' "$revision"
+    printf '\nRecovered evidence revision\n'
+    git -C "$project" show -s --format='%H %s' "$recovery"
+    printf '\nTracked implementation, configuration, and test paths (inventory only)\n'
+    git -C "$project" ls-tree -r --name-only "$revision" -- diffsheriff tests .github/workflows evaluation targets
+  } > "$packet/revision.txt"
+  git -C "$project" show "$recovery:artifacts/evaluation/target1/correct/report.json" |
+    python3 -c '
+import json
+import sys
+
+report = json.load(sys.stdin)
+fields = (
+    "exit_code", "verdict", "analysis_complete", "total_tests_run",
+    "functional_passed", "functional_failed", "security_status", "functional_status",
+)
+summary = {key: report[key] for key in fields}
+summary["runtime_image"] = report["evidence"]["execution_settings"]["image"]
+summary["baseline_identity_modes"] = report["evidence"]["baseline_identity_modes"]
+print(json.dumps(summary, indent=2))
+' > "$packet/target1-correct-summary.json"
+
+  awk '/^<!-- STRIX PROMPT BEGIN -->$/{copy=1;next} /^<!-- STRIX PROMPT END -->$/{exit} copy' \
+    < <(tr -d '\r' < "$project/docs/agent_handoff_prompt.md") > "$run_dir/instructions.md"
+  test -s "$run_dir/instructions.md"
+  printf '[]\n' > "$run_dir/mcp.json"
+
+  gateway=$(ip -4 route show default | awk 'NR == 1 {print $3}')
+  : "${gateway:?WSL IPv4 default gateway is missing}"
+  proxy="http://$gateway:10808"
+  export HTTP_PROXY="$proxy" HTTPS_PROXY="$proxy" ALL_PROXY="$proxy"
+  export http_proxy="$proxy" https_proxy="$proxy" all_proxy="$proxy"
+  export NO_PROXY='localhost,127.0.0.1,::1' no_proxy='localhost,127.0.0.1,::1'
+
+  printf 'Run directory: %s\nAudit report: %s/audit-report.md\nRequested model: %s\n' \
+    "$run_dir" "$output" "$model"
+  cd "$run_dir"
+  strix_status=0
+  STRIX_LLM="$model" strix \
+    --config "$HOME/.strix/cli-config.json" \
+    --mcp-config "$run_dir/mcp.json" \
+    --target "$packet" \
+    --instruction-file "$run_dir/instructions.md" \
+    --scan-mode quick --scope-mode full --max-budget 5 --max-turns 1000000 || strix_status=$?
+
+  if [[ -s "$output/audit-report.md" ]]; then
+    printf 'Saved audit report: %s/audit-report.md\n' "$output"
+  else
+    printf 'No completed audit report. Review %s and %s/strix_runs/ for partial output.\n' \
+      "$output" "$run_dir" >&2
+    (( strix_status != 0 )) || strix_status=1
+  fi
+  exit "$strix_status"
+)
 ```
 
-For Docker builds, also pass `--build-arg HTTP_PROXY="$proxy" --build-arg
-HTTPS_PROXY="$proxy"` as shown in [usage.md](usage.md#retrying-docker-hub-access-from-wsl).
-Do not persist these settings or include credentials in evidence. If an actual request
-still fails, retain its exact command and error and continue independent local work;
-do not turn proxy discovery into a prerequisite again.
+Check the first `llm_request` entry in the fresh `strix.log` for
+`provider=openrouter model=deepseek/deepseek-v4.1-flash-1017`. The million-turn
+value is a finite per-agent ceiling. Share the printed run directory after the
+session so the report and logs can be read directly.
 
-Work in the following order. For each item, inspect, implement the smallest needed
-change, run its acceptance checks yourself in the available Linux/WSL environment,
-inspect the results, retain durable evidence, and update the owning roadmap row before
-continuing. Do not stop after presenting commands for the user to run. Use the verified
-proxy setup above for network-dependent requests. If a real environment blocker remains
-after using that setup, record the exact command/error and continue independent work.
-Never claim verification from prepared or unexecuted commands. Ask the user only for
-information or external decisions that cannot be established from the repository or
-available environment, such as instructor approval; continue technical work meanwhile.
+## Audit prompt
 
-1. F03 — Review the selected inputs and expected results. Compare the files in both
-   target evaluation directories with their documented contracts in
-   docs/target_scenarios.md. Check validity labels, expected exit/output behavior,
-   representative valid/boundary/invalid coverage, and equivalent inputs/settings
-   across versions and modes. Correct only demonstrably stale or unsupported claims;
-   unknown minimized bytes must remain inconclusive unless independently justified.
-   Important: the `65537 -> exit 2` test currently exercises only `reference.py`; it
-   does not prove the target driver rejects that input. Resolve the roadmap's open
-   invalid-interface question against the actual target interface and assignment. Add
-   only the smallest genuine invalid case if needed and if its expected result is
-   independently supported; otherwise document why the selected compressor contract
-   has no invalid payload within its declared scope and how the assignment's invalid
-   input category is satisfied. Do not treat a reference-only test as target coverage
-   or waive a required category merely to avoid adding one case. The asset suite has
-   already passed (`python -m pytest -q tests/test_target_assets.py`: 11 passed), and
-   all six manifests loaded: target1 has 10 cases per variant with 0 invalid; target2
-   has 4 cases per variant with 3 invalid. These results are recorded in the roadmap;
-   do not repeat unchanged checks. Run only a targeted native/interface check needed to
-   settle the F03 question. Do not add corpus-size or exhaustive-format requirements.
+<!-- STRIX PROMPT BEGIN -->
+You are reviewing a local packet of DiffSheriff course-project documents and
+recorded result metadata. Start with revision.txt, docs/specification.md,
+docs/architecture.md, and docs/roadmap.md. Treat docs/course_assignment.pdf as the
+authority. If PDF extraction is unavailable, use the digest and record that
+limitation. Audit the evidence within the supplied packet. Keep the input files
+unchanged and write only inside audit-output/. Do not scan systems or networks,
+run project code or builds, generate inputs, reproduce vulnerabilities, or delegate
+those activities.
 
-2. F04/F05 — Confirm source builds and release hardening on the actual selected
-   versions. Use the delivered source bundles and the environment in docs/evaluation.md.
-   Record compiler/toolchain, build commands, dependencies/runtime, source refs/hashes,
-   and observed NX/PIE/RELRO/canary states for release binaries. Make a build or
-   packaging change only if a required version cannot be built/replayed or the four
-   refs/bundles/configs disagree. Run the corresponding ordinary and sanitized builds;
-   retain inspection output and verify configured hardening downgrade reporting. Do
-   not require every mitigation to be enabled.
-
-3. F09 — Run the six real-target comparisons exactly as documented in
-   docs/evaluation.md: correct/incomplete/regression for target1 and target2. Use
-   equivalent inputs and settings within each target. Preserve separate run identities,
-   reports, console logs, source/build identities, original and minimized inputs,
-   correlation evidence, termination details, and three replays. Compare actual exit
-   codes to 0/10/20; never force outcomes. Investigate 30/40 from their report evidence.
-   Inspect all six JSON reports and verify the assignment's distinctions and evidence.
-   Retain the actual matrix under artifacts/evaluation/targetN/VARIANT/. Do not call a
-   native smoke or generic test suite a full matrix.
-
-4. F06 — During F09, verify automatic reduction on actual findings. Keep the original
-   and minimized input and at least three replay results. If an input cannot shrink,
-   report the actual stopping reason; do not claim reduction. The generic minimizer
-   itself is already verified, so add no minimizer features without a concrete failure.
-
-5. F07 — After correct-patch matrix runs have generated current baseline cases, review
-   each case against its bytes and the independently established contract. Run each
-   correct config again so the generated cases are loaded. Check that the original
-   baseline problem reproduces and is absent on the correct patch, and that functional
-   cases remain eligible for regression checks. Keep unknown expectations inconclusive.
-   Retain the later-run reports and regression inputs/manifests. Do not revive the
-   retired PNG legacy cases as current evidence.
-
-6. F10/F12 — Verify the existing CI and standalone delivery using delivered bundles,
-   configs, fixtures, and declared prerequisites in a fresh checkout/location. Make
-   only the setup changes needed to run the existing workflow. Verify a correct-patch
-   gate passes and incomplete/regression results fail with their actual codes; retain
-   workflow output and JSON. Build/install, run a correct comparison, and replay a
-   representative finding without relying on ignored local state or chat history. No
-   hosted provider is mandatory, and no second CI system is wanted.
-
-Constraints:
-- Treat docs/roadmap.md as the sole status and requirement-gap list. Update it as work
-  is completed; do not create another checklist or parallel handoff.
-- F01/F02 are implemented for the selected documented contracts; F05 PNG packaging,
-  F06 generic reduction, F08 generic correlation, F10 source preparation, and F11
-  generic exit/verification work already have checkpoint evidence. Recheck them only
-  where a selected-target result exposes a real defect.
-- The assignment does not require exhaustive library validation, universal package
-  locking, all protections enabled, branch tracing, a general-purpose decoder,
-  arbitrary-input expectations, hosted CI, or rehearsal packaging. Do not add these
-  as completion criteria. Preserve the distinction between instructor approval and
-  technical evidence; never fabricate approval, participation, or defenses.
-- Keep provenance/licenses intact. Do not relabel old runs after source changes.
-  Keep each evidence bundle self-describing and tied to its exact source/runtime.
-- For changed code, run existing focused tests and relevant final verification yourself.
-  Do not add tests or repeat accepted unchanged suites without need.
-- Review the complete diff and repository status. Remove only temporary material
-  created by this task. Follow AGENTS.md for staging/commit behavior and report exact
-  completed fix IDs, commands/results, retained evidence, limitations, and the first
-  unfinished action.
-```
+1. Reconcile `revision.txt`, `docs/roadmap.md`, and `artifacts/README.md`. Identify stale
+   status statements, contradictory claims, and evidence gaps introduced by the
+   interrupted recovery. Files outside the packet are unavailable for this review.
+2. Assess F03 against the assignment and the F03 corpus-review checkpoint. Separate the
+   recorded test and input counts from the interpretation of per-target invalid
+   payload coverage, which is pending instructor approval.
+3. Assess F04/F05 using the build-hardening checkpoint and target provenance. Separate native build and
+   ELF evidence from the required delivery-environment and CI acceptance checks.
+4. Review `target1-correct-summary.json`. Check that the roadmap and index treat
+   exit 40 and incomplete analysis as an inconclusive attempt. Flag conclusions
+   that cannot be drawn from the recorded counts and runtime metadata.
+5. Save a progress note in audit-output/audit-checkpoint.md and update it as each
+   review area is completed. Label it partial.
+6. Save the final Markdown report in audit-output/audit-report.md within the mounted
+   packet. Write it to a temporary file in the same directory and rename it into
+   place once complete. Verify it exists before finishing. Start with the audited
+   revision and scope. For each issue give the file and section, the conflicting
+   evidence or missing record, and the smallest correction. End with the remaining
+   deliverables in order and one next defensive engineering task. Tag decisions
+   that require instructor input. Print the report location and a brief summary in
+   the TUI, then finish.
+<!-- STRIX PROMPT END -->
