@@ -111,9 +111,11 @@ mapped to actual contracts and evidence, rather than copied as completed require
 The team also supplied [ta-tahmasebi/TEMP at
 `e3dc7fc74e99d3f31e9d1ba206c6fd64dc57c139`](https://github.com/ta-tahmasebi/TEMP/tree/e3dc7fc74e99d3f31e9d1ba206c6fd64dc57c139).
 Its own requirements matrix records one purpose-built target, no real-world target,
-no demonstrated unseen-patch evaluation, and no instructor approval. Those are the
-same external target-authoring and approval gaps recorded in DiffSheriff's roadmap;
-copying its `confparse` fixture would not satisfy the two-target requirement.
+no demonstrated unseen-patch evaluation, and no instructor approval. Those are gaps in
+TEMP itself. DiffSheriff's instructor-approval requirement was later waived by the
+course team, and its two real target libraries and six scenario runs are recorded in the
+current roadmap/checkpoint. Copying TEMP's `confparse` fixture would not improve that
+evidence.
 
 The guide's core required behavior—dual builds, isolated execution, independent
 expectations, diff correlation, replay/minimization, generated regressions, hardening,

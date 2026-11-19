@@ -8,5 +8,5 @@
   builds, and one-off scripts tied to temporary paths.
 - Keep evidence honest: label synthetic fixtures and infrastructure smoke tests, and
   preserve the distinction between different runs and real-target acceptance.
-- Prepare and stage requested changes, then provide the exact `git commit -m "..."`
-  command. The user performs the commit and push unless explicitly instructed otherwise.
+- After requested changes are verified, commit and push them automatically unless the
+  user explicitly says not to. Report the resulting commit and remote state.

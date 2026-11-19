@@ -1,6 +1,11 @@
-# Evaluation: what the team must do
+# Evaluation procedure and retained status
 
-Use this procedure after resolving the acceptance gaps in [the roadmap](roadmap.md).
+This procedure documents how to reproduce the target evaluation from a clean Linux/WSL
+checkout. The six-row target matrix and local clean-checkout gate have already been run;
+their current outcomes and remaining evidence gaps are recorded in the
+[roadmap](roadmap.md) and [target-matrix checkpoint](../artifacts/checkpoints/target-matrix/README.md).
+Do not treat the commands below as proof that every retained finding is conclusive.
+
 The assessment needs **two independent C/C++ targets**, at least one a real non-toy
 project/library. Instructor approval was waived by the course team. Each target
 needs a baseline and three patch versions: correct, incomplete, and functional regression.
@@ -8,7 +13,7 @@ That is **six comparisons**, not one demonstration. Use only the documented loca
 scope; no exploit tooling is needed. The waiver and source facts belong in
 [target_scenarios.md](target_scenarios.md).
 
-## 1. Prepare the assets once
+## 1. Asset and target requirements (already prepared)
 
 For each `target1` and `target2`:
 
@@ -40,7 +45,7 @@ inspect the actual approved finding under `evidence.cases[].runs.base[].signatur
 from an initial run; record that finding's error/file/function/line. Do not choose an
 unrelated signature merely to obtain a pass. Preserve that initial report too.
 
-## 2. Install and run the six comparisons (Linux/WSL)
+## 2. Reproduce the six comparisons (Linux/WSL)
 
 From the project root, with the required assets available:
 
@@ -127,7 +132,7 @@ underlying cause and rerun; do not relax the check. A failing run keeps its
 `console.log`, so the recorded `analysis_incomplete_reasons` and notes explain the
 outcome.
 
-## 3. Demonstrate replay, regression enrollment, and CI
+## 3. Reproduce replay, regression enrollment, and CI checks
 
 - For each target, take a **baseline finding bundle from its correct-patch run**:
   `python -m diffsheriff.reproduce FULL_BUNDLE_PATH --check-regression` must return 0.
@@ -136,7 +141,7 @@ outcome.
 - Run each correct config again after the matrix. Require code 0 and verify the new
   report contains `regression/` cases. Establish independent expectations for any
   newly reduced inputs before considering this check complete.
-- Commit the approved bundles/configs/corpora/generated regressions and evidence.
+- Keep the reviewed bundles/configs/corpora/generated regressions and accepted evidence in the delivered repository.
   The `Prepare target sources` step in `.github/workflows/validate_target.yml`
   already clones both bundles on a fresh runner and refuses existing destinations.
 - Verify the existing target workflow from a fresh source environment. A hosted
@@ -145,9 +150,10 @@ outcome.
   actual results and JSON. Correct patches should pass; incomplete/regression variants
   must fail the gate with their actual nonzero code. Do not add another CI system.
 
-## 4. Finish delivery and the defense
+## 4. Reproduce delivery checks and complete the defense
 
-In a clean Linux checkout without ignored developer state, repeat setup, both correct
+A clean Linux checkout and local CI-equivalent target gate have already been recorded.
+To reproduce that evidence without ignored developer state, repeat setup, both correct
 runs, and replay. Keep source/image identities, versions, hashes, commands/results,
 licenses, and runtime image availability instructions with the delivery. Combine this
 check with the matrix/CI work when practical instead of repeating a full campaign.
