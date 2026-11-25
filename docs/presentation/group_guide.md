@@ -32,6 +32,35 @@ So a perfect group score and a 6/10 defense gives 8.5/12.5 (the first term is
 
 ## 2. The one picture everyone must know
 
+### Fair presentation responsibilities
+
+This allocation is for preparation and defense; it does not change the historical
+authorship of the code. Work is balanced by concepts, evidence, and demonstration
+effort. Markdown length, file counts, and lines of code do not measure difficulty.
+
+| Person | Main code to explain | Evidence to read aloud | Bounded change to demonstrate |
+| --- | --- | --- | --- |
+| Eng 1 | `config.py`, `builder.py`, `runner.py`, `hardening.py`: validate settings, build exact snapshots, contain execution, inspect protections | One build/hash record and one release-binary hardening record | Change a practice binary path from contained to escaping and explain rejection |
+| Eng 2 | `triage.py`, `correlator.py`, and `pipeline.observe`: parse a diagnostic, identify it, relate runtime frames to changed lines | One frame/signature and its correlation reason | Change a practice frame's line from edited to unedited and explain the result |
+| Eng 3 | `minimizer.py`, `reproduce.py`, `regressions.py`; `pipeline.stable_observations` and `record_reproducer` | Replay stability, input/binary hashes, reduction stop reason | Change the minimization call budget and explain retained size/stop reason |
+| Eng 4 | `pipeline.discover_cases`, `matches_expected`, `compare_case`, and `run_pipeline`; `cli.py`, `reporter.py`, matrix/CI entry points | One case's base/patch expectation comparison, final JSON verdict, and process exit | Change a practice report flag and explain exit-code priority |
+
+Engineer 1 has more concrete setup/protection concepts; Engineer 2 has fewer
+components with denser reasoning. Engineer 3 owns the repeatability/reduction
+lifecycle. Engineer 4 owns the comparison decisions and integration boundaries,
+using the other engineers' helpers without re-explaining their internals. No
+person is expected to defend every function in `pipeline.py` alone.
+
+Use the same **8-minute practice slot** for each person: 3 minutes explaining
+code, 2 interpreting evidence, 2 demonstrating a change, and 1 answering a
+question. This is a rehearsal budget, not a timing rule from the assignment.
+Each person reads the shared guide and their own guide in depth, learns the
+input/output handoff to their neighbors, and prepares one result and one change.
+
+Use retained target evidence during rehearsal. Live execution/review of the six
+real-target comparisons, clean-checkout delivery, and the target CI gate remains
+the separate instructor-guided task. Preparing these guides does not rerun it.
+
 ```text
 CLI/config
   -> validate exact commits and safe paths
@@ -137,12 +166,12 @@ After a demo, restore the file and run `git diff --check`.
 
 ## 6. Presentation order and shared questions
 
-1. **Group opening:** problem, rubric, pipeline, exact-commit rule, and evidence location.
-2. **Engineer 1:** source export, two builds, container limits, ELF hardening.
+1. **Group opening:** each person contributes one sentence about their pipeline stage; introduce the rubric and evidence location together.
+2. **Engineer 1:** config validation, source export, two builds, container limits, ELF hardening.
 3. **Engineer 2:** sanitizer parsing, signals, diff hunks, correlation and uncertainty.
 4. **Engineer 3:** replay, minimization, reproducer bundle, regression identity and hashes.
-5. **Engineer 4:** config, orchestration, CLI/report/exit priority, target matrix and CI.
-6. **Group close:** one harmless local command and one retained real-target JSON report.
+5. **Engineer 4:** independent expectations, comparison decisions, orchestration, CLI/report/exit priority, matrix automation and CI.
+6. **Group close:** each person explains their own fields in one retained real-target JSON report; share setup and rehearsal work.
 
 Everyone should be able to answer:
 

@@ -1,6 +1,6 @@
-# Engineer 3 presentation guide
+# Eng 3 presentation guide
 
-**Owner:** Mohammadreza Javadi (402105868)
+**Presenter:** Eng 3
 
 **Topic:** Stability replay, bounded minimization, reproducer bundles, generated
 regression tests, and replay verification.
@@ -8,6 +8,11 @@ regression tests, and replay verification.
 Your part answers: “How do we know this result is repeatable, and how can another
 person verify it later?” The answer is retained bytes plus hashes, not memory or
 a screenshot.
+
+Your detailed pipeline scope is `stable_observations` and `record_reproducer`;
+Engineer 4 owns `compare_case` and final reporting. Engineer 2 supplies the
+signature you preserve. Follow the same 8-minute rehearsal structure: 3 minutes
+code, 2 evidence, 2 change, 1 question.
 
 ## 1. The story to tell
 
@@ -44,7 +49,8 @@ class FailureInvariant:
     expected_crash_function: str
 ```
 
-The oracle refuses to count a candidate unless it preserves that invariant:
+Every oracle evaluation counts toward the budget. A candidate is kept only if
+it preserves that invariant:
 
 ```python
 crashed, error_type, func_name = oracle(candidate)
@@ -58,9 +64,27 @@ The result includes `stop_reason`, `oracle_calls`, original/minimized sizes, and
 limits. `max_oracle_calls` and `max_granularity` are honest bounds, not cosmetic
 settings.
 
-Safe defense demo: change a copied config from `max_oracle_calls: 256` to `1`.
-The result should stop with `oracle_call_limit`. Restore the value afterward and
-explain that one call cannot establish a minimum.
+For your change demonstration, run `python` from the repository root, paste this
+synthetic example, then press Enter on a blank line:
+
+```python
+from diffsheriff.minimizer import FailureInvariant, MinimizationLimits, minimize
+
+oracle = lambda data: (b"X" in data, "demo-error", "demo")
+invariant = FailureInvariant("demo-error", "demo")
+for budget in (1, 256):
+    result = minimize(b"abcXdef", oracle, invariant,
+                      MinimizationLimits(max_oracle_calls=budget))
+    print(budget, "->", result.payload, result.stop_reason)
+
+```
+
+Expected output: budget 1 keeps `b'abcXdef'` with `oracle_call_limit`; budget
+256 reduces it to `b'X'` with `single_byte_reproducer`. The oracle is a practice
+function that answers whether `X` is present. No target program is executed; label
+this demonstration synthetic. Use `exit()` to leave Python. If asked to edit
+the implementation, locate `preserves_invariant` and the budget check, and use
+`tests/test_minimizer.py` to examine the effect.
 
 ### `diffsheriff/reproduce.py`
 
@@ -118,4 +142,9 @@ minimized sizes, `stop_reason`, replay count, and SHA-256.
    for or generate an exploit.”
 3. “Hashes bind the retained bytes to the build and report, so replay is
    independently checkable.”
+
+For your evidence slot, show the three replays, minimized-input hash, original
+and reduced sizes, and the stop reason from a retained bundle. Be ready to
+answer: “Why does stopping at a call limit leave a useful reproducer but not
+prove that the input is minimal?”
 

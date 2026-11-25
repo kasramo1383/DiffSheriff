@@ -1,20 +1,24 @@
-# Engineer 4 presentation guide
+# Eng 4 presentation guide
 
-**Owner:** Kasra Montazeri (402106575)
+**Presenter:** Eng 4
 
-**Topic:** Configuration, pipeline orchestration, CLI/reports, target scenarios,
-CI, and delivery integration.
+**Topic:** Functional comparison decisions, pipeline orchestration, CLI/reports,
+target matrix automation, CI, and delivery integration.
 
 Your job is to connect the other three engineers' components into one command
-that a clean checkout can run. Explain the schema before showing a target result.
+that a clean checkout can run. Engineer 1 now owns configuration validation;
+Engineer 2 owns parsing/correlation; Engineer 3 owns stability/reduction/replay.
+You explain their inputs/outputs and the comparison/reporting decisions, rather
+than re-explaining their implementations. Target setup and presentation rehearsal
+are shared by the group. Use the same 8-minute rehearsal structure: 3 minutes
+code, 2 evidence, 2 change, 1 question.
 
 ## 1. The story to tell
 
-The YAML file is an executable contract. It names the target/language, exact base
-and patch hashes, build commands and binary paths, execution limits, hardening
-baseline, test directories/expectations, independent reference behavior, and
-minimization limits. `config.py` rejects malformed or unsafe values before
-Docker or Git work begins.
+Start with the validated configuration supplied by Engineer 1. An expectation
+is the independently specified result a correct program should produce, such as
+exit 0 with particular output. A valid-input base-pass/patch-fail comparison
+therefore has an explanation beyond “the two programs behaved differently.”
 
 `run_pipeline` then discovers supplied cases, computes the expectation manifest
 hash, writes durable inputs, obtains the actual Git diff, builds both commits in
@@ -27,23 +31,6 @@ test, and the optional target-patch gate without pretending a skipped job passed
 
 ## 2. Exact code to know
 
-### `diffsheriff/config.py`
-
-The exact-commit rule is fail-closed:
-
-```python
-for key in ("base_ref", "patch_ref"):
-    value = _string(target.get(key), f"target.{key}")
-    if not re.fullmatch(r"[0-9a-f]{40}|[0-9a-f]{64}", value):
-        raise ConfigError(f"target.{key} must be a full Git commit hash")
-```
-
-`relative_path` rejects absolute paths, traversal (`..`), backslashes, reserved
-`.git`/`.diffsheriff` locations, and empty values. Changing `target.patch_ref`
-changes which approved snapshot is compared. Changing a test expectation changes
-the functional contract, so that belongs only in an instructor-reviewed target
-configuration.
-
 ### `diffsheriff/pipeline.py`
 
 `observe` is the handoff point (the complete code is in Engineer 2's guide).
@@ -54,9 +41,16 @@ regression = stable and case["valid_input"] and base_ok and not patch_ok
 vulnerability = stable and bool(patch_sig)
 ```
 
-The three corresponding modes are compared separately. A patch signature equal to
+The two build modes are compared separately: release with release and sanitized
+with sanitized. Each side is replayed three times. A patch signature equal to
 the baseline is an incomplete fix; a valid-input base-pass/patch-fail is a
-functional regression. Unstable replays add an incomplete-analysis reason.
+functional regression. Unstable replays add an incomplete-analysis reason. Your
+detailed functions are `discover_cases`, `matches_expected`, and `compare_case`;
+for `run_pipeline`, explain the stage order and calls to other owners' helpers.
+
+Walk through one retained case: locate `expected`, `valid_input`, mode, and
+base/patch runs; then explain which comparison rule produced the finding. Also
+show the baseline signature was established before claiming the patch fixed it.
 
 ### `diffsheriff/reporter.py` and `cli.py`
 
@@ -109,15 +103,28 @@ bash scripts/run_matrix.sh --list
 bash scripts/run_matrix.sh
 ```
 
-To demonstrate a setup failure safely, copy a config and change
-`target.repository_path` to a missing directory, then run:
+For your change demonstration, run `python` from the repository root, paste the
+following example, then press Enter on a blank line:
 
-```bash
-diffsheriff --config /tmp/bad-target.yaml --output-json /tmp/bad-report.json
+```python
+from diffsheriff.reporter import resolve_priority_exit_code
+
+for vulnerability in (False, True):
+    code, verdict = resolve_priority_exit_code(
+        build_failed=False, vuln_detected=vulnerability,
+        regression_detected=True, is_inconclusive=False)
+    print(vulnerability, "->", code, verdict)
+
 ```
 
-The report should say `BUILD_OR_CONFIG_ERROR` and exit 30. Restore the real
-config; never change the official matrix's expected codes. To run one approved row:
+Expected output: `False` gives 20/`FUNC_REGRESSION`; `True` gives
+10/`VULN_REMAINS_OR_NEW_ISSUE`. A remaining diagnostic has higher priority than a
+functional regression when both flags are set. This is a synthetic reporting
+exercise. Use `exit()` to leave Python. If asked to change implementation
+behavior, locate the branch order in `resolve_priority_exit_code` and use
+`tests/test_reporter.py` to observe the effect.
+
+To run one approved row during the instructor-guided evaluation:
 
 ```bash
 diffsheriff --config evaluation/target1/correct.yaml \
@@ -127,10 +134,14 @@ diffsheriff --config evaluation/target1/correct.yaml \
 
 ## 5. Three sentences to memorize
 
-1. “The YAML is a contract: exact refs, safe paths, independent expectations,
-   limits, and evidence settings are validated before execution.”
+1. “Independent expectations let us distinguish a functional regression from
+   an unexplained difference between versions.”
 2. “The pipeline compares corresponding modes and reports the highest-priority
    actionable state instead of hiding failures behind a generic boolean.”
 3. “The matrix runner verifies retained evidence; it does not manufacture a green
    result.”
+
+For your evidence slot, show a case comparison, JSON verdict, matching process
+exit, and workflow condition. Be ready to answer: “Which code wins when both a
+remaining diagnostic and a functional regression are confirmed, and why?”
 

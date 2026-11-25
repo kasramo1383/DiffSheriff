@@ -1,6 +1,6 @@
-# Engineer 2 presentation guide
+# Eng 2 presentation guide
 
-**Owner:** Mohammadmahdi Abedini (402106191)
+**Presenter:** Eng 2
 
 **Topic:** Signals, sanitizer parsing, finding identity, Git-diff parsing, and
 runtime-to-source correlation.
@@ -8,6 +8,12 @@ runtime-to-source correlation.
 Start with the problem: a process exit code only says that something happened.
 Your code turns noisy stderr and the real patch diff into explainable evidence.
 It still refuses to overclaim when symbolization or correlation is missing.
+
+Your scope ends at observation, signature, and correlation. Engineer 4 owns
+`compare_case` and the final fixed/incomplete/regression decisions; Engineer 3
+owns replay stability. You should know those handoffs without studying their
+whole implementations. Follow the same 8-minute rehearsal structure: 3 minutes
+code, 2 evidence, 2 change, 1 question.
 
 ## 1. The story to tell
 
@@ -100,10 +106,9 @@ return {
 }
 ```
 
-`compare_case` then compares corresponding base/patch modes and three stable
-replays. A patch signature equal to the baseline is an incomplete fix; a
-different confirmed patch signature can be a new issue; a base-pass/patch-fail
-valid input is a functional regression.
+Hand this observation to Engineer 4's `compare_case`. A correlation record
+describes a runtime-to-edit relation; Engineer 4 combines it with comparative
+results and independent expectations to choose a finding status.
 
 ## 4. How to run your part
 
@@ -113,10 +118,28 @@ python -m pytest -q tests/test_triage.py tests/test_correlator.py
 python -m pytest -q tests/test_pipeline.py -k "correlat or signature or stable"
 ```
 
-Safe defense demo: in a temporary unit fixture, change one expected correlation
-label from `Direct Match` to the intentionally conservative `Inconclusive`, run
-the focused test to see the failure, then restore the test and implementation.
-Never weaken the official target signature or manufacture a stack trace.
+For your change demonstration, run `python` from the repository root, paste the
+following synthetic example, then press Enter on a blank line:
+
+```python
+from diffsheriff.correlator import correlate_stack_to_diff, parse_unified_diff
+from diffsheriff.triage import StackFrame
+
+diff = "--- a/demo.c\n+++ b/demo.c\n@@ -10 +10 @@\n-old();\n+new();\n"
+hunks = parse_unified_diff(diff)
+for line in (10, 11):
+    frame = StackFrame(0, "0x1", "demo", "demo.c", line)
+    verdict = correlate_stack_to_diff([frame], hunks)
+    print(line, "->", verdict.correlation_type)
+
+```
+
+Expected output: line 10 gives `Direct Match`; line 11 gives `Inconclusive`.
+Only line 10 was edited. These invented demo frames teach the function and must
+be described as synthetic, separate from retained real-target evidence. Use
+`exit()` to leave Python. If asked to change implementation behavior, locate
+the edited-line membership check and the focused tests in `test_correlator.py`;
+changing a test's expected label alone does not change program behavior.
 
 ## 5. Three sentences to memorize
 
@@ -125,4 +148,8 @@ Never weaken the official target signature or manufacture a stack trace.
    correct diff side, not merely that the program crashed.”
 3. “An unknown or changed location stays inconclusive until comparative evidence
    supports attribution.”
+
+For your evidence slot, show one retained triage frame, signature, and correlation
+reason. Explain what the evidence supports and what remains uncertain. Be ready
+to answer: “Why does a frame on line 11 fail to match an edit on line 10?”
 
