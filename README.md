@@ -49,9 +49,9 @@ their assigned subsystem in detail.
 
 | Engineer role | Contributor | Student ID | Ownership |
 | --- | --- | --- | --- |
-| Engineer 1 - Build and execution | Mohammadreza Izadi | 402110916 | Source preparation, release/sanitized builds, isolated execution, limits, and ELF hardening |
+| Engineer 1 - Build and execution | Mohammadreza Javadi | 402105868 | Source preparation, release/sanitized builds, isolated execution, limits, and ELF hardening |
 | Engineer 2 - Triage and correlation | Mohammadmahdi Abedini | 402106191 | Signals and sanitizer parsing, finding identity, Git-diff parsing, and evidence-based correlation |
-| Engineer 3 - Reproduction and regression | Mohammadreza Javadi | 402105868 | Stability replay, input minimization, reproducer bundles, and generated regression tests |
+| Engineer 3 - Reproduction and regression | Mohammadreza Izadi | 402110916 | Stability replay, input minimization, reproducer bundles, and generated regression tests |
 | Engineer 4 - Integration and targets | Kasra Montazeri | 402106575 | Pipeline orchestration, CLI and reports, target scenarios, end-to-end tests, and delivery integration |
 
 The existing [agent handoff prompt](docs/agent_handoff_prompt.md) is a historical snapshot,
