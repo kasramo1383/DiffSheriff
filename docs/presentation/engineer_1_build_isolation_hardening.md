@@ -1,178 +1,983 @@
-# Eng 1 presentation guide
+# راهنمای فارسیِ مطالعه و دفاع Eng 1
 
-**Presenter:** Eng 1
+ارائه‌دهنده: **Eng 1**
 
-**Topic:** Configuration validation, build, execution isolation, and ELF hardening.
+این راهنما برای کسی نوشته شده که از قبل Git، Docker، کامپایلر یا ابزارهای تشخیص خطا را نمی‌شناسد. آن را برای یادگیری قبل از دفاع بخوانید. متن طولانی‌تر، مسئولیت تازه‌ای به نقش اضافه نمی‌کند؛ همان سهم فعلی را با دلیل، مثال و پیامد حذف هر تصمیم توضیح می‌دهد.
 
-This guide starts from zero. Your job is to explain how the same approved source
-snapshot becomes two trustworthy binaries and how every run is bounded. You do
-not need to explain sanitizer parsing or target scenarios in detail; point to
-Engineers 2–4 for those parts. Your share includes the configuration validator
-previously listed under Engineer 4. The additional breadth balances the denser
-algorithms in Engineers 2 and 3's parts.
+الگوی مطالعهٔ هر موضوع این است: **چه می‌کند؟ چرا انتخاب شده؟ اگر نباشد چه مشکلی پیش می‌آید؟ تغییرش چه رفتاری را عوض می‌کند؟**
 
-Your handoff: accept a YAML configuration, validate it, and supply exact build
-records and bounded execution results. Engineer 2 interprets those results;
-Engineer 4 makes the final comparison decisions. Follow the shared 8-minute
-rehearsal structure: 3 minutes code, 2 evidence, 2 change, 1 question.
+## ۱. دفاع دقیقاً چه چیزی از ما می‌خواهد؟
 
-## 1. The story to tell
+طبق متن «احراز مشارکت و دفاع فردی» که برای گروه فرستاده شده:
 
-DiffSheriff first exports an exact Git commit. It then builds a normal **release**
-binary and a **sanitized** binary from separate clean directories. The release
-binary represents ordinary user behavior. The sanitized binary is for useful
-diagnostic output such as AddressSanitizer. If both modes were built in one dirty
-directory, old object files could make the comparison untrustworthy.
+| محور | امتیاز | برای Eng 1 چه باید آماده باشد؟ |
+| --- | ---: | --- |
+| معماری کلی، تصمیم‌های طراحی و منطق کد بخش فرد | ۳ | معماری **کل پروژه** در بخش ۲، و توضیح عمیق تنظیمات، ساخت، اجرا و سخت‌سازی در بخش‌های بعدی |
+| تحلیل یک یافته یا نتیجهٔ آزمون و ارتباط شواهد با تصمیم ابزار | ۳ | خواندن یک گزارش واقعیِ نگه‌داری‌شده و یک آزمون، با توضیح حدود نتیجه |
+| تغییر محدود در کد یا پیکربندی و آزمودن نتیجه | ۴ | اجرای تمرین‌های قبل/بعد، پیدا کردن محل تغییر، پیش‌بینی نتیجه و بررسی آن با آزمون |
 
-At execution time, the target is placed in a fresh Linux amd64 Docker container:
-no network, no Linux capabilities, no new privileges, read-only root filesystem,
-non-root user when possible, bounded memory/CPU/processes/output, and a timeout.
-The source snapshot and one input are the only mounts. This is containment and
-repeatability, not an exploit mechanism.
+سه شرط را هم‌زمان لازم دارید: مشارکت مؤثر احراز شود، دفاع حداقل ۵ از ۱۰ باشد، و در **هر سه محور** حداقل یک امتیاز بگیرید. موفقیت محصول یا دفاع دیگر اعضا جای این شروط را نمی‌گیرد.
 
-Finally, `hardening.py` inspects the produced ELF for NX, PIE, RELRO, stack
-canary indicators, and sanitizer/FORTIFY symbols. It compares base and patch
-release binaries and records any degradation.
+«معماری کلی» مخصوص Eng 4 نیست. همه باید کل مسیر را توضیح دهند؛ شرح جزئی الگوریتم و کد بخش منتسب به فرد عمیق‌تر است. دفاع واقعی مستقل و بدون کمک دیگر اعضا یا ابزار مولد پاسخ انجام می‌شود؛ این فایل برای آمادگی پیش از آن است.
 
-## 2. Files and exact code to know
+### سهم واقعی و سهم ارائه را اشتباه نگیریم
 
-### `diffsheriff/config.py`: validate the request first
+تقسیم فعلی برای آماده‌سازی ارائه است. به‌تنهایی ثابت نمی‌کند هر قسمت از کد در گذشته توسط کدام عضو نوشته شده است. برای احراز مشارکت، هر نفر شواهد واقعی خودش را مشخص کند:
 
-YAML is the readable settings file. A Git commit hash identifies one saved source
-snapshot; a branch name such as `main` can move. `DiffSheriffConfig.from_yaml`
-therefore requires a full commit hash for both sides. This is the actual check:
+| نوع مشارکت | چه چیزی را مشخص کنید؟ | شاهد قابل بررسی |
+| --- | --- | --- |
+| طراحی | مسئله‌ای که بررسی کردید و دلیل انتخاب راه‌حل | تصمیم ثبت‌شده، بحث فنی، یا تغییر مرتبط |
+| پیاده‌سازی | تابع یا تغییری که واقعاً انجام داده‌اید | diff واقعی و شناسهٔ commit مربوط |
+| آزمون | آزمونی که نوشته یا اجرا و تحلیل کرده‌اید | نام آزمون، دستور، خروجی و شرایط اجرا |
+| تحلیل نتایج | نتیجه‌ای که واقعاً بررسی کرده‌اید | مسیر گزارش و توضیح رابطهٔ شواهد با نتیجه |
+| مستندسازی | توضیحی که تهیه یا بازبینی و اصلاح کرده‌اید | فایل و تغییر قابل انتساب به آن کار |
 
-```python
+این موارد را با اطلاعات واقعی تکمیل کنید. تعداد خط یا تعداد commit به‌تنهایی کافی نیست؛ استفاده از این راهنما هم جای شواهد مشارکت مؤثر را نمی‌گیرد.
+
+برای پیدا کردن تاریخچهٔ یک فایل:
+
+~~~bash
+git log --oneline -- diffsheriff/config.py
+git show COMMIT -- diffsheriff/config.py
+~~~
+
+فرمان اول خلاصهٔ تغییرهای همان فایل را نشان می‌دهد؛ --oneline خروجی را کوتاه و -- مرز گزینه‌ها/نسخه و مسیر فایل را مشخص می‌کند. فرمان دوم diff یک تغییر را نشان می‌دهد. **COMMIT جای‌خالی است:** شناسهٔ واقعی سطر موردنظر را جای آن بگذارید. برای بقیهٔ فایل‌ها مسیر را عوض کنید. این فرمان‌ها فقط می‌خوانند و چیزی را تغییر نمی‌دهند.
+
+برای هر ادعای مشارکت بنویسید: «مسئله چه بود، من چه کاری انجام دادم، شاهدش کجاست، با چه آزمونی بررسی شد و نتیجه چه محدودیتی دارد». صرف پیدا کردن یک commit در فایل، آن را به فرد خاصی منتسب نمی‌کند.
+
+## ۲. معماری کلیِ کل DiffSheriff؛ بخش مشترک همهٔ اعضا
+
+### مسئلهٔ پروژه چیست؟
+
+دو نسخه از یک برنامهٔ C/C++ داریم: نسخهٔ پایه، یعنی قبل از patch، و نسخهٔ اصلاح‌شده. می‌خواهیم با اجرای ورودی‌های از قبل تهیه‌شده بررسی کنیم:
+
+- خطای مشخص‌شده در نسخهٔ پایه واقعاً قابل بازتولید است؟
+- همان خطا در patch باقی مانده یا رفع شده است؟
+- patch رفتار درستِ ورودی‌های معتبر را خراب کرده است؟
+- نتیجه به‌اندازهٔ کافی پایدار و مستند است که بتوان به آن تکیه کرد؟
+
+ورودی ابزار شامل مخزن محلی، دو commit دقیق، دستورهای ساخت، مجموعه‌ورودی‌ها، رفتار مورد انتظار مستقل و تنظیمات اجرا است. خروجی آن گزارش JSON، خلاصهٔ خوانا، شواهد اجرای نگه‌داری‌شده و یک کد خروج برای CI است.
+
+### جریان کامل پروژه
+
+~~~text
+cli.py
+  دریافت مسیر config و مسیر گزارش/شواهد
+     ↓
+config.py + pipeline.discover_cases
+  اعتبارسنجی تنظیمات، خواندن ورودی‌ها و انتظارهای مستقل
+     ↓
+runner.resolve_image + Git diff
+  ثبت هویت image و تغییرات واقعی بین دو commit
+     ↓
+builder.py
+  base/release   base/sanitized
+  patch/release  patch/sanitized
+     ↓
+hardening.py
+  بررسی ELF و مقایسهٔ محافظت‌های نسخه‌های release
+     ↓
+runner.py
+  اجرای محدود و ایزوله؛ سه مشاهده برای هر سمت و هر حالت ساخت
+     ↓
+triage.py + correlator.py
+  تشخیص نوع خطا و فریم‌ها، امضای یافته و رابطه با خطوط تغییرکرده
+     ↓
+pipeline.compare_case
+  مقایسهٔ متناظر و تشخیص نتیجه با کمک انتظار مستقل
+     ↓
+minimizer.py + reproduce.py + regressions.py
+  کاهش ورودیِ موجود، نگه‌داری بازتولیدکننده و آزمون‌های رگرسیون
+     ↓
+reporter.py + cli.py
+  JSON، خلاصه، دلیل عدم قطعیت و کد خروج
+~~~
+
+«انتظار مستقل» یعنی رفتار درست را از یک قرارداد یا مرجع بررسی‌شده گرفته‌ایم؛ صرفاً رفتار patch را درست فرض نکرده‌ایم. اگر base و patch هر دو خروجی اشتباه یکسان بدهند، برابری آن‌ها به‌تنهایی درستی را ثابت نمی‌کند.
+
+در هر مقایسه، release با release و sanitized با sanitized مقایسه می‌شود. برای سه ورودی، دو سمت، دو حالت ساخت و سه تکرار، بخش اولیهٔ اجرا ۳۶ مشاهده دارد. کاهش ورودی و بازپخش‌های اضافه می‌توانند تعداد کل را افزایش دهند.
+
+### هر ماژول چرا جداست؟
+
+| ماژول | مسئولیت | اگر با بقیه مخلوط شود چه مشکلی داریم؟ |
+| --- | --- | --- |
+| config | بررسی ساختار درخواست | خطای تنظیمات دیر و شبیه خطای برنامه دیده می‌شود |
+| builder | منبع دقیق و چهار ساخت مستقل | معلوم نیست اختلاف از patch است یا فایل مانده از ساخت قبلی |
+| runner | اجرای محدود و جمع‌آوری نتیجه | timeout، سیگنال و خرابی Docker ممکن است با هم اشتباه شوند |
+| hardening | خواندن محافظت‌های باینری | ادعای محافظت فقط از روی نام یا دستور کامپایل باقی می‌ماند |
+| triage | تفسیر خروجی تشخیص خطا | متن خام stderr برای تصمیم قابل مقایسه آماده نیست |
+| correlator | رابطهٔ فریم زمان اجرا با diff | هر crash ممکن است بی‌دلیل به patch نسبت داده شود |
+| pipeline | ترتیب مراحل و تصمیم مقایسه | جزئیات ابزارها جای قرارداد مقایسه را می‌گیرند |
+| minimizer/reproduce/regressions | تکرارپذیری و نگه‌داری ورودی | نتیجه برای بررسی بعدی قابل بازسازی نیست |
+| reporter/cli | خروجی استاندارد و اولویت کد خروج | انسان و CI ممکن است دو برداشت متفاوت از یک اجرا داشته باشند |
+
+### نتیجه‌ها را همه باید بشناسند
+
+| وضعیت | معنای کلی |
+| --- | --- |
+| Fixed | خطای پایه با شواهد لازم برقرار بوده و مقایسه شرایط رفع آن را پشتیبانی می‌کند |
+| Incomplete Fix | تشخیص مربوط به خطای پایه روی patch باقی مانده است |
+| New Issue | روی patch تشخیص تأییدشدهٔ دیگری دیده می‌شود؛ نسبت‌دادن علت، شواهد همبستگی می‌خواهد |
+| Functional Regression | ورودی معتبر روی base انتظار مستقل را پاس کرده و روی patch آن را نقض کرده است |
+| Inconclusive | شواهد لازم ناقص، ناپایدار یا نامطمئن است |
+
+کدهای خروج: ۰ موفق، ۱۰ خطای امنیتی باقی‌مانده/جدید، ۲۰ رگرسیون عملکردی، ۳۰ شکست ساخت/تنظیمات/ابزار و ۴۰ نتیجهٔ نامعین. اولویت **۳۰ > ۱۰ > ۲۰ > ۴۰ > ۰** است. بنابراین دیدن یک timeout به معنی این نیست که کد نهایی حتماً ۴۰ می‌شود؛ خطای دارای اولویت بالاتر هم ممکن است وجود داشته باشد.
+
+### مرز مسئولیت Eng 1
+
+در عمق، این قسمت‌ها را بلد باشید: config، source snapshot، build، محدودیت اجرای فرایند، قرارداد Docker و تشخیص محافظت‌های ELF. نتیجهٔ اجرای شما به Eng 2 می‌رسد، پایداری/کاهش با Eng 3 است و تصمیم مقایسه/گزارش با Eng 4. در کل pipeline، ورودی و خروجی مرحله‌های دیگر را هم باید بفهمید.
+
+## ۳. واژه‌ها را از پایه یاد بگیریم
+
+| اصطلاح | معنی ساده |
+| --- | --- |
+| source / سورس | فایل‌های قابل‌خواندن برنامه، مانند فایل C |
+| commit | عکس ذخیره‌شدهٔ یک نسخه از مخزن با شناسهٔ مشخص |
+| branch | اشاره‌گری مانند main که با commit جدید جابه‌جا می‌شود |
+| snapshot | کپی همان نسخهٔ مشخص سورس برای کار مستقل |
+| build / compile | تبدیل سورس به فایل اجرایی توسط کامپایلر و linker |
+| binary | فایل اجرایی حاصل از ساخت |
+| release | ساخت معمولی برای مقایسهٔ رفتار عادی؛ لزوماً بدون symbol یا اطلاعات debug نیست |
+| sanitized | ساخت دارای ابزار تشخیص خطا در زمان اجرا |
+| ASan / UBSan | ابزار تشخیص خطاهای حافظه / بعضی رفتارهای تعریف‌نشدهٔ C/C++ |
+| process / فرایند | برنامه‌ای که در حال اجراست |
+| stdout / stderr | مسیر خروجی عادی / پیام‌های خطا و تشخیص |
+| exit code | عددی که فرایند هنگام پایان برمی‌گرداند |
+| signal | پیام سیستم‌عامل به فرایند؛ مثلاً پایان به علت SIGSEGV |
+| image / container | الگوی محیط آماده / نمونهٔ در حال اجرای آن محیط |
+| mount | در دسترس گذاشتن یک مسیر میزبان داخل کانتینر |
+| read-only | خواندن مجاز است ولی نوشتن در آن مسیر مجاز نیست |
+| hash / SHA-256 | اثر انگشت بایت‌های یک فایل؛ تغییر بایت‌ها معمولاً hash را عوض می‌کند |
+| ELF | قالب فایل اجرایی و کتابخانه در Linux |
+| hardening | محافظت‌هایی که بعضی پیامدهای خطا را محدود می‌کنند |
+| unit test / smoke test | آزمون یک رفتار کوچک / بررسی عبور سالم مسیر اجرایی اصلی |
+
+Hash سالم‌بودن یا درست‌بودن یک برنامه را ثابت نمی‌کند؛ برای بررسی هویت بایت‌ها استفاده می‌شود. کانتینر هم ماشین مجازی کامل یا تضمین حذف همهٔ خطرها نیست.
+
+## ۴. نقشهٔ کد Eng 1
+
+مسیرها نسبت به ریشهٔ repo هستند. نام تابع را معیار اصلی پیدا کردن کد بگیرید؛ شمارهٔ خط با تغییرات بعدی جابه‌جا می‌شود.
+
+| محل | قسمت اصلی | چه چیزی را توضیح بدهید؟ |
+| --- | --- | --- |
+| diffsheriff/config.py:44 | relative_path | جلوگیری از مسیر نامعتبر یا خروج از محدوده |
+| diffsheriff/config.py:113 | DiffSheriffConfig.from_yaml | تبدیل YAML به تنظیمات معتبر |
+| diffsheriff/builder.py:21 | compute_sha256 | هویت آرشیو و باینری |
+| diffsheriff/builder.py:98 | prepare_sources | استخراج commit دقیق |
+| diffsheriff/builder.py:158 | build_isolated_matrix | ساخت مستقل و نگه‌داری شاهد |
+| diffsheriff/runner.py:18 | symbolizer_environment | آماده‌سازی تبدیل آدرس به نام/خط |
+| diffsheriff/runner.py:52 | capture_command | timeout و خروجی محدود |
+| diffsheriff/runner.py:154 | resolve_image | بررسی Linux/amd64 و گرفتن image ID |
+| diffsheriff/runner.py:168 | run_container | ساخت دستور Docker و بررسی وضعیت آن |
+| diffsheriff/runner.py:263 | execute_container | رساندن ورودی و supervisor داخل کانتینر |
+| diffsheriff/hardening.py:22 | inspect_elf_hardening | شواهد NX/PIE/RELRO/canary |
+| diffsheriff/hardening.py:113 | compare_hardening | تشخیص افت محافظت |
+| docker/Dockerfile | محیط ساخت و اجرا | ابزارها و وابستگی‌های آماده |
+| diffsheriff/pipeline.py | اتصال مراحل | فراخوانی سازنده، image، بررسی hardening و ثبت هشدار |
+
+نکتهٔ مهم: تابع build_dual_matrix و اجراکنندهٔ محلی execute_target هم در کد وجود دارند و آزمون می‌شوند. مسیر اصلی اعتبارسنجی از **build_isolated_matrix و execute_container** استفاده می‌کند. در دفاع این دو مسیر را یکی معرفی نکنید.
+
+## ۵. اعتبارسنجی تنظیمات: چرا قبل از اجرا؟
+
+کد اصلی این است:
+
+~~~python
 for key in ("base_ref", "patch_ref"):
     value = _string(target.get(key), f"target.{key}")
     if not re.fullmatch(r"[0-9a-f]{40}|[0-9a-f]{64}", value):
         raise ConfigError(f"target.{key} must be a full Git commit hash")
     refs[key] = value
-```
+~~~
 
-`relative_path` rejects absolute or escaping paths; `from_yaml` also rejects
-invalid limits and unsupported input methods. A path such as `build/program`
-stays inside the source snapshot. `../program` could escape it and is rejected.
-Engineer 4 consumes the validated settings; you explain these validation rules.
+این check فقط شکل شناسه را بررسی می‌کند: ۴۰ یا ۶۴ رقم hexadecimal کوچک. وجود واقعی commit در مخزن بعداً در prepare_sources بررسی می‌شود.
 
-For your change demonstration, run `python` from the repository root to open
-Python's interactive prompt, paste this block, then press Enter on a blank line:
+| تصمیم | دلیل انتخاب | اگر نباشد چه می‌شود؟ |
+| --- | --- | --- |
+| yaml.safe_load | دادهٔ تنظیمات را با loader ایمن YAML می‌خواند | loader نامناسب می‌تواند امکانات ساخت object ناخواسته داشته باشد؛ safe_load همچنان جای بررسی schema را نمی‌گیرد |
+| version برابر 2.0 | قرارداد فیلدها روشن است | config قدیمی ممکن است با معنای اشتباه تفسیر شود |
+| زبان فقط c، c++ یا cpp | ابزار برای همین دامنه طراحی شده است | دربارهٔ زبان/محیط پشتیبانی‌نشده ادعای نتیجه می‌کنیم |
+| hash کامل به جای branch یا hash کوتاه | نسخهٔ انتخاب‌شده مبهم یا جابه‌جا نمی‌شود | اجرای فردا ممکن است روی سورس دیگری باشد |
+| baseline_signature با error_type/file/function/line | معلوم است چه خطایی باید در base برقرار شود | هر diagnostic نامرتبط ممکن است جای خطای مورد ارزیابی بنشیند |
+| build command و binary path غیرخالی | خروجی مورد انتظار ساخت معلوم است | خطای املایی یا تنظیم ناقص دیرتر به شکست مبهم تبدیل می‌شود |
+| مسیرهای باینری و suite نسبی و بدون .. | فایل داخل محدودهٔ موردنظر باقی می‌ماند | استخراج، خواندن یا انتخاب فایل بیرون snapshot ممکن می‌شود |
+| عدد محدود، مثبت و در موارد لازم integer | timeout و بودجهٔ منابع معنی روشن دارند | NaN، bool یا مقدار کسریِ نامعتبر رفتار حد را خراب می‌کند |
+| input_method فقط stdin/file/argv | قرارداد رساندن ورودی مشخص است | ورودی اشتباه به برنامه می‌رسد و اختلاف کاذب می‌سازد |
+| fixed_arguments به صورت list | مرز هر آرگومان حفظ می‌شود | یک رشتهٔ واحد می‌تواند با فرمان مورد انتظار فرق کند |
+| کلید محیط بدون = و مقدار رشته‌ای | ساخت --env قابل پیش‌بینی است | گزینهٔ محیط به شکل دیگری تفسیر می‌شود |
+| image با - شروع نشود | جای نام image با option اشتباه نمی‌شود | Docker ممکن است گزینه‌ای ناخواسته ببیند |
+| فیلد ناشناخته در execution، hardening_baseline و minimization رد شود | اشتباه املایی بی‌صدا نادیده نمی‌ماند | کاربر فکر می‌کند محدودیت اعمال شده ولی نشده است |
+| provenance و فایل انتظارها مشخص باشد | منشأ قرارداد آزمون قابل پیگیری است | تفسیر رفتار درست پشتوانهٔ مستقل ندارد |
 
-```python
+relative_path این منطق را دارد:
+
+~~~python
+path = PurePosixPath(value)
+if path.is_absolute() or ".." in path.parts or "\\" in value or ":" in value:
+    raise ConfigError(f"{name} must be a relative POSIX path without traversal")
+if not path.parts or path.parts[0] in {".git", ".diffsheriff"}:
+    raise ConfigError(f"{name} uses a reserved or empty path")
+~~~
+
+build/program مجاز است؛ ../program، /tmp/program، مسیر ویندوزی و مسیر رزروشده رد می‌شوند. POSIX یعنی مسیر با / که داخل Linux استفاده می‌کنیم.
+
+repository_path با مسیر config حل می‌شود و اجازه دارد محل مخزن بیرونی را معرفی کند؛ این فیلد همان محدودیت مسیرهای داخل snapshot را ندارد. فایل config و دستورهای build باید از اپراتور مجاز باشند. این اعتبارسنجی config را به زبان اجرای فرمانِ غیرقابل‌اعتماد تبدیل نمی‌کند.
+
+### مقدارهای پیش‌فرض با مقدارهای config فرق دارند
+
+| تنظیم | پیش‌فرض فعلی کد | دلیل و اثر تغییر |
+| --- | --- | --- |
+| build.timeout_seconds | ۱۲۰ ثانیه | ساخت از اجرای یک ورودی زمان بیشتری می‌خواهد؛ خیلی کم باشد build ممکن است با ۳۰ متوقف شود |
+| execution.timeout_seconds | ۵ ثانیه | یک ورودی کل فرایند را معطل نمی‌کند؛ کم‌کردن زیاد ممکن است اجرای سالم را ناقص کند |
+| memory_mb | ۲۰۴۸ | سقف حافظه؛ OOM می‌تواند شاهد محدودیت منبع باشد |
+| cpus | ۲ | سهم CPU محدود است؛ تعداد thread را مستقیماً به ۲ محدود نمی‌کند |
+| pids_limit | ۱۲۸ | تعداد taskهای قابل ایجاد محدود می‌شود |
+| output_limit_bytes | ۱۰۴۸۵۷۶ | هر جریان خروجی سقف دارد؛ RAM میزبان با چاپ بی‌پایان پر نمی‌شود |
+| input_method | file | ورودی باینری از فایل به برنامه می‌رسد |
+| file_argument_flag | --file | با قرارداد driver سازگار است؛ همهٔ برنامه‌ها این flag را ندارند |
+| image | diffsheriff:local | انتخاب image محلی با نام روشن |
+
+عددهای ۵، ۱۲۰ یا ۲۰۴۸ قانون عمومی برای همهٔ هدف‌ها نیستند؛ پارامتر قابل تنظیم‌اند و در گزارش ثبت می‌شوند. configهای فعلی هدف‌ها نیز بسیاری از این مقدارها را صریح نوشته‌اند. **تغییر default در کد، فیلدی را که در YAML صریح تنظیم شده عوض نمی‌کند.**
+
+## ۶. سورس دقیق و ساخت مستقل
+
+### ۶.۱. چرا git archive به جای دست‌کاری checkout؟
+
+در prepare_sources قطعهٔ واقعی زیر وجود دارد:
+
+~~~python
+resolved = subprocess.run(
+    ["git", "-C", str(repository), "rev-parse", "--verify", commit + "^{commit}"],
+    capture_output=True,
+    text=True,
+    check=True,
+    timeout=30,
+).stdout.strip()
+if resolved != commit:
+    raise ValueError("Source ref did not resolve to the requested exact commit")
+~~~
+
+| جزء فرمان | معنی و دلیل | نبودنش چه مشکلی ایجاد می‌کند؟ |
+| --- | --- | --- |
+| git -C repository | Git را روی همان مخزن اجرا می‌کند | مخزن جاری shell ممکن است اشتباه باشد |
+| rev-parse --verify | وجود و حل‌شدن ref را بررسی می‌کند | شکل درست hash را با وجود commit اشتباه می‌گیریم |
+| ^{commit} | نوع object باید به commit برسد | object نامناسب ممکن است به عنوان نسخه پذیرفته شود |
+| capture_output=True | stdout/stderr در برنامه دریافت می‌شود | .stdout برای بررسی شناسه در دسترس نیست |
+| text=True و strip | خروجی متن و newline انتهایی حذف می‌شود | مقایسهٔ متن با شناسه درست انجام نمی‌شود |
+| check=True | exit غیرصفر استثنا ایجاد می‌کند | ادامه دادن پس از شکست Git ممکن می‌شود |
+| timeout=30 | فرمان Git زمان نامحدود ندارد | خرابی ابزار می‌تواند فرایند را معطل کند |
+
+بعد ls-tree -r فایل‌های commit را بررسی می‌کند. mode برابر 160000 نشانهٔ submodule است و رد می‌شود؛ archive عادی محتوای مخزن فرعی را تضمین نمی‌کند. سپس git archive --format=zip --output مسیر commit، فایل‌های نسخهٔ انتخاب‌شده را در ZIP نگه می‌دارد.
+
+هنگام بازکردن ZIP، مسیر هر entry دوباره بررسی می‌شود و symlink رد می‌شود. علت: مسیر traversal یا لینک می‌تواند محدودهٔ snapshot را دور بزند. فایل اجرایی با مجوز 0755 و فایل معمولی با 0644 بازسازی می‌شود تا ویژگی اجرای فایل‌های ثبت‌شده تا حد لازم حفظ شود.
+
+destination.mkdir با exist_ok=False مانع استفادهٔ بی‌صدا از مقصد قبلی است. اگر مقصد قبلی را مخلوط کنیم، فایلی که در commit جدید نیست ممکن است از اجرای قبلی باقی بماند.
+
+نتیجه: checkout کاربر جابه‌جا نمی‌شود، فایل‌های commit‌نشده وارد آزمایش نمی‌شوند، و ZIP برای بررسی بعدی باقی می‌ماند. بایت‌های ZIP و باینری جداگانه hash می‌شوند؛ این کار هویت را ثبت می‌کند و به‌تنهایی build کاملاً تکرارپذیر را تضمین نمی‌کند.
+
+در compute_sha256 فایل با حالت rb، یعنی باینری، در تکه‌های ۶۵۵۳۶ بایتی خوانده می‌شود. خواندن تکه‌ای مصرف حافظه را به اندازهٔ کل فایل وابسته نمی‌کند. rb مهم است: تبدیل متنی یا تغییر پایان‌خط نباید بایت‌هایی را که hash می‌کنیم عوض کند. اندازهٔ ۶۴ KiB یک اندازهٔ عملی برای خواندن است؛ هویت SHA-256 به اندازهٔ chunk وابسته نیست.
+
+### ۶.۲. چرا چهار ساخت داریم؟
+
+~~~text
+base commit  → snapshot مستقل release   → base release binary
+base commit  → snapshot مستقل sanitized → base sanitized binary
+patch commit → snapshot مستقل release   → patch release binary
+patch commit → snapshot مستقل sanitized → patch sanitized binary
+~~~
+
+در build_isolated_matrix برای هر mode ابتدا prepare_sources اجرا می‌شود. clean و دستور ساخت روی snapshot همان mode در کانتینر با writable=True اجرا می‌شوند.
+
+| انتخاب | دلیل | بدون آن |
+| --- | --- | --- |
+| snapshot جدا برای هر mode و هر سمت | وابستگی به object و خروجی قبلی حذف می‌شود | sanitizer یا سورس قبلی می‌تواند در ساخت عادی مخلوط شود |
+| clean_command قبل از ساخت، اگر تنظیم شده باشد | قرارداد build هدف رعایت می‌شود | فایل‌های تولیدشدهٔ موجود در snapshot یا منطق build ممکن است مزاحم شوند |
+| mount قابل نوشتن فقط هنگام build | کامپایلر باید object و binary تولید کند | با mount فقط‌خواندنی ساخت معمولاً شکست می‌خورد |
+| ثبت نتیجهٔ فرمان قبل از بررسی شکست | شاهد شکست باقی می‌ماند | فقط یک پیام «build failed» بدون علت داریم |
+| بررسی exit و timeout/output/resource flags | موفقیت واقعی را بررسی می‌کند | حتی با باینری ناقص یا build متوقف‌شده ادامه می‌دهیم |
+| binary.is_file + رد symlink + بررسی resolve | خروجی باید فایل واقعی و داخل source باشد | مسیر config یا خروجی build می‌تواند به فایل دیگری اشاره کند |
+| chmod(0755) روی binary | اجرای فایل برای user زمان آزمون ممکن است | برنامهٔ ساخته‌شده به علت مجوز اجرا شکست می‌خورد |
+| hash آرشیو و binary | هویت سورسِ بسته‌بندی‌شده و محصول ساخت ثبت می‌شود | بعداً روشن نیست دقیقاً کدام بایت‌ها اجرا شده‌اند |
+
+snapshot مستقل مهم‌تر از اتکا به make clean است؛ یک clean ناقص نباید مرز دو ساخت را از بین ببرد.
+
+### ۶.۳. دستورهای کامپایل را چطور توضیح دهیم؟
+
+در evaluation/target1/correct.yaml این دو فرمان تنظیم شده‌اند:
+
+~~~bash
+make release CC=clang 'CFLAGS=-O2 -I. -DHAVE_UNISTD_H'
+make sanitized CC=clang 'SANFLAGS=-fsanitize=address,undefined -g -O1 -I. -DHAVE_UNISTD_H'
+~~~
+
+| جزء | دلیل استفاده | حذف یا تغییر چه می‌کند؟ |
+| --- | --- | --- |
+| make release / sanitized | هدف Makefile با قرارداد همان پروژه را انتخاب می‌کند | target اشتباه ممکن است binary موردنظر را نسازد |
+| CC=clang | کامپایلر انتخابی را به Makefile می‌دهد | پیش‌فرض ماشین ممکن است ابزار/رفتار دیگری باشد |
+| کوتیشن دور CFLAGS یا SANFLAGS | کل مقدار دارای فاصله یک آرگومان make باقی می‌ماند | shell آن را به آرگومان‌های جدا می‌شکند |
+| -O2 در release | ساخت بهینهٔ معمولی برای این سناریو | سرعت و شکل کد تولیدی می‌تواند تغییر کند |
+| -fsanitize=address,undefined | تشخیص حافظه و رفتار تعریف‌نشده را وارد ساخت می‌کند | آن diagnostics از این ابزارها تولید نمی‌شوند |
+| -g | اطلاعات debug برای نسبت‌دادن آدرس به سورس | frame ممکن است نام/خط دقیق نداشته باشد |
+| -O1 در sanitized | مقداری بهینه‌سازی همراه قابلیت تشخیص مناسب | -O0 یا -O2 ممکن است سرعت و شکل stack/diagnostic را عوض کنند |
+| -I. | جست‌وجوی header در دایرکتوری جاری | header لازم ممکن است پیدا نشود |
+| -DHAVE_UNISTD_H | قابلیت header را طبق build این هدف اعلام می‌کند | مسیر شرطی کامپایل یا نتیجهٔ ساخت ممکن است فرق کند |
+
+این‌ها را در shell میزبان و بیرون snapshot به عنوان جایگزین pipeline اجرا نکنید؛ اینجا برای خواندن config آمده‌اند. تغییر نام متغیر به‌تنهایی کافی نیست؛ Makefile باید واقعاً آن متغیر را مصرف کند.
+
+در fixture بی‌خطر، flagهای -fno-omit-frame-pointer، -fstack-protector-all، -fPIE -pie و -Wl,-z,relro,-z,now هم وجود دارند: به‌ترتیب کمک به stack، درخواست canary، درخواست PIE، و درخواست full RELRO. فایل هدف واقعی ممکن است این flagها را نداشته باشد. وضعیت را از **باینری تولیدشده** می‌خوانیم؛ از نام release یا sanitized حدس نمی‌زنیم.
+
+متن دستور build از config مجاز می‌آید و عمداً با /bin/sh -c اجرا می‌شود تا syntaxهایی مثل make variable و && قابل استفاده باشند. دستور ناشناس را در config نگذارید؛ shell آن را تفسیر می‌کند.
+
+
+## ۷. اجرای ایزوله: تمام گزینه‌های مهم Docker
+
+### ۷.۱. چرا image را به ID تبدیل می‌کنیم؟
+
+resolve_image با docker image inspect اطلاعات image محلی را می‌گیرد؛ Os باید linux و Architecture باید amd64 باشد. سپس به جای tag از Id همان image در اجرای ثبت‌شده استفاده می‌شود.
+
+- **دلیل:** tag مانند diffsheriff:local می‌تواند بعداً به image جدیدی اشاره کند؛ ID هویت محتوای image انتخابی را مشخص می‌کند.
+- **اگر نباشد:** دو اجرا با نام یکسان ممکن است محیط متفاوت داشته باشند و گزارش محل این تفاوت را نشان ندهد.
+- **حد ادعا:** tag پایهٔ ubuntu:24.04 و بسته‌های apt در Dockerfile به digest/نسخهٔ دقیق همهٔ وابستگی‌ها قفل نشده‌اند. build تازه لزوماً image بایت‌به‌بایت قبلی نمی‌دهد. ثبت ID برای هر اجرا این تفاوت را قابل پیگیری می‌کند.
+
+### ۷.۲. چرا build و اجرای ورودی مجوز یکسان ندارند؟
+
+run_container فقط snapshot هدف و در صورت نیاز یک فایل ورودی را mount می‌کند. خود repo اصلی به عنوان mount جدا وارد اجرای هدف نمی‌شود.
+
+در build، source قابل نوشتن است تا object و binary ساخته شود و user برابر UID فرایند میزبان انتخاب می‌شود؛ روی محیط بدون getuid مقدار 1000 جایگزین می‌شود. **اگر اجراکننده در Linux root باشد، UID ساخت هم 0 است؛ نمی‌توان گفت build همیشه non-root است.**
+
+در اجرای هدف، mount سورس read-only و user برابر 65534:65534 است. برنامهٔ مورد آزمون نباید باینری، سورس یا ورودی اصلی را تغییر دهد. writable فقط mount سورس build را عوض می‌کند؛ root filesystem کانتینر همچنان read-only است.
+
+### ۷.۳. گزینه به گزینه
+
+این‌ها از args در run_container آمده‌اند:
+
+| گزینه | چه می‌کند و چرا؟ | حذف یا تنظیم اشتباه چه می‌کند؟ |
+| --- | --- | --- |
+| --name همراه UUID | نام یکتای اجرای موقت برای inspect و cleanup | اجراهای هم‌زمان نام هم را اشغال می‌کنند یا پاک‌سازی اشتباه می‌شود |
+| --pull=never | فقط image محلی انتخاب‌شده را به کار می‌برد | وابستگی شبکه یا دریافت image در میانهٔ آزمون وارد مسیر می‌شود |
+| --platform=linux/amd64 | معماری قراردادی را صریح می‌کند | میزبان دیگر ممکن است image نامتناسب انتخاب کند؛ این گزینه جای بررسی ELF را نمی‌گیرد |
+| --network=none | شبکهٔ عادی کانتینر قطع است | رفتار به سرویس بیرونی وابسته می‌شود و هدف می‌تواند ارتباط ناخواسته برقرار کند |
+| --cap-drop=ALL | قابلیت‌های ویژهٔ Linux از کانتینر حذف می‌شوند | بعضی اعمال مدیریتی غیرضروری در دسترس فرایند باقی می‌ماند |
+| --security-opt=no-new-privileges | فرایند از مسیرهایی مثل setuid امتیاز جدید کسب نکند | محدودبودن user اولیه به‌تنهایی همهٔ مسیرهای افزایش امتیاز را نمی‌بندد |
+| --read-only | root filesystem کانتینر فقط‌خواندنی است | برنامه می‌تواند محیط اجرای خودش را تغییر دهد |
+| --user | هویت اجرای build یا آزمون را تعیین می‌کند | هدف ممکن است با user پیش‌فرض image اجرا شود |
+| --memory با memory_mb | سقف RAM کانتینر | یک هدف می‌تواند حافظهٔ زیادی مصرف کند |
+| --memory-swap برابر همان memory | در محیط دارای پشتیبانی، سهم swap اضافه به RAM داده نمی‌شود | swap می‌تواند اجرای طولانی/فشار سیستم را پنهان کند |
+| --cpus | سهم زمان CPU را محدود می‌کند | یک اجرا می‌تواند CPU میزبان را اشغال کند؛ این سقف wall-clock نیست |
+| --pids-limit | سقف taskهای کانتینر | ساخت فرایند/رشتهٔ زیاد به میزبان فشار می‌آورد |
+| --ulimit core=0 | تولید core dump غیرفعال است | crash می‌تواند فایل بزرگ و محتوای حافظه تولید کند |
+| --tmpfs /tmp:rw,nosuid,size=256m,mode=1777 | فضای موقت قابل نوشتن در محیط read-only با سقف و مجوز عمومیِ موقت | برنامه‌های نیازمند /tmp شکست می‌خورند، یا فضای موقت بدون سقف رشد می‌کند |
+| --mount برای source | snapshot مشخص را در /src در دسترس می‌گذارد؛ در آزمون read-only است | فایل اشتباه اجرا می‌شود یا هدف شواهد را تغییر می‌دهد |
+| --mount برای input، در روش file | یک فایل به صورت readonly در /input قرار می‌گیرد | ورودی درست به برنامه نمی‌رسد یا قابل تغییر می‌شود |
+| --workdir /src | دایرکتوری جاری فرمان ثابت است | مسیر نسبی build و برنامه معنی دیگری پیدا می‌کند |
+| --log-driver=none | Docker کپی جداگانهٔ نامحدود از log نگه نمی‌دارد | محدودکردن capture به‌تنهایی جلوی رشد log ذخیره‌شدهٔ Docker را نمی‌گیرد |
+| --env به صورت زوج‌های جدا | محیط مشخص و قابل ثبت به فرایند می‌رسد | sanitizer یا رفتار برنامه به پیش‌فرض نامعلوم وابسته می‌شود |
+| -i وقتی payload داریم | stdin باز می‌ماند تا بایت‌ها ارسال شوند | روش stdin ممکن است ورودی خالی ببیند |
+| --entrypoint | فرمان موردنظر جای entrypoint پیش‌فرض image اجرا می‌شود | مثلاً به جای compiler، CLI خود DiffSheriff اجرا می‌شود |
+
+نکته‌ها: nosuid یعنی مجوزهای ویژهٔ فایل در /tmp امتیاز ندهند؛ این mount دارای noexec نیست. مقدار 256m انتخاب عملی سقف فضای موقت است. محدودیت‌های resource به پشتیبانی و تنظیمات Docker/کرنل میزبان هم وابسته‌اند.
+
+کد مسیر mount دارای کاما را رد می‌کند، چون Docker در syntax نوع mount از کاما برای جداکردن گزینه‌ها استفاده می‌کند. فرمان Docker به صورت list آرگومان ساخته می‌شود، نه رشته‌ای که shell میزبان دوباره آن را تفسیر کند.
+
+### ۷.۴. رساندن ورودی به هدف
+
+| روش | رفتار واقعی execute_container | دلیل/محدودیت |
+| --- | --- | --- |
+| stdin | payload از pipe به stdin می‌رود | بایت‌های دلخواه بدون تبدیل متنی منتقل می‌شوند |
+| file | فایل موقت ساخته می‌شود، 0644 می‌گیرد، در /input فقط‌خواندنی mount می‌شود؛ flag اختیاری قبل از مسیر است | برای برنامهٔ فایل‌خوان و دادهٔ باینری مناسب است |
+| argv | UTF-8 decode می‌شود و یک آرگومان اضافه می‌شود؛ NUL رد می‌شود | آرگومان سیستم‌عامل محل بایت دلخواه یا NUL نیست |
+
+fixed_arguments قبل از ورودی اضافه می‌شوند. file_argument_flag باید با برنامه سازگار باشد؛ اگر برنامه فقط مسیر بدون --file می‌خواهد، flag را متناسب با قرارداد تنظیم می‌کنیم. انتخاب روش اشتباه می‌تواند خطای کاربری برنامه را شبیه regression نشان دهد.
+
+### ۷.۵. چرا supervisor داخل کانتینر داریم؟
+
+execute_container هدف را مستقیم به عنوان خروجی نهایی Docker تفسیر نمی‌کند. یک اجراکنندهٔ Python مورد اعتماد داخل image قرار دارد:
+
+~~~python
+wrapped = [
+    "python3",
+    "-I",
+    "-m",
+    "diffsheriff.runner",
+    str(settings.timeout_seconds),
+    str(settings.output_limit_bytes),
+    *args,
+]
+~~~
+
+| جزء | دلیل | اگر حذف شود |
+| --- | --- | --- |
+| python3 -I | حالت isolated پایتون، با بی‌اثرکردن مسیرها/تنظیمات شخصی معمول پایتون | کد مورد اجرا می‌تواند به import از مسیر ناخواسته وابسته شود |
+| -m diffsheriff.runner | اجرای ماژول نصب‌شدهٔ supervisor | بسته باید در image نصب باشد؛ فایل هم‌نام در target نباید مبنای اعتماد باشد |
+| timeout و output limit داخل supervisor | محدودیت روی خود فرایند هدف اعمال شود | فقط عمر Docker client اندازه‌گیری می‌شود |
+| خروجی JSON از ExecutionResult | نتیجهٔ child از نتیجهٔ Docker تفکیک شود | exit 139 یک برنامه می‌تواند با قرارداد مبهم 128+signal اشتباه شود |
+
+در Linux، return code منفی child مانند -11 نشانهٔ پایان با signal است. supervisor این مقدار را در JSON حفظ می‌کند. خروجی عادی خود supervisor، JSON است؛ stdout هدف داخل فیلد stdout آن قرار دارد.
+
+بیرون کانتینر timeout برابر timeout هدف + ۱۵ ثانیه است تا راه‌اندازی/جمع‌آوری Docker فرصت داشته باشد؛ هدف در داخل همچنان timeout خودش را دارد. سقف خروجی بیرونی نیز بزرگ‌تر از سقف child است تا JSON و escapeها جا شوند. این حاشیهٔ عملی به معنی افزایش مجوز چاپ هدف نیست.
+
+### ۷.۶. تفکیک خطای Docker، هدف و محدودیت منبع
+
+وقتی capture بیرونی timeout/output-limit نداده، run_container وضعیت .State را با docker inspect می‌خواند:
+
+- State.Error نشانهٔ خطای عملیات کانتینر است.
+- ExitCode گزارش‌شدهٔ Docker با کد Docker client تطبیق داده می‌شود.
+- OOMKilled در resource_limited ثبت می‌شود.
+- شکست supervisor به جای «crash هدف»، خطای ابزار محسوب می‌شود.
+
+در finally، docker rm --force برای همان نام UUID اجرا می‌شود. چرا --rm از ابتدا نداریم؟ چون بعد از پایان هم به state برای inspect نیاز داریم. چرا cleanup در finally است؟ حتی اگر پردازش نتیجه خطا بدهد، کانتینر موقت باقی نماند. خرابی cleanup هم گزارش می‌شود تا فرایند با وانمودکردن به موفقیت ادامه ندهد.
+
+این پاک‌سازی برای کانتینر موقت است؛ source snapshotها، logهای ثبت‌شده، ورودی‌ها و گزارش‌های run به عنوان شواهد باقی می‌مانند.
+
+## ۸. محدودیت خروجی و زمان: منطق capture_command
+
+دو جریان stdout و stderr هم‌زمان خوانده می‌شوند. اگر یکی خوانده نشود، pipe پرشده می‌تواند فرایند را متوقف کند و deadlock بسازد. برای stdin نیز thread جدا داریم تا نوشتن ورودی، خواندن خروجی را قفل نکند.
+
+~~~python
+remaining = limit - len(buffer)
+buffer.extend(chunk[:remaining])
+if len(chunk) > remaining:
+    overflow.set()
+~~~
+
+سقف limit برای **هر جریان جداگانه** است، نه مجموع دو جریان. با مقدار یک MiB، stdout و stderr هرکدام تا همان سقف نگه‌داری می‌شوند. بخش اضافه ذخیره نمی‌شود و output_limited مشخص می‌شود.
+
+| تصمیم | چرا؟ | نبودن/تغییر نامناسب |
+| --- | --- | --- |
+| خواندن chunk به جای جمع‌کردن خروجی نامحدود | RAM برای چاپ زیاد رشد نامحدود نکند | هدفِ پرحرف می‌تواند ابزار تحلیل را از کار بیندازد |
+| خواندن هم‌زمان stdout/stderr | pipe پر، child را پشت جریان خوانده‌نشده نگه ندارد | deadlock |
+| time.monotonic برای deadline | زمان سپری‌شده به تغییر ساعت سیستم وابسته نباشد | اصلاح ساعت می‌تواند timeout را جلو/عقب ببرد |
+| قطع اجرا هنگام overflow یا deadline | حد اعمال شود و فقط یک عدد تزئینی نباشد | هدف پس از رسیدن به حد ادامه می‌دهد |
+| start_new_session و killpg در POSIX | فرزندان هم جمع شوند و pipe باز باقی نماند | کشتن parent کافی نیست؛ child دیگری ممکن است زنده بماند |
+| decode با latin1 | هر بایت ورودی/خروجی به صورت قابل برگشت به متن نگاشت شود | UTF-8 اجباری می‌تواند برای خروجی باینری خطا بدهد |
+| نگه‌داشتن stdout/stderr تا سقف پس از timeout | علت توقف تا حد موجود باقی بماند | شواهد شروع/پیشرفت اجرا از دست می‌رود |
+
+latin1 لزوماً متن فارسی/UTF-8 را زیبا نمایش نمی‌دهد؛ اینجا هدف حفظ بایت‌هاست و triage برای متن تشخیصی پردازش لازم را انجام می‌دهد. در Windows، primitive محلی به‌جای killpg از kill فرایند استفاده می‌کند؛ مسیر ارزیابی اصلی Linux داخل کانتینر است.
+
+ExecutionResult شامل exit_code، stdout، stderr، timed_out، output_limited، resource_limited، command و container_state است. نام fieldها را بلد باشید.
+
+اگر **ساخت** به حد برسد، build ناموفق است و می‌تواند کد ۳۰ بدهد. اگر **اجرای ورودی** به حد برسد، شاهد ناقص داریم؛ triage آن را به عنوان خطای امنیتی قطعی اعلام نمی‌کند. نتیجهٔ نهایی به وضعیت‌های دیگر و اولویت کد خروج هم وابسته است.
+
+### symbolizer چرا ضروری است؟
+
+آدرس حافظه به‌تنهایی نمی‌گوید خطا در کدام تابع/خط source بوده است. llvm-symbolizer به کمک اطلاعات debug این رابطه را می‌دهد. helper فقط وقتی گزینهٔ sanitizer غیرخالی است و external_symbolizer_path ندارد، مسیر پیش‌فرض /usr/bin/llvm-symbolizer را اضافه می‌کند. گزینهٔ صریح کاربر جایگزین نمی‌شود و helper از تنظیم خالی، کل تنظیمات sanitizer را اختراع نمی‌کند.
+
+| تنظیم فعلی | دلیل | اگر نباشد یا غلط باشد |
+| --- | --- | --- |
+| ASAN_OPTIONS: symbolize=1 | درخواست symbolization | frame ممکن است فقط آدرس/offset داشته باشد |
+| external_symbolizer_path | ابزار مشخص داخل image | function ممکن است unknown بماند؛ امضای baseline برقرار نشود |
+| abort_on_error=1 | رفتار توقف ASan مشخص باشد | رفتار پایان/ادامه به گزینه‌های دیگری وابسته می‌شود |
+| detect_leaks=0 | تحلیل سناریوهای این پروژه روی leak-check متمرکز نیست | گزارش‌های leak و نیازهای runtime می‌توانند آزمایش را تغییر دهند؛ این انتخاب یعنی پوشش ندادن leakها در آن اجرا |
+| UBSAN_OPTIONS: print_stacktrace=1 | شاهد stack برای UBSan | مکان فراخوانی ناقص‌تر می‌شود |
+| halt_on_error=1 | پس از تشخیص UBSan ادامهٔ نامعلوم محدود شود | اجرای بعد از خطا می‌تواند نتیجهٔ دیگری بسازد |
+
+این گزینه‌ها مطابق configهای فعلی‌اند؛ همهٔ دسته‌های sanitizer با یک build فعال نمی‌شوند. pipeline محیط proxyهای معمول را ابتدا خالی و سپس تنظیمات صریح config را اعمال و ثبت می‌کند؛ علت این است که proxy پیش‌فرض Docker رفتار آزمایش را پنهانی عوض نکند. ساخت image که به اینترنت نیاز دارد مرحله‌ای جداست.
+
+## ۹. محافظت‌های ELF: دقیقاً چه چیزی اندازه می‌گیریم؟
+
+inspect_elf_hardening از pyelftools استفاده می‌کند؛ برای خواندن ساختار binary لازم نیست خود binary را اجرا کند. فایل باید ELF اجرایی ۶۴بیتی x86_64 و از نوع ET_EXEC یا ET_DYN باشد. انتخاب این دامنه با Linux/amd64 اجرا سازگار است؛ پشتیبانی از Windows PE، ARM یا object file را ادعا نمی‌کنیم.
+
+| محافظت | معنی ساده | شاهد مورد استفادهٔ کد | اگر نباشد چه محدودیتی داریم؟ |
+| --- | --- | --- | --- |
+| NX | stack به عنوان کد قابل اجرا علامت نخورده باشد | PT_GNU_STACK وجود داشته باشد و بیت اجرایی در همهٔ آن‌ها خاموش باشد | این مانع مشخص برای اجرای کد در stack برقرار نیست؛ دربارهٔ کل حافظه حکم نمی‌دهد |
+| PIE | binary بتواند در آدرس پایهٔ متغیر بارگذاری شود | ET_DYN همراه DF_1_PIE یا PT_INTERP | این امکان برای جابه‌جایی آدرس پایهٔ executable مشاهده نشده است |
+| RELRO | بخشی از داده‌های مرتبط با relocation پس از آماده‌سازی فقط‌خواندنی شود | PT_GNU_RELRO و وضعیت binding | محافظت مورد نظر کمتر است؛ none < partial < full |
+| canary | بعضی خرابی‌های stack با مقدار نگهبان کشف شوند | symbolهای __stack_chk_fail یا __stack_chk_fail_local | این نشانهٔ استفاده از check دیده نشده است؛ نبود/وجود symbol به‌تنهایی پوشش همهٔ تابع‌ها را ثابت نمی‌کند |
+
+PIE با ASLR یکی نیست: PIE قابلیت binary است؛ تصادفی‌سازی واقعی به محیط سیستم‌عامل هم وابسته است. ET_DYN تنها کافی نیست، چون shared library هم این نوع را دارد.
+
+RELRO در کد:
+
+~~~python
+if has_relro_segment and bind_now:
+    relro = "full"
+elif has_relro_segment:
+    relro = "partial"
+else:
+    relro = "none"
+~~~
+
+bind_now از DT_BIND_NOW یا flag مربوط در DT_FLAGS/DT_FLAGS_1 استخراج می‌شود. دلیل استفاده از program headerها این است که بخش مهم شواهد حتی با حذف section headerها قابل خواندن باشد.
+
+کد از symbol tableها نشانه‌های FORTIFY مانند __memcpy_chk و خانواده‌های sanitizer مانند __asan_ و __ubsan_ را هم ثبت می‌کند. این‌ها **نشانه** هستند؛ فعال بودن همهٔ flagها، اجرای آن check در تمام مسیرها، یا سالم بودن برنامه را ثابت نمی‌کنند. حذف symbolها نیز می‌تواند قدرت تشخیص مبتنی بر symbol را کم کند.
+
+### دو نوع بررسی جدا داریم
+
+۱. **مقایسهٔ base و patch:** compare_hardening کاهش محافظت را گزارش می‌کند. مثلاً full → partial، یا NX=True → False افت است. اگر هر دو canary=False باشند افتی رخ نداده است.
+
+۲. **حداقل سیاست config:** enforce_nx، enforce_pie، enforce_canary و min_relro می‌گویند چه حداقلی لازم است. ممکن است هر دو binary یک محافظت را نداشته باشند و افتی هم رخ نداده باشد، ولی سیاست سخت‌گیرانه نقض شده باشد.
+
+فیلد hardening_degraded نتیجهٔ مقایسهٔ اول است. هشدارهای سیاست هم در notes و دلیل hardening_warning ثبت و analysis_complete را false می‌کنند. اگر مشکل مهم‌تری نداریم، این ناقص‌شدن می‌تواند به ۴۰ برسد. خودِ افت hardening در کد فعلی به معنی تشخیص sanitizer و الزاماً کد ۱۰ نیست.
+
+در configهای فعلی target1/target2، حداقل‌ها آزاد تنظیم شده‌اند: enforceها false و min_relro برابر none است. این گزینه‌ها محافظت کامپایلر را خاموش نمی‌کنند؛ **سیاست انتظار** را تغییر می‌دهند. اندازه‌گیری و مقایسهٔ افت همچنان انجام می‌شود.
+
+همهٔ چهار binary بررسی ELF می‌شوند، ولی مقایسهٔ hardening روی دو release انجام می‌شود تا اثر ابزار تشخیص با محافظت عادی مخلوط نشود. وجود symbol sanitizer در release هم خطای تنظیم/ساخت است؛ صرف نام release برای عادی بودن binary کافی نیست.
+
+## ۱۰. Dockerfile چرا این اجزا را دارد؟
+
+| جزء Dockerfile | علت انتخاب | اگر نباشد |
+| --- | --- | --- |
+| FROM ubuntu:24.04 | پایهٔ مشخص و سازگار با ابزارهای فعلی | محیط build/run نامعلوم یا متفاوت می‌شود؛ این tag قفل digest نیست |
+| DEBIAN_FRONTEND=noninteractive | نصب apt منتظر پاسخ تعاملی نماند | build خودکار ممکن است پشت prompt متوقف شود |
+| build-essential، clang، libclang-rt-18-dev | compiler، make و runtime تشخیص خطای لازم | ساخت معمولی یا sanitizer در compile/link شکست می‌خورد |
+| llvm | llvm-symbolizer و ابزارهای مرتبط | آدرس به مکان source تبدیل نمی‌شود |
+| cmake، git | ابزار build/نسخه‌بندی لازم برای targetهای سازگار | فرمان هدف وابستگی‌اش را پیدا نمی‌کند |
+| python3، pip، venv | اجرای DiffSheriff و supervisor | ابزار یا supervisor اجرا نمی‌شود |
+| python3-yaml، python3-click، python3-pyelftools | خواندن config، CLI و خواندن ELF | import لازم شکست می‌خورد |
+| binutils | ابزارهای پایهٔ binary/link | برخی نیازهای build/بررسی binary در دسترس نیست |
+| zlib1g-dev | header/library لازم برای ساخت هدف وابسته به zlib | linker یا compiler فایل لازم را پیدا نمی‌کند |
+| ca-certificates | اعتبارسنجی TLS هنگام دریافت بسته/منبع | اتصال HTTPS ممکن است ناموفق شود |
+| --no-install-recommends و حذف فهرست موقت apt | حجم وابستگی‌ها/لایهٔ image کنترل شود | image و محتوای غیرضروری بیشتر می‌شود |
+| venv --system-site-packages در /opt/venv | بسته‌های apt از محیط Python مجزا قابل استفاده باشند | ممکن است نیاز به دانلود تکراری یا نصب مستقیم در Python سیستمی باشد |
+| PATH=/opt/venv/bin:... | executableهای نصب‌شده انتخاب شوند | shell Python یا CLI دیگری را پیدا می‌کند |
+| HOME=/tmp | home در محیط runtime قابل نوشتن باشد | بعضی ابزارها در محیط read-only با نوشتن تنظیمات موقت مشکل پیدا می‌کنند |
+| COPY فقط metadata و بستهٔ diffsheriff | ابزار نصب شود و target از snapshot جدا بیاید | مخلوط‌کردن target با image می‌تواند مقایسهٔ نسخه‌ها را مبهم کند |
+| pip --no-cache-dir | cache موقت نصب داخل image نماند | حجم غیرضروری بالا می‌رود |
+| --no-build-isolation --no-deps | از وابستگی‌های از قبل آمادهٔ image استفاده شود | نصب می‌تواند محیط build یا دانلود تازه بخواهد؛ این انتخاب مستلزم تأمین قبلی وابستگی‌هاست |
+| WORKDIR /src | محل عادی target معلوم است | دستورهای نسبی جای دیگری اجرا می‌شوند |
+| ENTRYPOINT ["diffsheriff"] | اجرای عادی image به CLI ابزار برسد | باید فرمان اصلی را دستی تعیین کرد؛ runner برای build/supervisor آن را override می‌کند |
+
+دانلود package و image به شبکهٔ زمان آماده‌سازی مربوط است؛ اجرای target با --network=none وابستگی‌هایش را از اینترنت دریافت نمی‌کند. اگر dependency هدف تازه‌ای لازم شود باید image مناسب تهیه، ID آن ثبت و سناریو دوباره بررسی شود.
+
+
+## ۱۱. دستورهای آماده‌سازی و آزمون؛ همراه دلیل هر دستور
+
+دستورهای این قسمت برای **ترمینال Linux داخل WSL** هستند، مگر جایی که PowerShell نوشته شده باشد. Python نصب‌شدهٔ Windows و بسته‌های WSL دو محیط جدا هستند؛ نصب pyelftools روی یکی، آن را در دیگری نصب نمی‌کند.
+
+### ۱۱.۱. ورود به محیط درست
+
+در PowerShell:
+
+~~~powershell
+wsl -d Ubuntu
+~~~
+
+wsl محیط Linux را باز می‌کند و -d Ubuntu توزیع موردنظر را انتخاب می‌کند. انتخاب صریح، خطر استفاده از یک توزیع دیگر با Python یا Docker متفاوت را کم می‌کند.
+
+در WSL روی دستگاه فعلی:
+
+~~~bash
+cd "/mnt/c/Users/Asus/Desktop/security/DiffSheriff"
+python3 --version
+git --version
+~~~
+
+cd پوشهٔ کاری را عوض می‌کند؛ /mnt/c مسیر درایو C در WSL است. کوتیشن مانع شکستن مسیر دارای فاصله می‌شود. دو --version مشخص می‌کنند ابزارها در همین محیط حاضرند. Python پروژه باید حداقل 3.10 باشد. روی دستگاه دیگر، مسیر checkout خودتان را جایگزین کنید.
+
+### ۱۱.۲. محیط Python
+
+اگر .venv مربوط به Linux از قبل ندارید، یک بار بسازید:
+
+~~~bash
+python3 -m venv .venv
+~~~
+
+-m venv ماژول ساخت محیط مجزا را اجرا می‌کند و .venv محل آن است. دلیل انتخاب: وابستگی‌های پروژه با بسته‌های سیستم یا پروژهٔ دیگر مخلوط نشوند. محیط مجازی Windows را برای Linux استفاده نکنید.
+
+سپس در هر ترمینال تازه:
+
+~~~bash
+source .venv/bin/activate
+python -m pip install -e ".[dev]"
+~~~
+
+| جزء | چرا؟ | نبودن آن |
+| --- | --- | --- |
+| source activate | مسیر executableهای همین محیط را در shell فعال می‌کند | python و pip ممکن است از دو محیط مختلف باشند |
+| python -m pip | pip مربوط به همان Python اجرا می‌شود | نصب در Python دیگری انجام می‌شود |
+| install -e | نصب editable؛ تغییر source میزبان برای آزمون‌های Python دیده می‌شود | برای دیدن بعضی تغییرها نیاز به نصب دوباره دارید |
+| . | پروژهٔ همین پوشه نصب می‌شود | پروژهٔ دیگری یا مسیر اشتباه نصب می‌شود |
+| [dev] | pytest و ابزارهای توسعه هم نصب می‌شوند | دستورهای آزمون/بررسی حاضر نیستند |
+| کوتیشن | کل عبارت .[dev] یک آرگومان می‌ماند | shell ممکن است bracketها را به عنوان الگوی فایل ببیند |
+
+dependencies اصلی در pyproject.toml شامل pyyaml، pyelftools و click هستند. اگر elftools پیدا نشد، در همین محیط نصب پروژه را بررسی کنید؛ تغییر الگوریتم hardening درمان import ناقص نیست.
+
+### ۱۱.۳. آزمون‌های مستقیم Eng 1
+
+~~~bash
+python -m pytest -q tests/test_config.py tests/test_builder.py tests/test_runner.py tests/test_hardening.py
+~~~
+
+-m pytest همان محیط Python را استفاده می‌کند؛ -q خروجی را خلاصه می‌کند؛ مسیرهای آخر محدودهٔ آزمون را مشخص می‌کنند. این فرمان ساخت/اجرای شش مقایسهٔ واقعی نیست.
+
+| فایل آزمون | چه شواهدی می‌دهد؟ | حد شواهد |
+| --- | --- | --- |
+| test_config.py | رد تنظیمات نادرست، مسیر escaping، ref مبهم و گزینه‌های sanitizer | ساخت واقعی target را اثبات نمی‌کند |
+| test_builder.py | حفظ خروجی release بعد از clean دوم و توقف روی شکست clean | بخش build_dual_matrix را با فرمان mock بررسی می‌کند |
+| test_runner.py | محدودیت خروجی، timeout با حفظ خروجی موجود، روش ورودی و symbolizer | اجراهای محلی مورد اعتماد؛ جای آزمایش ایزولهٔ واقعی نیست |
+| test_hardening.py | خواندن headerهای ELF مصنوعی، تشخیص PIE، افت محافظت و symbolها | fixture مصنوعی است و وجود bug در target واقعی را ثابت نمی‌کند |
+
+mock یعنی در تست، بخش بیرونی مثل compiler را با رفتار کنترل‌شده جایگزین می‌کنیم تا یک منطق کوچک را بسنجیم. «آزمون پاس شد» را همیشه همراه این توضیح بگویید که چه چیزی واقعاً آزموده شده است.
+
+### ۱۱.۴. image و آزمون زیرساخت Docker
+
+~~~bash
+docker info
+~~~
+
+این فرمان وضعیت daemon را می‌خواند. نصب بودن Docker client با در دسترس بودن daemon فرق دارد. اگر daemon در دسترس نباشد، به مرحلهٔ ساخت نروید.
+
+اگر image لازم حاضر نیست یا source ابزار داخل image تغییر کرده است:
+
+~~~bash
+docker build --platform linux/amd64 -t diffsheriff:local -f docker/Dockerfile .
+~~~
+
+| جزء | معنی | دلیل |
+| --- | --- | --- |
+| build | ساخت image | compiler و runtime لازم یک محیط مشترک داشته باشند |
+| --platform linux/amd64 | انتخاب سیستم/معماری | با قرارداد runner و ELF هماهنگ باشد |
+| -t diffsheriff:local | نام‌گذاری image | config بتواند image ساخته‌شده را پیدا کند |
+| -f docker/Dockerfile | دستور ساخت محیط | به Dockerfile اتفاقی در ریشه وابسته نباشد |
+| . در انتها | build context ریشهٔ repo | COPY بتواند فایل‌های بسته را پیدا کند |
+
+نصب editable میزبان source داخل image قدیمی را عوض نمی‌کند؛ اگر runner/supervisor داخل image تغییر کرده، آن image هم باید دوباره ساخته شود.
+
+~~~bash
+docker image inspect --format '{{.Id}} {{.Os}}/{{.Architecture}}' diffsheriff:local
+~~~
+
+inspect مشخصات image را می‌خواند؛ --format فقط ID و سیستم/معماری را چاپ می‌کند. انتظار Linux/amd64 داریم و ID باید برای ثبت اجرا نگه‌داری شود. این دستور برنامهٔ target را اجرا نمی‌کند.
+
+~~~bash
+docker run --rm --entrypoint /bin/sh diffsheriff:local -c 'test -x /usr/bin/llvm-symbolizer'
+echo $?
+~~~
+
+در این preflight، shell مورد اعتماد داخل image اجرا می‌شود. test -x وجود فایل executable را بررسی می‌کند؛ موفقیت خروجی متنی ندارد و echo $? کد خروج فرمان قبلی را نشان می‌دهد. مقدار ۰ یعنی موفق. --rm این کانتینر کوتاه را پس از پایان حذف می‌کند؛ اینجا بر خلاف runner به inspect بعدی نیاز نداریم.
+
+برای smoke test بی‌خطر:
+
+~~~bash
+DIFFSHERIFF_DOCKER_TESTS=1 python -m pytest -q tests/test_container_integration.py
+~~~
+
+این متغیر فقط همین فرمان را به اجرای تست Docker فعال می‌کند؛ در حالت پیش‌فرض تست برای جلوگیری از نیاز اجباری به Docker skip می‌شود. تست fixture سادهٔ echo را می‌سازد و روش‌های ورودی، چهار binary و مسیر گزارش را بررسی می‌کند.
+
+**دو کد خروج را قاطی نکنید:** pytest در صورت پاس‌شدن این تست، ۰ می‌دهد؛ DiffSheriff داخل این تست باید ۴۰ بدهد. چرا؟ fixture خطای پایهٔ تعیین‌شده ندارد، پس analysis امنیتی نمی‌تواند PASS اعلام شود. functional_status برابر PASS و اجرای اولیه ۳۶ مشاهده است. پاس‌شدن این آزمون، پذیرش target واقعی نیست.
+
+اگر build به 403 یا timeout شبکه خورد، مرحلهٔ دریافت image/بسته شکست خورده است. آن را به finding امنیتی target تبدیل نکنید. بعد از یک بررسی و یک تلاش مجدد، اگر خطا تکرار شد از مسئول محیط کمک بگیرید؛ retry بی‌پایان نکنید. راهنمای شبکهٔ موجود در docs/usage.md نیز مربوط به همین آماده‌سازی است.
+
+اجرای کامل شش مقایسه، مرور آن‌ها، clean-checkout delivery و target CI gate همان کار جداگانهٔ دستی تحت راهنمایی مدرس است. دستورهای بالا و تمرین‌های پایین جای آن را نمی‌گیرند.
+
+## ۱۲. محور دوم دفاع: یک نتیجهٔ واقعی را تحلیل کنیم
+
+### گزارش انتخاب‌شده
+
+artifacts/evaluation/target1/correct/report.json یک گزارش **واقعیِ نگه‌داری‌شده** است. در نسخهٔ بررسی‌شده هنگام نوشتن این راهنما:
+
+~~~json
+{
+  "exit_code": 0,
+  "verdict": "PASS",
+  "analysis_complete": true,
+  "hardening_degraded": false
+}
+~~~
+
+در hardening هر دو release داریم:
+
+~~~json
+{
+  "nx": true,
+  "pie": true,
+  "relro": "partial",
+  "canary": false
+}
+~~~
+
+متن آمادهٔ تحلیل:
+
+«این گزارش مربوط به یک اجرای ثبت‌شده است. برای بخش من، source commit و hashهای build مشخص‌اند. headerهای release در هر دو سمت NX و PIE را نشان داده‌اند؛ RELRO در هر دو partial و نشانهٔ canary در هر دو مشاهده نشده است. پس compare_hardening افت محافظت ندیده است. سیاست config همین سناریو حداقل canary/full RELRO را الزام نکرده، بنابراین این مقادیر به‌خودی‌خود هشدارِ نقض حداقل نمی‌سازند. نتیجهٔ PASS کل ابزار به شواهد مقایسهٔ خطای پایه و عملکرد هم نیاز دارد و از این چهار field به‌تنهایی نتیجه نمی‌شود.»
+
+چند ارتباط مستقیم با کد:
+
+- gnu_stack_flags برابر [6] است: بیت اجرایی 0x1 خاموش است، پس شاهد NX در منطق فعلی برقرار است.
+- ET_DYN همراه interpreter/PIE marker شاهد PIE است؛ ET_DYN تنها کافی نبود.
+- segment مربوط به RELRO موجود است، ولی bind-now مشاهده نشده؛ نتیجه partial است.
+- canary_symbols خالی است؛ پس canary=False. نمی‌گوییم «ثابت شد هیچ checkای در هیچ تابعی نیست».
+- hardening_degraded=False فقط می‌گوید افتی بین دو طرف دیده نشده؛ «هر دو full هستند» معنی نمی‌دهد.
+
+### خواندن و تطبیق فایل‌های باقی‌مانده
+
+بعد از فعال‌کردن محیط Python، در WSL این دستور کامل را اجرا کنید. خط PY پایانی باید بدون فاصلهٔ اضافی در ابتدای خط باشد.
+
+<!-- eng1-demo:evidence -->
+~~~bash
+python - <<'PY'
+import json
+from pathlib import Path
+from diffsheriff.builder import compute_sha256
+from diffsheriff.hardening import inspect_elf_hardening
+
+report_path = Path("artifacts/evaluation/target1/correct/report.json")
+report = json.loads(report_path.read_text(encoding="utf-8"))
+run_name = Path(report["evidence"]["run_directory"]).name
+run = report_path.parent / "runs" / run_name
+print("report:", report["verdict"], report["exit_code"])
+for side in ("base", "patch"):
+    for mode in ("release", "sanitized"):
+        record = report["evidence"]["builds"][side][mode]
+        binary = run / side / mode / record["binary"]
+        assert binary.is_file(), binary
+        assert compute_sha256(binary) == record["sha256"], binary
+        elf = inspect_elf_hardening(binary)
+        assert elf.to_dict() == record["elf"], binary
+        print(side, mode, "hash=OK", elf.nx, elf.pie, elf.relro, elf.canary)
+print("retained evidence verified")
+PY
+~~~
+
+این فرمان فقط فایل‌های همان run را می‌خواند، hash می‌گیرد و ELF را parse می‌کند؛ target را اجرا نمی‌کند. برای همین گزارش، مسیر فعلی فایل‌ها از پوشهٔ report و نام run ساخته می‌شود. این یک verifier عمومی برای هر چیدمان دلخواه نیست.
+
+run_directory داخل JSON ممکن است مسیر مطلق محیط قدیمی باشد. پس از pull، آن مسیر /tmp قدیمی الزاماً روی دستگاه شما وجود ندارد؛ این به‌تنهایی تضاد محتوای شواهد نیست. باید فایل متناظر در بستهٔ تحویلی را پیدا و hash آن را تطبیق دهید.
+
+اگر assert فایل یا hash شکست خورد، همان را به عنوان نقص بسته/تطبیق گزارش دهید. report را ویرایش نکنید تا با فایل ناسازگار «پاس شود». بازپخش واقعی علاوه بر فایل‌ها به image ID ثبت‌شده هم نیاز دارد.
+
+### تحلیل یک آزمون کوچک
+
+tests/test_runner.py::test_output_is_bounded یک فرایند مورد اعتماد را وادار می‌کند ۱۰۰۰۰۰ کاراکتر x چاپ کند و limit را ۴۰۹۶ می‌گذارد. دو assertion دارد: طول خروجی نگه‌داری‌شده ۴۰۹۶ باشد و output_limited=True باشد.
+
+این شاهد چه تصمیمی را پشتیبانی می‌کند؟ اینکه پرحرفی target، حافظهٔ ابزار را نامحدود رشد نمی‌دهد و یک اجرای truncated به عنوان خروجی کامل پذیرفته نمی‌شود. این تست وجود یا نبود آسیب‌پذیری target واقعی را بررسی نمی‌کند.
+
+## ۱۳. محور سوم دفاع: تغییر محدود، پیش‌بینی، آزمون و توضیح
+
+در دفاع، تغییر را مدرس تعیین می‌کند. تمرین‌های زیر نمونهٔ آمادگی‌اند. برای هر تغییر این ترتیب را تمرین کنید:
+
+۱. ورودی/تنظیم فعلی و محل تابع را پیدا کنید.
+۲. قبل از تغییر بگویید چه خروجی و چرا انتظار دارید.
+۳. آزمون قبل از تغییر را اجرا کنید.
+۴. فقط تغییر خواسته‌شده را اعمال کنید.
+۵. آزمون مرتبط را دوباره اجرا و خروجی واقعی را با پیش‌بینی مقایسه کنید.
+۶. دلیل اختلاف یا محدودیت نتیجه را توضیح دهید؛ برای سبزکردن، expected را بی‌دلیل عوض نکنید.
+
+فرمان python - <<'PY' یعنی shell متن تا خط PY پایانی را به stdin پایتون می‌دهد. کوتیشن روی PY مانع جایگزینی متغیرهای shell داخل مثال می‌شود. بلوک را کامل کپی کنید. هر تمرین مستقل است.
+
+### تمرین A: مسیر مجاز در برابر مسیر فراری
+
+<!-- eng1-demo:paths -->
+~~~bash
+python - <<'PY'
 from diffsheriff.config import ConfigError, relative_path
 
 for value in ("build/program", "../program"):
     try:
-        print(value, "-> ACCEPT:", relative_path(value, "binary_path"))
-    except ConfigError as error:
-        print(value, "-> REJECT:", error)
+        result = relative_path(value, "binary_path")
+    except ConfigError:
+        assert value == "../program"
+        print(value, "-> REJECT")
+    else:
+        assert value == "build/program" and result == value
+        print(value, "-> ACCEPT")
+PY
+~~~
 
-```
+خروجی: build/program پذیرفته و ../program رد می‌شود. تفاوت از شرط .. در path.parts آمده است. این تمرین helper را می‌سنجد؛ تمرین بعد فایل YAML واقعی هم می‌سازد.
 
-The first path is accepted and the second is rejected. The change is the path
-value passed into the same function. Explain the condition that caused the
-change. This is a configuration-validation exercise; it does not build a target.
-Use `exit()` to leave Python. For an instructor-requested implementation change,
-locate the corresponding condition in `relative_path` and its test in
-`tests/test_config.py::test_binary_path_cannot_escape` before editing.
+### تمرین B: تغییر پیکربندی و بررسی با assertion
 
-### `diffsheriff/builder.py`
+<!-- eng1-demo:config -->
+~~~bash
+python - <<'PY'
+import tempfile
+from pathlib import Path
+import yaml
+from diffsheriff.config import ConfigError, DiffSheriffConfig
 
-`prepare_sources` proves that the requested ref resolves to the same full commit,
-rejects submodules/symlinks, and extracts a Git archive. The key check is:
+data = yaml.safe_load(Path("evaluation/target1/correct.yaml").read_text(encoding="utf-8"))
+with tempfile.TemporaryDirectory() as directory:
+    path = Path(directory) / "practice.yaml"
+    for memory in (2048, 1.5):
+        data["execution"]["memory_mb"] = memory
+        path.write_text(yaml.safe_dump(data), encoding="utf-8")
+        try:
+            config = DiffSheriffConfig.from_yaml(path)
+        except ConfigError as error:
+            assert memory == 1.5
+            print(memory, "-> REJECT:", error)
+        else:
+            assert memory == 2048 and config.execution.memory_mb == 2048
+            print(memory, "-> ACCEPT")
+PY
+~~~
 
-```python
-resolved = subprocess.run(
-    ["git", "-C", str(repository), "rev-parse", "--verify", commit + "^{commit}"],
-    check=True,
-).stdout.strip()
-if resolved != commit:
-    raise ValueError("Source ref did not resolve to the requested exact commit")
-```
+اینجا واقعاً مقدار memory_mb در یک کپی موقتِ config عوض، فایل ذخیره، و loader اجرا می‌شود. ۲۰۴۸ پذیرفته و ۱٫۵ رد می‌شود، چون این فیلد integer مثبت می‌خواهد. فایل رسمی سناریو دست‌نخورده می‌ماند و فایل تمرین در پایان حذف می‌شود.
 
-`build_isolated_matrix` loops over `("release", "sanitized")`, calls
-`run_container` for clean/build commands, retains command output, and hashes the
-resulting binary. The important safety check is that the binary is a regular
-file contained inside the snapshot:
+این فقط آزمون اعتبارسنجی تنظیمات است. repository_path در کپی موقت محل دیگری حل می‌شود و برای این تمرینِ loader استفاده نمی‌شود؛ با همین کپی، اجرای target را شروع نکنید. از قبولی loader نمی‌توان درستی مخزن/ساخت را نتیجه گرفت.
 
-```python
-if not binary.is_file() or binary.is_symlink() \
-        or not binary.resolve().is_relative_to(source.resolve()):
-    raise ValueError("Build did not produce a regular contained binary")
-```
+### تمرین C: تغییر حد خروجی و مشاهدهٔ رفتار
 
-Changing `release_command`, `sanitized_command`, or a binary path in a target
-YAML changes what is built and can cause exit 30 if the command/path is wrong.
-Changing the commit ref changes the source identity and is forbidden unless the
-new full hash is instructor-approved.
+<!-- eng1-demo:output -->
+~~~bash
+python - <<'PY'
+import sys
+from diffsheriff.runner import capture_command
 
-### `diffsheriff/runner.py`
+command = [sys.executable, "-c", "import sys; sys.stdout.write('x' * 100000)"]
+for limit in (4096, 200000):
+    result = capture_command(command, timeout=5, limit=limit)
+    print(limit, "->", len(result.stdout), result.output_limited)
+    if limit == 4096:
+        assert len(result.stdout) == 4096 and result.output_limited
+    else:
+        assert len(result.stdout) == 100000 and not result.output_limited
+PY
+~~~
 
-The container command is assembled in `run_container`:
+خروجی مورد انتظار: ۴۰۹۶ بایت/True و سپس ۱۰۰۰۰۰ بایت/False. برنامه و ورودی ثابت‌اند؛ فقط حد تغییر کرده است. انتخاب حد کوچک، خروجی را ناقص می‌کند؛ حد بیش‌ازحد بزرگ هزینهٔ حافظه را بالا می‌برد.
 
-```python
-"--pull=never", "--platform=linux/amd64", "--network=none",
-"--cap-drop=ALL", "--security-opt=no-new-privileges", "--read-only",
-"--memory", f"{settings.memory_mb}m", "--cpus", str(settings.cpus),
-"--pids-limit", str(settings.pids_limit), "--ulimit", "core=0",
-```
+این فرایند کوتاه Python مورد اعتماد است و عمداً primitive محلی را برای آموزش حد استفاده می‌کند؛ هدف ناشناس را با آن روی میزبان اجرا نکنید.
 
-The source is mounted at `/src`; an optional input is mounted read-only at
-`/input`. The Docker image must already be local (`--pull=never`), so a network
-failure cannot silently change the run. `capture_command` drains stdout and
-stderr while enforcing the timeout/output limit.
+### تمرین D: timeout واقعاً اعمال می‌شود؟
 
-Behavior knobs live in `TargetExecutionSection` (`diffsheriff/config.py:65-76`):
+<!-- eng1-demo:timeout -->
+~~~bash
+python - <<'PY'
+import sys
+from diffsheriff.runner import capture_command
 
-| Setting | If lowered too far |
-| --- | --- |
-| `timeout_seconds` | `timed_out=True`, usually exit 40/inconclusive. |
-| `memory_mb`, `cpus`, `pids_limit` | Resource limit or OOM evidence; not a security finding. |
-| `output_limit_bytes` | `output_limited=True`; triage reports an output limit. |
-| `environment_variables` | Sanitizer symbolization and program behavior can change. |
+result = capture_command([sys.executable, "-c", "import time; time.sleep(10)"], timeout=0.2)
+assert result.timed_out
+print("timed_out:", result.timed_out)
+PY
+~~~
 
-Safe defense demo: copy a harmless config, set `execution.timeout_seconds: 0.01`,
-run one fixture, show the timeout note, then restore the value. Do not use a
-malicious input and do not commit this temporary change.
+قرار بوده child ده ثانیه بخوابد، ولی با حد ۰٫۲ ثانیه متوقف می‌شود. کمی سربار ایجاد/جمع‌آوری فرایند طبیعی است. نتیجهٔ مورد بررسی timed_out است؛ عدد دقیق کد kill می‌تواند با سیستم‌عامل فرق کند. کاهش CPU هم می‌تواند کار را کند کند، ولی خودِ cpus همان timeout نیست.
 
-### `diffsheriff/hardening.py`
+### تمرین E: تغییر یک ویژگی و تشخیص افت محافظت
 
-`inspect_elf_hardening` reads program headers and symbol tables. The result is a
-small record:
+<!-- eng1-demo:hardening -->
+~~~bash
+python - <<'PY'
+from diffsheriff.hardening import HardeningResult, compare_hardening
 
-```python
-HardeningResult(nx, pie, relro, bool(canary_symbols), indicators)
-```
+base = HardeningResult(True, True, "full", True)
+for patch_nx in (True, False):
+    patch = HardeningResult(patch_nx, True, "full", True)
+    degraded, warnings = compare_hardening(base, patch)
+    assert degraded == (not patch_nx)
+    assert len(warnings) == (0 if patch_nx else 1)
+    print("patch NX:", patch_nx, "-> degraded:", degraded, "warnings:", len(warnings))
+PY
+~~~
 
-`compare_hardening` warns when patch loses NX, PIE, canary, or RELRO level. A
-warning is retained in the report and can make analysis incomplete; it is not
-automatically proof that the patch is functionally wrong.
+True خروجی False/۰ هشدار و False خروجی True/۱ هشدار می‌دهد. این **دادهٔ مصنوعیِ آموزشی** برای منطق مقایسه است؛ ادعا نمی‌کند باینری واقعی را دوباره کامپایل یا محافظت آن را تغییر داده‌ایم. بررسی باینری واقعی همان بخش ۱۲ است.
 
-## 3. How to run your part
+### تمرین F: نمونهٔ تغییر کوچک در خود کد
 
-```bash
-python -m pip install -e ".[dev]"
-docker build --platform linux/amd64 -t diffsheriff:local -f docker/Dockerfile .
-python -m pytest -q tests/test_builder.py tests/test_runner.py tests/test_hardening.py
+مثال آموزشی: مدرس می‌خواهد مسیرهایی با اولین جزء .cache هم رزرو شوند. محل تغییر relative_path در config.py است.
+
+قبل از تغییر، این دستور .cache/program را چاپ می‌کند:
+
+~~~bash
+python -c 'from diffsheriff.config import relative_path; print(relative_path(".cache/program", "binary_path"))'
+~~~
+
+در مجموعهٔ مسیرهای رزروشده، فقط .cache را اضافه کنید:
+
+~~~diff
+-    if not path.parts or path.parts[0] in {".git", ".diffsheriff"}:
++    if not path.parts or path.parts[0] in {".git", ".diffsheriff", ".cache"}:
+~~~
+
+سپس این آزمون باید پاس شود:
+
+<!-- eng1-demo:reserved-after-change -->
+~~~bash
+python - <<'PY'
+from diffsheriff.config import ConfigError, relative_path
+
+assert relative_path("build/program", "binary_path") == "build/program"
+try:
+    relative_path(".cache/program", "binary_path")
+except ConfigError:
+    print("PASS: new reserved path is rejected; ordinary path still works")
+else:
+    raise AssertionError("new rule did not take effect")
+PY
+~~~
+
+این آزمون در نسخهٔ اصلی عمداً پاس نمی‌شود، چون هنوز قانون تازه‌ای اضافه نشده است. هنگام تمرین فقط بعد از تغییر آن را اجرا کنید. بعد هم آزمون‌های قبلی را بررسی کنید:
+
+~~~bash
 python -m pytest -q tests/test_config.py
-```
+git diff -- diffsheriff/config.py
+~~~
 
-For the whole matrix, use `bash scripts/run_matrix.sh`; do not manually replace
-the image or force an exit code. If Docker Hub is blocked, pull the approved
-mirror image once, tag it locally as needed, or build with the prepared WSL/Docker
-environment. The repository must record the image name and evidence honestly;
-do not hard-code a private mirror into source.
+فرمان اول رفتارهای قبلی config را می‌سنجد؛ فرمان دوم دقیقاً diff همان فایل را نشان می‌دهد و چیزی را تغییر نمی‌دهد. تست جدید لازم است چون تست‌های قبلی الزاماً شرط تازهٔ .cache را بررسی نمی‌کنند.
 
-## 4. Three sentences to memorize
+برای پایان تمرین، فقط همان .cache اضافه‌شدهٔ خودتان را با ویرایش برگردانید، دوباره دستور قبل از تغییر و آزمون‌ها را اجرا کنید. اگر از قبل تغییر دیگری در فایل بوده، آن را پاک نکنید.
 
-1. “Release and sanitized builds come from separate exact snapshots, so stale
-   objects cannot mix modes.”
-2. “The container is intentionally offline and resource-bounded; a timeout or
-   OOM is incomplete evidence, not a vulnerability verdict.”
-3. “ELF inspection is evidence about protection state; `compare_hardening` reports
-   a downgrade instead of pretending the binary is secure.”
+این یک درخواست نمونهٔ دفاع است؛ نگویید پروژه از قبل .cache را رزرو می‌کرد یا این قاعده برای همهٔ هدف‌ها الزام فعلی است.
 
-For your evidence slot, show a retained build's commit, binary SHA-256, and ELF
-protection fields. Explain that SHA-256 is a fingerprint of the actual bytes.
-Be ready to answer: “Why reject `main` and `../program` before building?”
+## ۱۴. سؤال‌های استدلالی مهم با پاسخ
+
+۱. **چرا فقط اجرای patch و دیدن crash نکردن کافی نیست؟** باید خطای مشخص baseline برقرار شود و انتظار مستقل عملکرد بررسی شود؛ نبود crash به‌تنهایی پوشش همهٔ مسیرها را ثابت نمی‌کند.
+
+۲. **چرا هر چهار build باید مستقل باشند؟** object یا flag باقی‌مانده می‌تواند تفاوت جعلی بسازد یا تشخیص sanitizer را وارد release کند.
+
+۳. **چرا make clean تنها کافی نیست؟** کیفیت clean متعلق به build هدف است؛ snapshot مستقل از باقی‌ماندهٔ کار قبلی جداست.
+
+۴. **چرا source و binary هر دو hash دارند؟** یک سورس با compiler/flag متفاوت binary متفاوت می‌سازد؛ هویت هر دو لازم است.
+
+۵. **چرا از branch استفاده نکردیم؟** branch جابه‌جا می‌شود؛ مقایسه باید دربارهٔ دو نسخهٔ دقیق باشد.
+
+۶. **آیا regex hash وجود commit را ثابت می‌کند؟** خیر؛ وجود و نوع commit در Git هم بررسی می‌شود.
+
+۷. **چرا شبکه زمان اجرا قطع است ولی هنگام ساخت image اینترنت لازم می‌شود؟** آماده‌سازی ابزارها یک مرحلهٔ جداست؛ آزمون target باید با وابستگی‌های آماده اجرا شود.
+
+۸. **چرا همهٔ محدودیت‌ها را خیلی کم نمی‌کنیم؟** محدودیت تنگ می‌تواند اجرای سالم را متوقف و نتیجه را نامعین کند. باید سقف متناسب با هدف ثبت شود.
+
+۹. **چرا خطای منبع با آسیب‌پذیری فرق دارد؟** علت توقف ممکن است بودجهٔ آزمایش باشد؛ برای خطای امنیتی شاهد diagnostic و قواعد مقایسه لازم است.
+
+۱۰. **آیا read-only جلوی ساخت binary را نمی‌گیرد؟** root filesystem read-only است؛ snapshot در مرحلهٔ build عمداً writable mount می‌شود. زمان آزمون snapshot هم read-only است.
+
+۱۱. **آیا build همیشه non-root است؟** خیر؛ UID میزبان استفاده می‌شود. آزمون هدف user ثابت 65534:65534 دارد.
+
+۱۲. **چرا هم خواندن stdout و هم stderr؟** sanitizer معمولاً روی stderr می‌نویسد و نخواندن هم‌زمان می‌تواند pipe را پر و اجرا را قفل کند.
+
+۱۳. **چرا exit Docker را مستقیم signal هدف نمی‌گیریم؟** قرارداد عددی آن می‌تواند مبهم باشد؛ supervisor نتیجهٔ child را به شکل ساخت‌یافته حفظ می‌کند.
+
+۱۴. **اگر symbolizer خراب باشد چه می‌شود؟** تشخیص ممکن است بماند، ولی نام تابع/خط لازم برای امضا و correlation از دست برود؛ نتیجه نباید بی‌دلیل معتبر اعلام شود.
+
+۱۵. **آیا canary=True یعنی همهٔ تابع‌ها محافظ دارند؟** خیر؛ کد فعلی نشانهٔ symbol را می‌خواند، نه پوشش تک‌تک تابع‌ها.
+
+۱۶. **آیا ET_DYN به‌تنهایی PIE است؟** خیر؛ شاهد executable مانند PIE marker یا interpreter هم بررسی می‌شود.
+
+۱۷. **چرا هم حداقل محافظت و هم مقایسهٔ افت؟** هر دو طرف ممکن است به یک اندازه ضعیف باشند؛ نبود افت با رسیدن به حداقل مطلوب یکسان نیست.
+
+۱۸. **enforce_canary=False کامپایلر را بی‌محافظ می‌کند؟** خیر؛ سیاست گزارش است. compiler flagها در build command تعیین می‌شوند.
+
+۱۹. **چرا report با canary=False هنوز PASS است؟** در شاهد بخش ۱۲ حداقل canary الزام نشده و افتی هم رخ نداده؛ PASS کلی همچنان به شواهد دیگر وابسته است.
+
+۲۰. **پاس‌شدن pytest و exit 40 ابزار تناقض است؟** خیر؛ تست می‌تواند بررسی کند ابزار برای fixture بی‌خطای پایه، درست نتیجهٔ نامعین می‌دهد.
+
+۲۱. **چرا بعد از تغییر default نتیجه عوض نشد؟** احتمالاً YAML مقدار صریح دارد، یا image قدیمی هنوز نسخهٔ قبلی کد را اجرا می‌کند؛ هر دو را بررسی کنید.
+
+۲۲. **چه چیزی را با خواندن این گزارش ثابت نکردیم؟** اجرای تازه، درستی همهٔ ورودی‌های ممکن، امنیت کامل و احراز سهم شخصیِ افراد را ثابت نکرده‌ایم.
+
+## ۱۵. متن پیشنهادی ارائه و آمادگی مستقل
+
+برای تمرین، همان ۸ دقیقهٔ مشترک را استفاده کنید؛ این زمان پیشنهادی مطالعه است و جای زمان اعلامی مدرس را نمی‌گیرد.
+
+| زمان تمرین | چه بگویید/نشان دهید؟ |
+| --- | --- |
+| ۳ دقیقهٔ اول | ابتدا معماری کل پروژه؛ سپس مسیر config → snapshot → build مستقل → runner محدود → ELF و دلیل یک تصمیم مهم |
+| ۲ دقیقهٔ بعد | گزارش واقعی بخش ۱۲، شاهد یک محافظت و علت hardening_degraded=False؛ سپس حدود نتیجه |
+| ۲ دقیقهٔ بعد | یک تمرین تغییر قبل/بعد با پیش‌بینی و assertion؛ تمرین F برای تغییر خود کد آماده باشد |
+| ۱ دقیقهٔ آخر | پاسخ به یک سؤال «اگر این check/flag نباشد چه می‌شود؟» و توضیح مرز مسئولیت |
+
+متن شروع پیشنهادی:
+
+«DiffSheriff دو commit مشخص را با ورودی‌ها و انتظار مستقل مقایسه می‌کند. هر سمت دو ساخت دارد؛ اجراها محدود و تکرارشده‌اند. triage تشخیص و stack را می‌خواند، correlator رابطهٔ stack و diff را بررسی می‌کند، pipeline با شواهد مقایسه تصمیم می‌گیرد و گزارش/exit استاندارد می‌دهد. سهم Eng 1 تضمین هویت source/build، اعتبار تنظیمات، قرارداد اجرای محدود و اندازه‌گیری محافظت‌های binary است. برای این سهم، هم کد و دلیل تصمیم را توضیح می‌دهم، هم نتیجهٔ ثبت‌شده را تحلیل می‌کنم، و هم اثر یک تغییر محدود را با آزمون بررسی می‌کنم.»
+
+این متن را حفظ طوطی‌وار نکنید. بدون نگاه‌کردن به راهنما باید بتوانید:
+
+- مسیر کامل پروژه را با نام ماژول‌ها توضیح دهید.
+- محل هر check مهم بخش خودتان را در فایل پیدا کنید.
+- برای هر گزینهٔ اصلی بگویید چه مشکلی را حل می‌کند و حذفش چه اثری دارد.
+- یک شاهد واقعی را از synthetic/mock/smoke test تشخیص دهید.
+- نتیجهٔ قبل/بعد یک تغییر را پیش‌بینی و با اجرای آزمون بررسی کنید.
+- خروجی شخصی و شواهد توسعهٔ واقعاً منتسب به خودتان را معرفی کنید.
+
+آمادگی این سه محور فرصت دفاع را بهتر می‌کند؛ نمره یا احراز مشارکت با متن آماده تضمین نمی‌شود و به پاسخ و کار مستقل خود فرد بستگی دارد.
 
