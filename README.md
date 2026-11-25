@@ -108,6 +108,34 @@ produces code `40` because it cannot reproduce the designated baseline security 
 | 30 | `BUILD_OR_CONFIG_ERROR` | Target build, configuration, execution environment, or tool operation fails. |
 | 40 | `INCONCLUSIVE` | Required analysis is incomplete or evidence is insufficient, unstable, or unclassified. |
 
+## Test and evaluation results
+
+All automated checks and retained target evaluations keep synthetic/harmless tool smoke tests separate from real-target runs; live acceptance gates remain in [docs/roadmap.md](docs/roadmap.md) and [artifacts/README.md](artifacts/README.md).
+
+### Generic tool verification
+
+Verified on the current codebase (`pytest`, `black`, `flake8` in WSL Ubuntu; native container run against `diffsheriff:local`, image `d596e5159a0b`):
+
+- **Unit and simulated integration suite** (`python3 -m pytest -q tests/`): `352 passed, 1 skipped` (native Docker test skipped unless `DIFFSHERIFF_DOCKER_TESTS=1`).
+- **Harmless native container integration** (`DIFFSHERIFF_DOCKER_TESTS=1 python3 -m pytest -q tests/test_container_integration.py`): `1 passed` — builds release and sanitized x86_64 ELF binaries for [tests/fixtures/harmless/main.c](tests/fixtures/harmless/main.c), checks ELF hardening/sanitizer symbols, exercises `stdin`/`file`/`argv`, completes 36 suite executions (`functional_status: PASS`), and returns expected exit `40` (`baseline_identity_unestablished`).
+- **Formatting and lint**: `black --check diffsheriff tests` (`31 files` unchanged) and `flake8 --select=E,F,W,C90 diffsheriff tests` pass.
+- **Clean-checkout & hosted CI**: Local clean-checkout verification ([artifacts/checkpoints/clean-checkout/README.md](artifacts/checkpoints/clean-checkout/README.md)) passed wheel install/CLI checks and `verify.sh` (`309` tests at revision `b0d59125`). Hosted GitHub Actions ([.github/workflows/verify_patch.yml](.github/workflows/verify_patch.yml), run 21 at `006113f5`) passed `unit (3.10)`, `unit (3.12)`, and `native-container`, with `target-patch` skipped because `DIFFSHERIFF_TARGET_CONFIG` was unset.
+
+### Retained six-row target matrix
+
+Executed via [scripts/run_matrix.sh](scripts/run_matrix.sh) against packaged bundles for `target1` (`zlib`, CVE-2018-25032) and `target2` (`libpng`, CVE-2019-7317) in [artifacts/evaluation/matrix.tsv](artifacts/evaluation/matrix.tsv), and re-verified structurally with [scripts/verify_matrix_run.py](scripts/verify_matrix_run.py) (`6/6 OK`: report/process exit agreement, established `baseline_identity_modes`, reproducer metadata, original/minimized input SHA-256 hashes, and ≥ 3 baseline replays). Across all six runs, release binaries observed `NX=True`, `PIE=True`, `RELRO=partial`, `canary=False` with `hardening_degraded=False`.
+
+| Target / variant | Runs | Exit / verdict | Security (fixed / lingering) | Functional (pass / fail) | Reproducers (reduced) | Analysis status & recorded incomplete reasons |
+| --- | ---: | --- | --- | --- | ---: | --- |
+| `target1` / `correct` | 144 | `0` / `PASS` | `PASS` (6 / 0) | `PASS` (24 / 0) | 6 (3) | Complete |
+| `target1` / `incomplete` | 144 | `10` / `VULN_REMAINS_OR_NEW_ISSUE` | `FAIL` (0 / 2) | `INCONCLUSIVE` (24 / 2) | 8 (3) | Incomplete (`fix_evidence_insufficient`, `patch_attribution_unestablished`; 8 inconclusive findings) |
+| `target1` / `regression` | 144 | `20` / `FUNC_REGRESSION` | `PASS` (6 / 0) | `FAIL` (18 / 6) | 12 (5) | Complete (6 `Functional Regression`, 6 `Fixed`) |
+| `target2` / `correct` | 48 | `0` / `PASS` | `PASS` (4 / 0) | `PASS` (2 / 0) | 4 (3) | Complete |
+| `target2` / `incomplete` | 60 | `10` / `VULN_REMAINS_OR_NEW_ISSUE` | `FAIL` (5 / 1) | `PASS` (2 / 0) | 6 (4) | Incomplete (`functional_expectation_missing` on minimized bytes; 1 inconclusive finding) |
+| `target2` / `regression` | 78 | `20` / `FUNC_REGRESSION` | `INCONCLUSIVE` (7 / 0) | `FAIL` (0 / 2) | 8 (5) | Incomplete (`fix_evidence_insufficient`, `functional_expectation_unmet_on_patch`, `functional_expectation_missing`; 2 inconclusive findings) |
+
+Local clean-checkout CI-equivalent runs of `validate_target.yml` for both `correct` configs also exited `0` / `PASS` (`analysis_complete: true`): `target1` with `180` executions (`30/0` functional, `5` fixed) and `target2` with `48` executions (`2/0` functional, `4` fixed), retained in [artifacts/checkpoints/target-matrix/README.md](artifacts/checkpoints/target-matrix/README.md). `target2` runs used a local derived image supplying the `docker/Dockerfile`-declared `zlib1g-dev` headers absent from the cached local image.
+
 ## Repository layout
 
 ```text
